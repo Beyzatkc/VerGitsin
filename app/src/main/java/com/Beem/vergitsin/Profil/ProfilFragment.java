@@ -53,12 +53,17 @@ public class ProfilFragment extends Fragment {
 
         borcSayisiText = view.findViewById(R.id.borcSayisiText);
 
-        editProfileButton.setOnClickListener(v ->{  });
+        editProfileButton.setOnClickListener(v ->{ ProfilEdit(); });
 
         return view;
     }
 
     private void ProfilEdit(){
-
+        ProfilDuzenleBottomSheet bottomSheet = new ProfilDuzenleBottomSheet((username, bio, secilenFoto)->{
+            userName.setText(username);
+            bioText.setText(bio);
+            profilFoto.setImageResource(getResources().getIdentifier(secilenFoto, "drawable", requireContext().getPackageName()));
+        });
+        bottomSheet.show(getParentFragmentManager(), bottomSheet.getTag());
     }
 }

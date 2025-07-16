@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:padding="24dp"
     android:orientation="vertical"
-    android:background="@color/card_bg"
+    android:background="@drawable/bottomsheet_bg"
     android:gravity="center_horizontal">
 
     <!-- Başlık -->
@@ -14,8 +14,38 @@
         android:text="Profili Düzenle"
         android:textStyle="bold"
         android:textSize="18sp"
-        android:layout_marginBottom="24dp"
+        android:layout_marginBottom="16dp"
         android:textColor="@color/text_primary1" />
+
+    <!-- Profil Fotoğrafı (yuvarlak ve tıklanabilir) -->
+    <FrameLayout
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginBottom="24dp">
+
+        <ImageView
+            android:id="@+id/profileImageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/profil_adam"
+            android:background="@drawable/profil_bg"
+            android:contentDescription="Profil Fotoğrafı"
+            android:clipToOutline="true" />
+
+        <!-- Kamera ikonu üstüne bindirilmiş -->
+        <ImageView
+            android:id="@+id/changePhotoIcon"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="4dp"
+            android:padding="6dp"
+            android:background="@drawable/borc_rozet_bg"
+            android:src="@drawable/pencil"
+            android:contentDescription="Fotoğraf Değiştir"
+            android:tint="@color/text_primary1" />
+    </FrameLayout>
 
     <!-- Kullanıcı Adı -->
     <EditText
