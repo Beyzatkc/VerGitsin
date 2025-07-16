@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "448029387708",
+    "project_id": "vergitsin-7a8a1",
+    "storage_bucket": "vergitsin-7a8a1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:448029387708:android:221e8ecbf6e3a1398ed9b9",
+        "android_client_info": {
+          "package_name": "com.Beem.vergitsin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDhjI9-MTprj1XQabV6MxeWXr6txdQdktw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

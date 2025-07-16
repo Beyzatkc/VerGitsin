@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="24dp"
+    android:orientation="vertical"
+    android:background="@color/card_bg"
+    android:gravity="center_horizontal">
+
+    <!-- Başlık -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Profili Düzenle"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:layout_marginBottom="24dp"
+        android:textColor="@color/text_primary1" />
+
+    <!-- Kullanıcı Adı -->
+    <EditText
+        android:id="@+id/editUsername"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Kullanıcı Adı"
+        android:background="@drawable/edittext_bg"
+        android:padding="12dp"
+        android:textColor="@color/text_primary1"
+        android:textColorHint="@color/text_secondary1"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Açıklama -->
+    <EditText
+        android:id="@+id/editBio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Açıklama"
+        android:background="@drawable/edittext_bg"
+        android:padding="12dp"
+        android:textColor="@color/text_primary1"
+        android:textColorHint="@color/text_secondary1"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Kaydet Butonu -->
+    <Button
+        android:id="@+id/saveButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Kaydet"
+        android:backgroundTint="@color/accent_blue1"
+        android:textColor="@color/card_bg"
+        android:textStyle="bold"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp" />
+</LinearLayout>

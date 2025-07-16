@@ -1,6 +1,7 @@
 package com.Beem.vergitsin;
 
 import android.os.Bundle;
+import android.widget.FrameLayout;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,7 +9,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.Beem.vergitsin.Profil.ProfilFragment;
+
 public class MainActivity extends AppCompatActivity {
+
+    private FrameLayout konteynir;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,5 +25,12 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.konteynir, new ProfilFragment())
+                .addToBackStack(null)
+                .commit();
+
     }
 }
