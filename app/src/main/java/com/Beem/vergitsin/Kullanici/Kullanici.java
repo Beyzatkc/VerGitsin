@@ -11,11 +11,14 @@ public class Kullanici {
     private int ArkSayisi;
     private int BorcSayisi;
 
-    public Kullanici(String kullaniciId, String kullaniciAdi, String email, String sifre) {
+    public Kullanici() {
+
+    }
+
+    public Kullanici(String kullaniciId, String kullaniciAdi, String email) {
         KullaniciId = kullaniciId;
         KullaniciAdi = kullaniciAdi;
         Email = email;
-        Sifre = sifre;
     }
 
     public Kullanici(){

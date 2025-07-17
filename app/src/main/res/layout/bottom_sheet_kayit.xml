@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/paralar"
-    android:layout_height="wrap_content"
-   >
+    android:focusableInTouchMode="true"
+    android:layout_height="wrap_content">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_marginTop="80dp"
         android:background="@drawable/background"
         android:orientation="vertical"
         android:padding="24dp">
@@ -37,13 +38,28 @@
             android:hint="Email"
             android:inputType="textEmailAddress" />
 
-        <EditText
-            android:id="@+id/kayitPassword"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="Şifre"
-            android:inputType="textPassword" />
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/kayitPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="Şifre"
+                android:inputType="textPassword" />
+
+            <ImageView
+                android:id="@+id/eyeIconkayit"
+                android:layout_width="40dp"
+                android:layout_height="24dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/kapali_goz"
+                android:contentDescription="Şifreyi Göster"
+                app:tint="#BF6A33" />
+        </RelativeLayout>
 
         <Button
             android:id="@+id/btnkayit"
