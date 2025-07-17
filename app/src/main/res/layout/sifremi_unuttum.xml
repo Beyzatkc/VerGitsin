@@ -66,12 +66,12 @@
 
 
         <TextView
+            android:id="@+id/girisMetodu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="12dp"
             android:text="Giriş sayfasına dön"
-            android:onClick="girisMetodu"
             android:textColor="#13216E"
             android:textSize="15sp"
             android:textStyle="bold" />
