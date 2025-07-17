@@ -10,6 +10,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.Beem.vergitsin.Kullanici.Kullanici;
+import com.Beem.vergitsin.Profil.ProfilFragment;
 
 public class MainActivity extends AppCompatActivity {
     public static Kullanici kullanici;

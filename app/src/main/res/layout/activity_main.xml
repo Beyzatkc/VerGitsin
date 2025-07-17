@@ -57,7 +57,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginBottom="268dp"
-        android:background="@drawable/para"
+        android:background="@drawable/para_dolar"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.463"
@@ -68,7 +68,7 @@
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:layout_marginBottom="256dp"
-        android:background="@drawable/para"
+        android:background="@drawable/para_dolar"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.7"
@@ -79,7 +79,7 @@
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:layout_marginBottom="256dp"
-        android:background="@drawable/para"
+        android:background="@drawable/para_dolar"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.299"
@@ -249,6 +249,15 @@
             android:textStyle="bold"
             android:translationY="-5dp" />
     </LinearLayout>
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/konteynir"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
 
 
