@@ -7,11 +7,14 @@ public class Kullanici {
     private String Sifre;
     private String Bio;
 
-    public Kullanici(String kullaniciId, String kullaniciAdi, String email, String sifre) {
+    public Kullanici() {
+
+    }
+
+    public Kullanici(String kullaniciId, String kullaniciAdi, String email) {
         KullaniciId = kullaniciId;
         KullaniciAdi = kullaniciAdi;
         Email = email;
-        Sifre = sifre;
     }
 
     public String getKullaniciId() {

@@ -66,11 +66,11 @@ public class KullaniciViewModel extends ViewModel {
                             Map<String, Object> kullaniciVerisi = new HashMap<>();
                             kullaniciVerisi.put("email", kullanici.getEmail());
                             kullaniciVerisi.put("kullaniciAdi", kullanici.getKullaniciAdi());
-                            kullaniciVerisi.put("sifre",kullanici.getSifre());
                             db.collection("users")
                                     .add(kullaniciVerisi)
                                     .addOnSuccessListener(documentReference -> {
                                         String olusanId = documentReference.getId();
+                                        _id.setValue(olusanId);
                                         kullanici.setKullaniciId(olusanId);
                                         Log.d("FIRESTORE", "Kullanıcı eklendi. ID: " + olusanId);
                                     })
@@ -115,10 +115,11 @@ public class KullaniciViewModel extends ViewModel {
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.isEmpty()) {
-                        DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0); // ✅ ilk belgeyi al
+                        DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
                         String email = document.getString("email");
                         _email.setValue(email);
                     } else {
+                        _email.setValue(null);
                         Log.d("FIREBASE", "Kullanıcı bulunamadı.");
                     }
                 })
