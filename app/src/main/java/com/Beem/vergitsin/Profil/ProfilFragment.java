@@ -11,27 +11,33 @@ import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
+import com.Beem.vergitsin.Kullanici.Kullanici;
+import com.Beem.vergitsin.MainActivity;
 import com.Beem.vergitsin.R;
 
 public class ProfilFragment extends Fragment {
     // Üst Çubuk Butonları
-    ImageButton menuButton;
-    ImageButton borcIsteButton;
-    ImageButton arkEkle;
-    ImageButton arkCikart;
+    private ImageButton menuButton;
+    private ImageButton borcIsteButton;
+    private ImageButton arkEkle;
+    private ImageButton arkCikart;
 
     // Profil Kartı
-    ImageView profilFoto;
-    TextView userName;
-    TextView bioText;
-    TextView arkSayisi;
-    TextView grupSayisi;
+    private ImageView profilFoto;
+    private TextView userName;
+    private TextView bioText;
+    private TextView arkSayisi;
+    private TextView grupSayisi;
 
     // Düzenle Butonu
-    Button editProfileButton;
+    private Button editProfileButton;
 
     // Borç Rozeti
-    TextView borcSayisiText;
+    private TextView borcSayisiText;
+
+    private Kullanici kullanici;
+
+    private ProfilYonetici yonetici = ProfilYonetici.getYonetici();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -49,6 +55,15 @@ public class ProfilFragment extends Fragment {
         arkSayisi = view.findViewById(R.id.arkSayisi);
         grupSayisi = view.findViewById(R.id.grupSayisi);
 
+        // burasi güncellenemsi lazım
+        kullanici = new Kullanici();
+        kullanici.setKullaniciId("ijIsEPxQXsa4EvJGITWO");
+        yonetici.setKullanici(kullanici);
+
+        yonetici.ProfilDoldur(()->{
+            KullaniciDoldur();
+        });
+
         editProfileButton = view.findViewById(R.id.editProfileButton);
 
         borcSayisiText = view.findViewById(R.id.borcSayisiText);
@@ -60,10 +75,21 @@ public class ProfilFragment extends Fragment {
 
     private void ProfilEdit(){
         ProfilDuzenleBottomSheet bottomSheet = new ProfilDuzenleBottomSheet((username, bio, secilenFoto)->{
-            userName.setText(username);
-            bioText.setText(bio);
-            profilFoto.setImageResource(getResources().getIdentifier(secilenFoto, "drawable", requireContext().getPackageName()));
+            yonetici.ProfilDuzenle(username,bio,secilenFoto);
         });
         bottomSheet.show(getParentFragmentManager(), bottomSheet.getTag());
+    }
+
+    private void KullaniciDoldur(){
+            String arksayisi = "Arkadaşlar: "+ kullanici.getArkSayisi();
+            String grupssayisi = "Gruplar: "+ kullanici.getGrupSayisi();
+            String borcsayisi = "Verdiği Borç: "+ kullanici.getBorcSayisi();
+
+            userName.setText(kullanici.getKullaniciAdi());
+            bioText.setText(kullanici.getBio());
+            profilFoto.setImageResource(getResources().getIdentifier(kullanici.getProfilFoto(), "drawable", requireContext().getPackageName()));
+            arkSayisi.setText(arksayisi);
+            grupSayisi.setText(grupssayisi);
+            borcSayisiText.setText(borcsayisi);
     }
 }
