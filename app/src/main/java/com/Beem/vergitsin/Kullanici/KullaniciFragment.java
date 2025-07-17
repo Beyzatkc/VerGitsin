@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.Beem.vergitsin.MainActivity;
 import com.Beem.vergitsin.R;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 public class KullaniciFragment extends Fragment {
@@ -34,6 +35,8 @@ public class KullaniciFragment extends Fragment {
     private TextView SifremiUnuttum;
     private Button resetPasswordButton;
     private EditText emailEditText;
+    private BottomSheetDialog bottomSheetDialogsif;
+    private TextView girisMetodu;
 
     private KullaniciViewModel mViewModel;
 
@@ -153,16 +156,29 @@ public class KullaniciFragment extends Fragment {
       GirisYap(bottomSheetDialog2);
 
         SifremiUnuttum.setOnClickListener(b->{
-            bottomSheetDialog2.dismiss();
+            bottomSheetDialog2.getBehavior().setState(BottomSheetBehavior.STATE_HIDDEN);
             View bottomSheetViewsif = getLayoutInflater().inflate(R.layout.sifremi_unuttum, null);
-            BottomSheetDialog bottomSheetDialogsif = new BottomSheetDialog(requireContext());
+            bottomSheetDialogsif = new BottomSheetDialog(requireContext());
             bottomSheetDialogsif.setContentView(bottomSheetViewsif);
             resetPasswordButton=bottomSheetViewsif.findViewById(R.id.resetPasswordButton);
             emailEditText=bottomSheetDialogsif.findViewById(R.id.emailEditText);
+            girisMetodu=bottomSheetDialogsif.findViewById(R.id.girisMetodu);
             bottomSheetDialogsif.show();
         });
         resetPasswordButton.setOnClickListener(b->{
-
+           String mail= emailEditText.getText().toString().trim();
+           mViewModel.SifreSifirla(mail);
+            Observe.observeOnce(mViewModel.getSifreSifirlandi(), getViewLifecycleOwner(), basarili -> {
+                if (Boolean.TRUE.equals(basarili)) {
+                    Toast.makeText(getContext(), "Şifre sıfırlama bağlantısı e-posta adresinize gönderildi", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getContext(), "Eposta hatalı", Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+        girisMetodu.setOnClickListener(b->{
+            bottomSheetDialogsif.dismiss();
+            bottomSheetDialog2.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
         });
 
         return view;
