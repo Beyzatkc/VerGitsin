@@ -27,7 +27,7 @@ public class ProfilDuzenleBottomSheet extends BottomSheetDialogFragment {
     private ImageView changePhotoIcon;
     private EditText bio;
     private Button saveButton;
-    private String secilenFoto = "avatar_1";
+    private String secilenFoto;
 
     public ProfilDuzenleBottomSheet(ProfilDuzenleListener duzenleListener) {
         this.duzenleListener = duzenleListener;
@@ -49,13 +49,18 @@ public class ProfilDuzenleBottomSheet extends BottomSheetDialogFragment {
         profileImageView = view.findViewById(R.id.profileImageView);
         changePhotoIcon = view.findViewById(R.id.changePhotoIcon);
 
+        username.setText(ProfilYonetici.getYonetici().getKullanici().getKullaniciAdi());
+        bio.setText(ProfilYonetici.getYonetici().getKullanici().getBio());
+        secilenFoto = ProfilYonetici.getYonetici().getKullanici().getProfilFoto();
+        SecilenFotoGuncelle(ProfilYonetici.getYonetici().getKullanici().getProfilFoto());
+
         changePhotoIcon.setOnClickListener(v -> FotoSeciciEkranGoster());
         profileImageView.setOnClickListener(v -> FotoSeciciEkranGoster());
 
         saveButton.setOnClickListener(v -> {
             String newUsername = username.getText().toString().trim();
             String newBio = bio.getText().toString().trim();
-            if(Kontroller(newUsername,newBio)) return;
+            if(!Kontroller(newUsername,newBio)) return;
             if(duzenleListener!=null){
                 duzenleListener.onProfilKaydet(newUsername,newBio,secilenFoto);
             }
@@ -106,11 +111,7 @@ public class ProfilDuzenleBottomSheet extends BottomSheetDialogFragment {
             username.setError("Bu alan boş bırakılamaz");
             return false;
         }
-        if(newBio.isEmpty()){
-            uyariMesaj.BasarisizDurum("Açıklama boş bırakılamaz",2000);
-            bio.setError("Bu alan boş bırakılamaz");
-            return false;
-        }
+        uyariMesaj.BasariliDurum("Kayıt Başarılı",2000);
         return true;
     }
 }

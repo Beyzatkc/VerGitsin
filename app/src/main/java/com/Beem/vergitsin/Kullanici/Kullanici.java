@@ -6,6 +6,10 @@ public class Kullanici {
     private String Email;
     private String Sifre;
     private String Bio;
+    private String ProfilFoto;
+    private int GrupSayisi;
+    private int ArkSayisi;
+    private int BorcSayisi;
 
     public Kullanici() {
 
@@ -15,6 +19,10 @@ public class Kullanici {
         KullaniciId = kullaniciId;
         KullaniciAdi = kullaniciAdi;
         Email = email;
+    }
+
+    public Kullanici(){
+
     }
 
     public String getKullaniciId() {
@@ -55,5 +63,37 @@ public class Kullanici {
 
     public void setBio(String bio) {
         Bio = bio;
+    }
+
+    public String getProfilFoto() {
+        return ProfilFoto;
+    }
+
+    public void setProfilFoto(String profilFoto) {
+        ProfilFoto = profilFoto;
+    }
+
+    public int getGrupSayisi() {
+        return GrupSayisi;
+    }
+
+    public void setGrupSayisi(int grupSayisi) {
+        GrupSayisi = grupSayisi;
+    }
+
+    public int getArkSayisi() {
+        return ArkSayisi;
+    }
+
+    public void setArkSayisi(int arkSayisi) {
+        ArkSayisi = arkSayisi;
+    }
+
+    public int getBorcSayisi() {
+        return BorcSayisi;
+    }
+
+    public void setBorcSayisi(int borcSayisi) {
+        BorcSayisi = borcSayisi;
     }
 }
