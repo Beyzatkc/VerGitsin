@@ -9,12 +9,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.Beem.vergitsin.Profil.ProfilFragment;
+import com.Beem.vergitsin.Kullanici.Kullanici;
 
 public class MainActivity extends AppCompatActivity {
-
-    private FrameLayout konteynir;
-
+    public static Kullanici kullanici;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
