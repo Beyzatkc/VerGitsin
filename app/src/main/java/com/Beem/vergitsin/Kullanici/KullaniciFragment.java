@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.Beem.vergitsin.MainActivity;
 import com.Beem.vergitsin.R;
+import com.Beem.vergitsin.UyariMesaj;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
@@ -42,6 +43,7 @@ public class KullaniciFragment extends Fragment {
     private ImageView eyeIconkayit;
     private ImageView eyeIcongiris;
     private SharedPreferencesK shared;
+    private UyariMesaj uyari;
 
     private KullaniciViewModel mViewModel;
 
@@ -73,32 +75,38 @@ public class KullaniciFragment extends Fragment {
 
 
     public void Kayit(BottomSheetDialog bottomSheetDialog){
+        uyari.YuklemeDurum("Kayıt yapılıyor...");
         btnKayitOl.setOnClickListener(a -> {
             String kAdi = kayitKullaniciAdi.getText().toString().trim();
             String email = KayitEmail.getText().toString().trim();
             String sifre = KayitSifre.getText().toString().trim();
 
             if (kAdi.isEmpty() || email.isEmpty() || sifre.isEmpty()) {
-                Toast.makeText(getContext(), "Lütfen tüm alanları doldurun.", Toast.LENGTH_SHORT).show();
+                uyari.BasarisizDurum("Lütfen tüm alanları doldurun",1000);
                 return;
             }
             mViewModel.Kadi_BenzersizMi(kAdi);
 
             Observe.observeOnce(mViewModel.kAdi(), getViewLifecycleOwner(), isim -> {
                 if (Boolean.FALSE.equals(isim)) {
-                    Toast.makeText(getContext(), "Bu kullanıcı adı zaten alınmış", Toast.LENGTH_SHORT).show();
+                    uyari.BasarisizDurum("Bu kullanıcı adı zaten alınmış",1000);
                 } else {
-                    Kullanici kullanici=new Kullanici(null,kAdi,email);
-                    MainActivity.kullanicistatic=kullanici;
-                    mViewModel.KayitOl(kullanici);
+                    mViewModel.KayitOl(sifre,email,kAdi);
                     Observe.observeOnce(mViewModel.id(), getViewLifecycleOwner(), id -> {
-                        shared.girisYap(email, kAdi, id);
+                        if(id!=null){
+                            Kullanici kullanici=new Kullanici(id,kAdi,email);
+                            MainActivity.kullanicistatic=kullanici;
+                            shared.girisYap(email, kAdi, id);
+                            uyari.BasariliDurum("Kayıt başarılı.",1000);
+                            bottomSheetDialog.dismiss();
+                            Intent intent = new Intent(requireContext(), MainActivity.class);
+                            intent.putExtra("fromFragment", true);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                        }else{
+                            uyari.BasarisizDurum("Bu email zaten kayıtlı",1000);
+                        }
                     });
-                    bottomSheetDialog.dismiss();
-                    Intent intent = new Intent(requireContext(), MainActivity.class);
-                    intent.putExtra("fromFragment", true);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
                 }
             });
         });
@@ -106,11 +114,12 @@ public class KullaniciFragment extends Fragment {
 
     public void GirisYap(BottomSheetDialog bottomSheetDialog){
         btngiris.setOnClickListener(b -> {
+            uyari.YuklemeDurum("Giriş yapılıyor...");
             String kAdi = GirisKullaniciAdi.getText().toString().trim();
             String sifre = GirisSifre.getText().toString().trim();
 
             if(kAdi.isEmpty() || sifre.isEmpty()){
-                Toast.makeText(getContext(), "Tüm alanları doldurun", Toast.LENGTH_SHORT).show();
+               uyari.BasarisizDurum("Lütfen tüm alanları doldurun",1000);
                 return;
             }
 
@@ -120,12 +129,13 @@ public class KullaniciFragment extends Fragment {
                     mViewModel.GirisYap(email, sifre);
                     Observe.observeOnce(mViewModel.girisbasarili(), getViewLifecycleOwner(), degisken -> {
                         if (Boolean.FALSE.equals(degisken)) {
-                            Toast.makeText(getContext(), "Şifre hatalı", Toast.LENGTH_SHORT).show();
+                            uyari.BasarisizDurum("Şifre hatalı",1000);
                         } else {
                             Observe.observeOnce(mViewModel.id(), getViewLifecycleOwner(), id -> {
                                 shared.girisYap(email, kAdi,id);
                                 Kullanici kullanici = new Kullanici(id, kAdi, email);
                                 MainActivity.kullanicistatic = kullanici;
+                                uyari.BasariliDurum("Giriş başarılı.",1000);
                                 bottomSheetDialog.dismiss();
                                 Intent intent = new Intent(requireContext(), MainActivity.class);
                                 intent.putExtra("fromFragment", true);
@@ -135,7 +145,7 @@ public class KullaniciFragment extends Fragment {
                         }
                     });
                 } else {
-                    Toast.makeText(getContext(), "Email bulunamadı", Toast.LENGTH_SHORT).show();
+                    uyari.BasarisizDurum("Kayıtlı kullanıcı bulunamadı",1000);
                 }
             });
         });
@@ -163,8 +173,8 @@ public class KullaniciFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_kullanici, container, false);
-         shared = new SharedPreferencesK(requireContext());
-
+        shared = new SharedPreferencesK(requireContext());
+        uyari=new UyariMesaj(requireContext(),false);
 
         buttonkayit=view.findViewById(R.id.buttonkayit);
         buttonGirisYap=view.findViewById(R.id.buttonGirisYap);

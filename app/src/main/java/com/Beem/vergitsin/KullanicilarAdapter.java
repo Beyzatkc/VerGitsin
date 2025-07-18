@@ -1,8 +1,4 @@
 package com.Beem.vergitsin;
-
-import static androidx.appcompat.graphics.drawable.DrawableContainerCompat.Api21Impl.getResources;
-import static androidx.core.content.ContentProviderCompat.requireContext;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +17,7 @@ import java.util.ArrayList;
 public class KullanicilarAdapter extends RecyclerView.Adapter<KullanicilarAdapter.ViewHolder> {
     public interface OnArkadasEkleListener {
         void onArkadasEkleTiklandi(Kullanici kullanici);
+        void onArkadasCıkarTiklandi(Kullanici kullanici);
     }
 
     private ArrayList<Kullanici> kullanicilar;
@@ -50,24 +47,34 @@ public class KullanicilarAdapter extends RecyclerView.Adapter<KullanicilarAdapte
         holder.ekle.setOnClickListener(b->{
             if (listener != null) {
                 listener.onArkadasEkleTiklandi(kullanici);
+                holder.ekle.setVisibility(View.GONE);
+                holder.eklendi.setVisibility(View.VISIBLE);
+            }
+        });
+        holder.eklendi.setOnClickListener(b->{
+            if (listener != null) {
+                listener.onArkadasCıkarTiklandi(kullanici);
+                holder.eklendi.setVisibility(View.GONE);
+                holder.ekle.setVisibility(View.VISIBLE);
             }
         });
     }
-
     @Override
     public int getItemCount() {
-        return 0;
+        return kullanicilar.size();
     }
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView textViewKullaniciAdi;
         ImageView imageViewProfil;
         ImageView ekle;
+        ImageView eklendi;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             textViewKullaniciAdi = itemView.findViewById(R.id.textViewKullaniciAdi);
             imageViewProfil=itemView.findViewById(R.id.imageViewProfil);
             ekle=itemView.findViewById(R.id.ekle);
+            eklendi=itemView.findViewById(R.id.eklendi);
         }
     }
 }

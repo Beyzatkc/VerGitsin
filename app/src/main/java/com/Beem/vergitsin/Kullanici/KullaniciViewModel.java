@@ -56,29 +56,30 @@ public class KullaniciViewModel extends ViewModel {
                     }
                 });
     }
-    public void KayitOl(Kullanici kullanici) {
-        mAuth.createUserWithEmailAndPassword(kullanici.getEmail(), kullanici.getSifre())
+    public void KayitOl(String sifre,String email,String Kadi) {
+        mAuth.createUserWithEmailAndPassword(email,sifre)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser firebaseUser = mAuth.getCurrentUser();
                         if (firebaseUser != null) {
 
                             Map<String, Object> kullaniciVerisi = new HashMap<>();
-                            kullaniciVerisi.put("email", kullanici.getEmail());
-                            kullaniciVerisi.put("kullaniciAdi", kullanici.getKullaniciAdi());
+                            kullaniciVerisi.put("email", email);
+                            kullaniciVerisi.put("kullaniciAdi", Kadi);
                             db.collection("users")
                                     .add(kullaniciVerisi)
-                                    .addOnSuccessListener(documentReference -> {
+                                       .addOnSuccessListener(documentReference -> {
                                         String olusanId = documentReference.getId();
                                         _id.setValue(olusanId);
-                                        kullanici.setKullaniciId(olusanId);
                                         Log.d("FIRESTORE", "Kullanıcı eklendi. ID: " + olusanId);
                                     })
                                     .addOnFailureListener(e -> {
+                                        _id.setValue(null);
                                         Log.e("FIRESTORE", "Kullanıcı ekleme hatası: " + e.getMessage());
                                     });
                         }
                     } else {
+                        _id.setValue(null);
                         Log.e("FIREBASE", "Kayıt hatası: " + task.getException().getMessage());
                     }
                 });

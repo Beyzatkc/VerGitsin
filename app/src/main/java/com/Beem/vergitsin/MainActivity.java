@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
             String email = shared.getEmail();
             String kAdi = shared.getKullaniciAdi();
 
-            Kullanici kullanici = new Kullanici(id, kAdi, email); // şifreyi tutmana gerek yok
+            Kullanici kullanici = new Kullanici(id, kAdi, email);
             MainActivity.kullanicistatic = kullanici;
         } else  {
             getSupportFragmentManager()
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         sozler.add("Dostlar birbirine destek olur, bazen küçük borçlarla, bazen kahkahalarla. 🤝☕");
         sozler.add("Cüzdan hafifleyebilir ama dostluk asla! 💖💸");
         sozler.add("Borç vermek, dostluğa olan güvenin tatlı bir ifadesidir. 🌸🤗");
-        sozler.add("Parayı vermek kolay, dostluğu yaşatmak güzeldir. 🌟💬");
+        sozler.add("Parayı vermek kolay, dostluğu yaşatmak zordur. 🌟💬");
         sozler.add("Bir kahve ısmarlamak bazen küçük bir borçtan daha değerlidir. ☕😊");
         sozler.add("Dostluk, borç ve kahkaha üçlüsüyle güçlenir. 😄🤝💸");
         sozler.add("Borç almak bir ihtiyaç, geri ödemek ise bir sevgi göstergesidir. ❤️💵");
@@ -123,32 +123,59 @@ public class MainActivity extends AppCompatActivity {
     private void KullanicilarDb(){
         ArrayList<Kullanici> tum=new ArrayList<>();
         db.collection("users")
+                .document(MainActivity.kullanicistatic.getKullaniciId())
                 .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    tum.clear();
-                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                        String email=doc.getString("email");
-                        String id=doc.getId();
-                        String kAdi=doc.getString("kullaniciAdi");
-                        Kullanici kullanici=new Kullanici(id,kAdi,email);
-                        tum.add(kullanici);
-                    }
-                    Kullancilar(tum);
+                .addOnSuccessListener(kendi->{
+                    ArrayList<String>arkadaslar=(ArrayList<String>)kendi.get("arkadaslar");
+                    if (arkadaslar == null) arkadaslar = new ArrayList<>();
+
+                    ArrayList<String> finalArkadaslar = arkadaslar;
+                    db.collection("users")
+                            .get()
+                            .addOnSuccessListener(queryDocumentSnapshots -> {
+                                tum.clear();
+                                for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                                    String id=doc.getId();
+                                    if(!finalArkadaslar.contains(id)&& !id.equals(MainActivity.kullanicistatic.getKullaniciId())) {
+                                        String email = doc.getString("email");
+                                        String kAdi = doc.getString("kullaniciAdi");
+                                        String photo = doc.getString("ProfilFoto");
+                                        if (photo == null) {
+                                            photo = "user";
+                                        }
+                                        Kullanici kullanici = new Kullanici(id, kAdi, email);
+                                        kullanici.setProfilFoto(photo);
+                                        tum.add(kullanici);
+                                    }
+                                }
+                                Kullancilar(tum);
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(this, "Kullanıcılar alınamadı!", Toast.LENGTH_SHORT).show();
+                            });
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Kullanıcılar alınamadı!", Toast.LENGTH_SHORT).show();
-                });
+            Toast.makeText(this, "Arkadaşlar alınamadı!", Toast.LENGTH_SHORT).show();
+        });
     }
 
     public void Kullancilar(ArrayList<Kullanici> kullanicilar){
         Dialog dialog=new Dialog(this);
         dialog.setContentView(R.layout.kullanicilar_recycler);
 
-        RecyclerView recycler=new RecyclerView(this);
+        RecyclerView recycler = dialog.findViewById(R.id.recyclerViewKullanicilar);
         recycler.setLayoutManager(new LinearLayoutManager(this));
-        KullanicilarAdapter adapter = new KullanicilarAdapter(kullanicilar, this, kullanici -> {
-                    ArkadasEklemeDb(kullanici);
-                });
+        KullanicilarAdapter adapter = new KullanicilarAdapter(kullanicilar, this,  new KullanicilarAdapter.OnArkadasEkleListener() {
+            @Override
+            public void onArkadasEkleTiklandi(Kullanici kullanici) {
+                ArkadasEklemeDb(kullanici);
+            }
+
+            @Override
+            public void onArkadasCıkarTiklandi(Kullanici kullanici) {
+                ArkadasCikarmaDb(kullanici);
+            }
+        });
         recycler.setAdapter(adapter);
         dialog.show();
     }
@@ -162,6 +189,17 @@ public class MainActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Ekleme başarısız: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
+    }
+    public void ArkadasCikarmaDb(Kullanici kullanici){
+        DocumentReference kendiDocRef = db.collection("users").document(MainActivity.kullanicistatic.getKullaniciId());
+        kendiDocRef.update("arkadaslar", FieldValue.arrayRemove(kullanici.getKullaniciId()))
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Arkadaş çıkarıldı!", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Ekleme başarısız: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+
     }
 
 }

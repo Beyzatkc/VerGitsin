@@ -12,7 +12,6 @@ public class Kullanici {
     private int BorcSayisi;
 
     public Kullanici() {
-
     }
 
     public Kullanici(String kullaniciId, String kullaniciAdi, String email) {
@@ -20,11 +19,6 @@ public class Kullanici {
         KullaniciAdi = kullaniciAdi;
         Email = email;
     }
-
-    public Kullanici(){
-
-    }
-
     public String getKullaniciId() {
         return KullaniciId;
     }
@@ -96,4 +90,5 @@ public class Kullanici {
     public void setBorcSayisi(int borcSayisi) {
         BorcSayisi = borcSayisi;
     }
+
 }
