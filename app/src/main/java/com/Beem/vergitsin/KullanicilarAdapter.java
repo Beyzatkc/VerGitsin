@@ -46,16 +46,16 @@ public class KullanicilarAdapter extends RecyclerView.Adapter<KullanicilarAdapte
         holder.imageViewProfil.setImageResource(resId);
         holder.ekle.setOnClickListener(b->{
             if (listener != null) {
-                listener.onArkadasEkleTiklandi(kullanici);
                 holder.ekle.setVisibility(View.GONE);
                 holder.eklendi.setVisibility(View.VISIBLE);
+                listener.onArkadasEkleTiklandi(kullanici);
             }
         });
         holder.eklendi.setOnClickListener(b->{
             if (listener != null) {
-                listener.onArkadasCıkarTiklandi(kullanici);
                 holder.eklendi.setVisibility(View.GONE);
                 holder.ekle.setVisibility(View.VISIBLE);
+                listener.onArkadasCıkarTiklandi(kullanici);
             }
         });
     }
