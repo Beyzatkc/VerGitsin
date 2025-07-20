@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="500dp"
+    android:background="@drawable/morarkaplan"
+    android:layout_margin="20dp"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Borç Detayları"
+            android:textSize="18sp"
+            android:textColor="#000000"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"/>
+
+        <EditText
+            android:id="@+id/edtMiktar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:hint="Borç Miktarı (₺)"
+            android:inputType="numberDecimal"/>
+
+        <EditText
+            android:id="@+id/edtAciklama"
+            android:layout_width="match_parent"
+            android:layout_marginStart="10dp"
+            android:layout_height="wrap_content"
+            android:hint="Açıklama (isteğe bağlı)"
+            android:inputType="textMultiLine"
+            android:layout_marginTop="5dp"/>
+        <EditText
+            android:id="@+id/edtTarih"
+            android:layout_width="match_parent"
+            android:layout_marginStart="10dp"
+            android:layout_height="wrap_content"
+            android:hint="Ödeme Tarihi (gg/aa/yyyy)"
+            android:inputType="date"
+            android:layout_marginTop="5dp"/>
+
+        <Button
+            android:id="@+id/btnGonder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Borç İsteğini Gönder"
+            android:layout_marginTop="20dp"/>
+
+    </LinearLayout>
+</ScrollView>

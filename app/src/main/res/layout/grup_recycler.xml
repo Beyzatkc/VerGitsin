@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/paralar"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/textViewDialogBaslik"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Grup oluştur"
+        android:paddingTop="10dp"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:paddingBottom="12dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewgrup"
+        android:paddingStart="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <Button
+        android:id="@+id/btnGrupOlustur"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Grup Oluştur"
+        android:layout_marginTop="16dp" />
+</LinearLayout>
