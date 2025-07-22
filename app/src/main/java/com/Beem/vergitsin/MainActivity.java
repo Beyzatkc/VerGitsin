@@ -2,39 +2,62 @@ package com.Beem.vergitsin;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
+import android.Manifest;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.Beem.vergitsin.Kullanici.Kullanici;
 import com.Beem.vergitsin.Kullanici.KullaniciFragment;
 import com.Beem.vergitsin.Kullanici.SharedPreferencesK;
+import com.Beem.vergitsin.Mesaj.MesajViewModel;
+import com.Beem.vergitsin.Mesaj.mesajFragment;
+import com.Beem.vergitsin.Sohbet.Sohbet;
+import com.Beem.vergitsin.Sohbet.SohbetFragment;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.messaging.FirebaseMessaging;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+
+import kotlin.CharCodeJVMKt;
 
 public class MainActivity extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -45,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout grupolsuturlayout;
     private UyariMesaj uyariMesaj;
     private Button Borciste;
+    private ImageButton Sohbetler;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +79,27 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1001);
+            }
+        }
+
+        FirebaseMessaging.getInstance().getToken()
+                .addOnSuccessListener(token -> {
+                    FirebaseFirestore.getInstance()
+                            .collection("users")
+                            .document(MainActivity.kullanicistatic.getKullaniciId())
+                            .update("fcmToken", token)
+                            .addOnSuccessListener(aVoid -> {
+                                Log.d("FCM", "Token başarıyla Firestore'a kaydedildi.");
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e("FCM", "Token kaydedilemedi", e);
+                            });
+                });
         uyariMesaj=new UyariMesaj(this,false);
         SharedPreferencesK shared = new SharedPreferencesK(this);
         boolean fromFragment = getIntent().getBooleanExtra("fromFragment", false);
@@ -77,10 +122,26 @@ public class MainActivity extends AppCompatActivity {
         arkadasEkleLayout=findViewById(R.id.arkadasEkleLayout);
         grupolsuturlayout=findViewById(R.id.grupolsuturlayout);
         Borciste=findViewById(R.id.Borciste);
+        Sohbetler=findViewById(R.id.Sohbetler);
         ArkadasEkle();
         GrupOlustur();
         BorcIsteme();
+        SohbetlereBasarsa();
     }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == 1001) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Bildirim izni verildi", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Bildirim izni reddedildi", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
     public String RastgeleCumle(){
         sozler = new ArrayList<>();
         sozler.add("Borç, dostluğu test etmenin en pahalı yoludur.");
@@ -288,6 +349,7 @@ public class MainActivity extends AppCompatActivity {
         GrupSecilenAdapter grupadapter = new GrupSecilenAdapter(kullanicilar, secilenler, this);
         recycler.setAdapter(grupadapter);
 
+        dialog.show();
         btnGrupOlustur.setOnClickListener(v -> {
             if (secilenler.isEmpty()) {
                 Toast.makeText(this, "Lütfen en az 1 kişi seçin", Toast.LENGTH_SHORT).show();
@@ -315,7 +377,6 @@ public class MainActivity extends AppCompatActivity {
                 builder.show();
 
             }
-            dialog.show();
         });
 
     }
@@ -374,7 +435,6 @@ public class MainActivity extends AppCompatActivity {
         ArkadasAdapter adapter = new ArkadasAdapter(arkadasListesi,this);
         recycler.setAdapter(adapter);
 
-
         btnDevamEt.setOnClickListener(v -> {
             Kullanici secilen = adapter.getSecilenKullanici();
             if (secilen == null) {
@@ -390,6 +450,14 @@ public class MainActivity extends AppCompatActivity {
                     String miktar = edtMiktar.getText().toString().trim();
                     String aciklama = edtAciklama.getText().toString().trim();
                     String tarih = edtTarih.getText().toString().trim();
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                    Date date = null;
+                    try {
+                        date = sdf.parse(tarih);
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
+                    Timestamp timestamp = new Timestamp(date);
 
                     if (miktar.isEmpty()) {
                         Toast.makeText(this, "Miktar boş olamaz", Toast.LENGTH_SHORT).show();
@@ -398,11 +466,104 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(this, "Tarih boş olamaz", Toast.LENGTH_SHORT).show();
                         return;
                     }else{
-                        //burada o kisinin profiline yonlendirip borcu atcak
-                        dialog.dismiss();
+                        SohbetOlusturDb(MainActivity.kullanicistatic.getKullaniciId(),secilen.getKullaniciId(),secilen.getKullaniciAdi(), System.currentTimeMillis(), secilen.getProfilFoto(), String.format("%s borç isteği",miktar), sohbetId -> {
+                                    BorcIstekleriDb(
+                                            MainActivity.kullanicistatic.getKullaniciId(),
+                                            secilen.getKullaniciId(),
+                                            miktar,
+                                            aciklama,
+                                            timestamp,
+                                            MainActivity.kullanicistatic.getKullaniciAdi(),
+                                            sohbetId,
+                                            System.currentTimeMillis(),
+                                            () -> {
+                                                Bundle bundle = new Bundle();
+                                                bundle.putString("kaynak", "mainactivity");
+                                                bundle.putString("istekatilanID", secilen.getKullaniciId());
+                                                bundle.putString("miktar", miktar);
+                                                bundle.putString("aciklama", aciklama);
+                                                bundle.putString("odemeTarihi", tarih);
+                                                bundle.putString("sohbetId", sohbetId);
+                                                bundle.putLong("mesajinatildigizaman",System.currentTimeMillis());
+
+                                                mesajFragment fragment = new mesajFragment();
+                                                fragment.setArguments(bundle);
+                                                getSupportFragmentManager()
+                                                        .beginTransaction()
+                                                        .replace(R.id.konteynir, fragment)
+                                                        .addToBackStack(null)
+                                                        .commit();
+
+                                                dialog.dismiss();
+                                            }
+                                    );
+                                }
+                         );
                     }
                 });
             }
+        });
+        dialog.show();
+    }
+    public void SohbetOlusturDb(String gonderenId, String aliciId,String kullaniciAdi, Long sonMsjSaati, String ppfoto, String sonMesaj, Consumer<String> onSohbetOlusturuldu) {
+        String sohbetId = gonderenId.compareTo(aliciId) < 0 ?
+                gonderenId + "_" + aliciId :
+                aliciId + "_" + gonderenId;
+        db.collection("sohbetler")
+                .document(sohbetId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        onSohbetOlusturuldu.accept(sohbetId);
+                    } else {
+                        Map<String, Object> sohbetData = new HashMap<>();
+                        sohbetData.put("sohbetId",sohbetId);
+                        sohbetData.put("kullaniciAdi", kullaniciAdi);
+                        sohbetData.put("sonMsjSaati", sonMsjSaati);
+                        sohbetData.put("ppfoto", ppfoto);
+                        sohbetData.put("sonMesaj", sonMesaj);
+                        sohbetData.put("katilimcilar", Arrays.asList(gonderenId, aliciId));
+
+                        db.collection("sohbetler").document(sohbetId)
+                                .set(sohbetData)
+                                .addOnSuccessListener(aVoid -> onSohbetOlusturuldu.accept(sohbetId))
+                                .addOnFailureListener(e -> Log.e("Firestore", "Sohbet kaydedilirken hata oluştu", e));
+                    }
+                }).addOnFailureListener(e -> Log.e("Firestore", "Sohbet kontrolünde hata oluştu", e));
+    }
+    public void BorcIstekleriDb(String istekatan,String istekatilan,String miktar,String aciklama,Timestamp tarih,String ad,String sohbetId,Long zaman,Runnable onSuccessCallback){
+        uyariMesaj.YuklemeDurum("");
+        Map<String, Object> borcData = new HashMap<>();
+        borcData.put("istekatanAdi",ad);
+        borcData.put("istekatanID", istekatan);
+        borcData.put("istekatılanID",istekatilan);
+        borcData.put("aciklama", aciklama);
+        borcData.put("miktar", miktar);
+        borcData.put("odenecektarih", tarih);
+        borcData.put("isteginAtildigiZaman",zaman);
+
+        db.collection("sohbetler")
+                .document(sohbetId)
+                .collection("borc_istekleri")
+                .add(borcData)
+                .addOnSuccessListener(aVoid -> {
+                    onSuccessCallback.run();
+                    uyariMesaj.BasariliDurum("",1000);
+                    Log.d("Firestore", "Borç isteği başarıyla kaydedildi: " );
+                })
+                .addOnFailureListener(e -> {
+                    uyariMesaj.BasarisizDurum("",1000);
+                    Log.e("Firestore", "Borç isteği kaydedilirken hata: ", e);
+                });
+    }
+    public void SohbetlereBasarsa(){
+        Sohbetler.setOnClickListener(b->{
+            SohbetFragment fragment = new SohbetFragment();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.konteynir, fragment)
+                    .addToBackStack(null)
+                    .commit();
         });
     }
     public void GrupDb() {
@@ -455,6 +616,14 @@ public class MainActivity extends AppCompatActivity {
                     String miktar = edtMiktar.getText().toString().trim();
                     String aciklama = edtAciklama.getText().toString().trim();
                     String tarih = edtTarih.getText().toString().trim();
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                    Date date = null;
+                    try {
+                        date = sdf.parse(tarih);
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
+                    Timestamp timestamp = new Timestamp(date);
 
                     if (miktar.isEmpty()) {
                         Toast.makeText(this, "Miktar boş olamaz", Toast.LENGTH_SHORT).show();
@@ -463,11 +632,12 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(this, "Tarih boş olamaz", Toast.LENGTH_SHORT).show();
                         return;
                     }else{
-                        //burada o kisinin profiline yonlendirip borcu atcak
+                        BorcIstekleriDb(MainActivity.kullanicistatic.getKullaniciId(),secilen.getGrupId(),miktar,aciklama,timestamp,MainActivity.kullanicistatic.getKullaniciAdi(),secilen.getGrupAdi());
                         dialog.dismiss();
                     }
                 });
             }
         });
     }
+
 }

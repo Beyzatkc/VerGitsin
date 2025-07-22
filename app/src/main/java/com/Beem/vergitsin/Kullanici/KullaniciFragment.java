@@ -75,8 +75,8 @@ public class KullaniciFragment extends Fragment {
 
 
     public void Kayit(BottomSheetDialog bottomSheetDialog){
-        uyari.YuklemeDurum("Kayıt yapılıyor...");
         btnKayitOl.setOnClickListener(a -> {
+            uyari.YuklemeDurum("Kayıt yapılıyor...");
             String kAdi = kayitKullaniciAdi.getText().toString().trim();
             String email = KayitEmail.getText().toString().trim();
             String sifre = KayitSifre.getText().toString().trim();
