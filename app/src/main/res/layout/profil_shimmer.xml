@@ -1,0 +1,59 @@
+<com.facebook.shimmer.ShimmerFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/shimmerFrameLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    android:background="@color/background_light"
+    app:shimmer_auto_start="true"
+    app:shimmer_duration="1000">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/pp_kutusu_shimmer">
+
+        <!-- Profil Resmi -->
+        <View
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/shimmer_bg_circle" />
+
+        <!-- Kullanıcı Adı -->
+        <View
+            android:layout_width="160dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/shimmer_bg" />
+
+        <!-- Bio -->
+        <View
+            android:layout_width="200dp"
+            android:layout_height="16dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/shimmer_bg" />
+
+        <!-- Arkadaş / Grup -->
+        <View
+            android:layout_width="240dp"
+            android:layout_height="16dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/shimmer_bg" />
+
+        <!-- Buton -->
+        <View
+            android:layout_width="160dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/shimmer_bg" />
+
+    </LinearLayout>
+</com.facebook.shimmer.ShimmerFrameLayout>

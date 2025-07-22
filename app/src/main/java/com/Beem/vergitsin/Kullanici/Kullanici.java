@@ -10,6 +10,9 @@ public class Kullanici {
     private int GrupSayisi;
     private int ArkSayisi;
     private int BorcSayisi;
+    private boolean arkdasMi = false;
+    private boolean engelliMi = false;
+    private boolean karsiTarafEngellediMi = false;
 
     public Kullanici() {
     }
@@ -18,6 +21,12 @@ public class Kullanici {
         KullaniciId = kullaniciId;
         KullaniciAdi = kullaniciAdi;
         Email = email;
+    }
+    public Kullanici(String kullaniciId, String kullaniciAdi, String email, String profilFoto) {
+        KullaniciId = kullaniciId;
+        KullaniciAdi = kullaniciAdi;
+        Email = email;
+        this.ProfilFoto = profilFoto;
     }
     public String getKullaniciId() {
         return KullaniciId;
@@ -91,4 +100,27 @@ public class Kullanici {
         BorcSayisi = borcSayisi;
     }
 
+    public void setArkdasMi(boolean arkdasMi) {
+        this.arkdasMi = arkdasMi;
+    }
+
+    public boolean isArkdasMi() {
+        return arkdasMi;
+    }
+
+    public boolean isEngelliMi() {
+        return engelliMi;
+    }
+
+    public void setEngelliMi(boolean engelliMi) {
+        this.engelliMi = engelliMi;
+    }
+
+    public void setKarsiTarafEngellediMi(boolean karsiTarafEngellediMi) {
+        this.karsiTarafEngellediMi = karsiTarafEngellediMi;
+    }
+
+    public boolean isKarsiTarafEngellediMi() {
+        return karsiTarafEngellediMi;
+    }
 }

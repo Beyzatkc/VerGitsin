@@ -5,35 +5,32 @@
     android:background="@color/background_light"
     android:padding="24dp">
 
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <include
+            android:id="@+id/shimmerFrameLayout"
+            layout="@layout/profil_shimmer"
+            android:visibility="gone"/>
+
         <!-- ÜST ÇUBUK: Menü ve Arkadaş Ekle Butonu aynı satırda -->
         <LinearLayout
+            android:id="@+id/ustCubuk"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="end|center_vertical"
             android:layout_marginBottom="16dp">
 
-            <!-- Menü Butonu (Hamburger) -->
-            <ImageButton
-                android:id="@+id/menuButton"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/menu"
-                android:scaleType="centerCrop"
-                android:contentDescription="Menüyü aç"/>
 
             <ImageButton
                 android:id="@+id/borcIsteButton"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:src="@drawable/borc_iste"
-                android:layout_marginStart="16dp"
                 android:scaleType="centerCrop"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Borç İste"
@@ -57,10 +54,27 @@
                 android:layout_marginStart="16dp"
                 android:scaleType="centerCrop"
                 android:background="?attr/selectableItemBackgroundBorderless" />
+            <!-- Menü Butonu (Hamburger) -->
+            <ImageButton
+                android:id="@+id/menuButton"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/menu"
+                android:scaleType="centerCrop"
+                android:layout_marginStart="16dp"
+                android:contentDescription="Menüyü aç"/>
+
         </LinearLayout>
 
+        <!-- ENGEL PROFIL KARTI -->
+        <include
+            android:id="@+id/engelleyenProfilKarti"
+            layout="@layout/engelleyen_profil"
+            android:visibility="gone"/>
         <!-- PROFIL KARTI -->
         <LinearLayout
+            android:id="@+id/profilKarti"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -138,6 +152,7 @@
 
             <!-- Borç Rozeti (kart dışında, son satır) -->
             <LinearLayout
+                android:id="@+id/borcSayisiLinearLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:orientation="horizontal"

@@ -1,0 +1,5 @@
+<!-- res/drawable/profil_kutusu_shimmer.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#DDDDDD" />
+    <corners android:radius="16dp" />
+</shape>

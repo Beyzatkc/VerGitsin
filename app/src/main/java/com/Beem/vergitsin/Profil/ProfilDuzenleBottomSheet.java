@@ -28,9 +28,11 @@ public class ProfilDuzenleBottomSheet extends BottomSheetDialogFragment {
     private EditText bio;
     private Button saveButton;
     private String secilenFoto;
+    private ProfilYonetici yonetici;
 
-    public ProfilDuzenleBottomSheet(ProfilDuzenleListener duzenleListener) {
+    public ProfilDuzenleBottomSheet(ProfilDuzenleListener duzenleListener, ProfilYonetici yonetici) {
         this.duzenleListener = duzenleListener;
+        this.yonetici = yonetici;
     }
 
     @Nullable
@@ -49,10 +51,11 @@ public class ProfilDuzenleBottomSheet extends BottomSheetDialogFragment {
         profileImageView = view.findViewById(R.id.profileImageView);
         changePhotoIcon = view.findViewById(R.id.changePhotoIcon);
 
-        username.setText(ProfilYonetici.getYonetici().getKullanici().getKullaniciAdi());
-        bio.setText(ProfilYonetici.getYonetici().getKullanici().getBio());
-        secilenFoto = ProfilYonetici.getYonetici().getKullanici().getProfilFoto();
-        SecilenFotoGuncelle(ProfilYonetici.getYonetici().getKullanici().getProfilFoto());
+        //ProfilYonetici.getYonetici().getKullanici().getKullaniciAdi()
+        username.setText(yonetici.getKullanici().getKullaniciAdi());
+        bio.setText(yonetici.getKullanici().getBio());
+        secilenFoto =yonetici.getKullanici().getProfilFoto();
+        SecilenFotoGuncelle(yonetici.getKullanici().getProfilFoto());
 
         changePhotoIcon.setOnClickListener(v -> FotoSeciciEkranGoster());
         profileImageView.setOnClickListener(v -> FotoSeciciEkranGoster());

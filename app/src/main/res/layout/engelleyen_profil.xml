@@ -1,0 +1,42 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/beniEngellediKarti"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center_horizontal"
+    android:background="@drawable/profil_kutusu_bg"
+    android:elevation="8dp">
+
+    <!-- Kapalı Göz veya Yasak Simgesi -->
+    <ImageView
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:src="@drawable/engellendin"
+        android:layout_marginBottom="16dp"
+        app:tint="@color/accent_red" />
+
+    <!-- Uyarı Başlığı -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Bu profili görüntüleyemezsiniz"
+        android:textColor="@color/text_primary1"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Uyarı Detayı -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Bu kullanıcı seni engellemiş olabilir."
+        android:textColor="@color/text_secondary1"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:layout_marginBottom="8dp"
+        android:textAlignment="center"/>
+
+</LinearLayout>

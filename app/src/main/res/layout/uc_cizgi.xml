@@ -1,0 +1,31 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/popup_menu_layout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/menu_bg"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <TextView
+        android:id="@+id/btn_logout"
+        style="@style/PopupMenuItem"
+        android:text="Çıkış Yap"
+        android:background="@drawable/cikis_bg"
+        android:gravity="center"/>
+
+    <TextView
+        android:id="@+id/btn_block"
+        style="@style/PopupMenuItem"
+        android:text="Hesabı Engelle"
+        android:background="@drawable/engelle_bg"
+        android:layout_marginTop="6dp"
+        android:padding="12dp"/>
+
+    <TextView
+        android:id="@+id/btn_cancel"
+        style="@style/PopupMenuItem"
+        android:text="İptal"
+        android:background="@drawable/iptal_bg"
+        android:layout_marginTop="6dp"
+        android:padding="12dp"/>
+</LinearLayout>

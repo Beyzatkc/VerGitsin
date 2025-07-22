@@ -1,4 +1,5 @@
-package com.Beem.vergitsin;
+package com.Beem.vergitsin.Arkadaslar;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -12,71 +13,85 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.Beem.vergitsin.Arkadaslar.Arkadas;
 import com.Beem.vergitsin.Kullanici.Kullanici;
 import com.Beem.vergitsin.Profil.DigerProfilFragment;
+import com.Beem.vergitsin.R;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 
-public class KullanicilarAdapter extends RecyclerView.Adapter<KullanicilarAdapter.ViewHolder> {
+public class ArkadaslarAdapter extends RecyclerView.Adapter<ArkadaslarAdapter.ViewHolder> {
     public interface OnArkadasEkleListener {
         void onArkadasEkleTiklandi(Kullanici kullanici);
         void onArkadasCıkarTiklandi(Kullanici kullanici);
     }
 
-    private ArrayList<Kullanici> kullanicilar;
+    private ArrayList<Arkadas> arkadaslar;
     private Context context;
     private OnArkadasEkleListener listener;
     private FragmentManager manager;
-    private Runnable DialogKapat;
 
-    public KullanicilarAdapter(ArrayList<Kullanici> kullanicilar,Context contex,OnArkadasEkleListener listener,FragmentManager manager, Runnable DialogKapat) {
-        this.kullanicilar = kullanicilar;
+    public ArkadaslarAdapter(ArrayList<Arkadas> arkadaslar,Context contex,OnArkadasEkleListener listener,FragmentManager manager) {
+        this.arkadaslar = arkadaslar;
         this.context=contex;
         this.listener=listener;
         this.manager=manager;
-        this.DialogKapat=DialogKapat;
     }
 
     @NonNull
     @Override
-    public KullanicilarAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ArkadaslarAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.herbi_kullanici, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull KullanicilarAdapter.ViewHolder holder, int position) {
-        Kullanici kullanici = kullanicilar.get(position);
-        holder.textViewKullaniciAdi.setText(kullanici.getKullaniciAdi());
-        int resId = context.getResources().getIdentifier(
-                kullanici.getProfilFoto(), "drawable", context.getPackageName());
+    public void onBindViewHolder(@NonNull ArkadaslarAdapter.ViewHolder holder, int position) {
+        Arkadas arkadas = arkadaslar.get(position);
+        holder.itemView.setOnClickListener(v->{
+            TiklananArkadasProfileGec(arkadas);
+        });
+        if(arkadas.isEngelliMi()){
+            holder.ekle.setVisibility(View.GONE);
+            holder.eklendi.setVisibility(View.GONE);
+        }
+        else{
+            if(arkadas.isArkdasMi()){
+                holder.ekle.setVisibility(View.GONE);
+                holder.eklendi.setVisibility(View.VISIBLE);
+            }
+            else{
+                holder.ekle.setVisibility(View.VISIBLE);
+                holder.eklendi.setVisibility(View.GONE);
+            }
+        }
+        System.out.println(arkadas.getKullaniciAdi()+"----");
+        holder.textViewKullaniciAdi.setText(arkadas.getKullaniciAdi());
+        int resId = context.getResources().getIdentifier(arkadas.getProfilFoto(), "drawable", context.getPackageName());
         holder.imageViewProfil.setImageResource(resId);
         holder.ekle.setOnClickListener(b->{
             if (listener != null) {
                 holder.ekle.setVisibility(View.GONE);
                 holder.eklendi.setVisibility(View.VISIBLE);
-                kullanici.setArkdasMi(true);
-                listener.onArkadasEkleTiklandi(kullanici);
+                arkadas.setArkdasMi(true);
+                listener.onArkadasEkleTiklandi(arkadas);
             }
         });
         holder.eklendi.setOnClickListener(b->{
             if (listener != null) {
                 holder.eklendi.setVisibility(View.GONE);
                 holder.ekle.setVisibility(View.VISIBLE);
-                kullanici.setArkdasMi(false);
-                listener.onArkadasCıkarTiklandi(kullanici);
+                arkadas.setArkdasMi(false);
+                listener.onArkadasCıkarTiklandi(arkadas);
             }
-        });
-        holder.itemView.setOnClickListener(v->{
-            TiklananArkadasProfileGec(kullanici);
         });
     }
     @Override
     public int getItemCount() {
-        return kullanicilar.size();
+        return arkadaslar.size();
     }
+
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView textViewKullaniciAdi;
         ImageView imageViewProfil;
@@ -92,19 +107,22 @@ public class KullanicilarAdapter extends RecyclerView.Adapter<KullanicilarAdapte
         }
     }
 
-    private void TiklananArkadasProfileGec(Kullanici arkadas){
+    private void TiklananArkadasProfileGec(Arkadas arkadas){
         if(arkadas!=null) {
             Bundle bundle = new Bundle();
-            Arkadas ark = new Arkadas(arkadas);
-            ark.setArkdasMi(arkadas.isArkdasMi());
-            bundle.putSerializable("kullanici", ark);
+            bundle.putSerializable("kullanici", arkadas);
             Fragment arkFragment = new DigerProfilFragment();
             arkFragment.setArguments(bundle);
-            DialogKapat.run();
+
             manager.beginTransaction()
                     .replace(R.id.konteynir, arkFragment)
                     .addToBackStack(null)
                     .commit();
         }
+    }
+
+    public ArrayList<Arkadas> getKullanicilar() {
+        System.out.println("**");
+        return arkadaslar;
     }
 }

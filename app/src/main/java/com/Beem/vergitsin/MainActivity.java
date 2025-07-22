@@ -9,12 +9,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -24,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.Beem.vergitsin.Kullanici.Kullanici;
 import com.Beem.vergitsin.Kullanici.KullaniciFragment;
 import com.Beem.vergitsin.Kullanici.SharedPreferencesK;
+import com.Beem.vergitsin.Profil.ProfilFragment;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -45,6 +48,9 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout grupolsuturlayout;
     private UyariMesaj uyariMesaj;
     private Button Borciste;
+    private CardView profilAlani;
+    private ImageView profilFoto;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +61,10 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        profilAlani = findViewById(R.id.profilCardView);
+        profilFoto = findViewById(R.id.profilFoto);
+
+
         uyariMesaj=new UyariMesaj(this,false);
         SharedPreferencesK shared = new SharedPreferencesK(this);
         boolean fromFragment = getIntent().getBooleanExtra("fromFragment", false);
@@ -63,8 +73,12 @@ public class MainActivity extends AppCompatActivity {
             String email = shared.getEmail();
             String kAdi = shared.getKullaniciAdi();
 
+            String ppFoto = shared.getProfilFoto();
+
             Kullanici kullanici = new Kullanici(id, kAdi, email);
+            kullanici.setProfilFoto(ppFoto);
             MainActivity.kullanicistatic = kullanici;
+            ProfilFotoYerlestir();
         } else  {
             getSupportFragmentManager()
                     .beginTransaction()
@@ -77,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
         arkadasEkleLayout=findViewById(R.id.arkadasEkleLayout);
         grupolsuturlayout=findViewById(R.id.grupolsuturlayout);
         Borciste=findViewById(R.id.Borciste);
+        profilAlani.setOnClickListener(b->{ ProfilSayfasinaGec(); });
         ArkadasEkle();
         GrupOlustur();
         BorcIsteme();
@@ -191,6 +206,8 @@ public class MainActivity extends AppCompatActivity {
             public void onArkadasCıkarTiklandi(Kullanici kullanici) {
                 ArkadasCikarmaDb(kullanici);
             }
+        },getSupportFragmentManager(),()->{
+            dialog.dismiss();
         });
         recycler.setAdapter(adapter);
         dialog.show();
@@ -469,5 +486,15 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+    private void ProfilSayfasinaGec(){
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.konteynir, new ProfilFragment())
+                .addToBackStack(null)
+                .commit();
+    }
+    private void ProfilFotoYerlestir(){
+        int resId = getResources().getIdentifier(kullanicistatic.getProfilFoto(), "drawable", this.getPackageName());
+        profilFoto.setImageResource(resId);
     }
 }
