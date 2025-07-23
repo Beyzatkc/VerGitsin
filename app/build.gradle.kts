@@ -44,6 +44,7 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.legacy.support.v4)
     implementation(libs.lifecycle.livedata.ktx)
+    implementation(libs.circleimageview)
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(platform("com.google.firebase:firebase-bom:33.16.0"))
     implementation("com.google.firebase:firebase-messaging")

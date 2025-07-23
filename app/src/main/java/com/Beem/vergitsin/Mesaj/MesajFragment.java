@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -23,22 +22,18 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.Beem.vergitsin.ArkadasAdapter;
 import com.Beem.vergitsin.MainActivity;
 import com.Beem.vergitsin.R;
-import com.Beem.vergitsin.Sohbet.SohbetAdapter;
 import com.Beem.vergitsin.Sohbet.SohbetFragment;
-import com.Beem.vergitsin.Sohbet.SohbetViewModel;
+import com.Beem.vergitsin.UyariMesaj;
 import com.google.firebase.Timestamp;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-public class mesajFragment extends Fragment {
+public class MesajFragment extends Fragment {
 
     private MesajViewModel mViewModel;
     private RecyclerView recyclerView;
@@ -64,9 +59,11 @@ public class mesajFragment extends Fragment {
     private String odemeTarihi;
     private String sohbetID;
     private Long mesajinZamani;
+    private String sohbetIdAdptr;
+    private UyariMesaj uyarimesaji;
 
-    public static mesajFragment newInstance() {
-        return new mesajFragment();
+    public static MesajFragment newInstance() {
+        return new MesajFragment();
     }
 
     @Override
@@ -75,18 +72,25 @@ public class mesajFragment extends Fragment {
         mViewModel = new ViewModelProvider(this).get(MesajViewModel.class);
 
         if (getArguments() != null) {
-            istekAtilanId = getArguments().getString("istekatilanID");
-            miktari = getArguments().getString("miktar").trim();
-            aciklamasi = getArguments().getString("aciklama").trim();
-            odemeTarihi = getArguments().getString("odemeTarihi").trim();
-            sohbetID=getArguments().getString("sohbetId");
-            mesajinZamani=getArguments().getLong("mesajinatildigizaman");
+            String kaynak = getArguments().getString("kaynak", "");
+
+            if (kaynak.equals("SohbetAdapter")) {
+                sohbetIdAdptr= getArguments().getString("sohbetId");
+            } else if (kaynak.equals("mainactivity")) {
+                istekAtilanId = getArguments().getString("istekatilanID");
+                miktari = getArguments().getString("miktar").trim();
+                aciklamasi = getArguments().getString("aciklama").trim();
+                odemeTarihi = getArguments().getString("odemeTarihi").trim();
+                sohbetID=getArguments().getString("sohbetId");
+                mesajinZamani=getArguments().getLong("mesajinatildigizaman");
+            }
         }
     }
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
        View view =inflater.inflate(R.layout.fragment_mesaj, container, false);
+        uyarimesaji=new UyariMesaj(requireContext(),false);
         requireActivity().getOnBackPressedDispatcher().addCallback(
                 getViewLifecycleOwner(),
                 new OnBackPressedCallback(true) {
@@ -149,15 +153,13 @@ public class mesajFragment extends Fragment {
                 adapter = new MesajAdapter(mesajList,requireContext());
                 recyclerView.setAdapter(adapter);
             });
-
-            gonderButtontext.setOnClickListener(b->{
-                istekEditTextViewLayout.setVisibility(View.VISIBLE);
-                istekTextViewLayout.setVisibility(View.GONE);
+            //BUTONA BASMAYI KALDIRDIM
                 Timestamp tarih=stringToTimestamp(odemeTarihi);
                 Mesaj mesaj=new Mesaj(MainActivity.kullanicistatic.getKullaniciId(),istekAtilanId,aciklamasi,miktari,tarih,mesajinZamani,false);
                 adapter.mesajEkle(mesaj);
                 recyclerView.scrollToPosition(adapter.getItemCount() - 1);
-            });
+                istekEditTextViewLayout.setVisibility(View.VISIBLE);
+                istekTextViewLayout.setVisibility(View.GONE);
         } else {
             istekEditTextViewLayout.setVisibility(View.VISIBLE);
             istekTextViewLayout.setVisibility(View.GONE);
@@ -165,19 +167,23 @@ public class mesajFragment extends Fragment {
                 String miktar=miktaredit.getText().toString().trim();
                 String aciklama=aciklamaedit.getText().toString().trim();
                 String odemetarihi=odemeTarihiedit.getText().toString().trim();
+                Long mesajZamani=System.currentTimeMillis();
                 String regex = "^\\d{2}/\\d{2}/\\d{4}$";
                 if (!odemetarihi.matches(regex)) {
                     Toast.makeText(getContext(), "Lütfen tarihi gün/ay/yıl formatında girin (örn: 22/07/2025)", Toast.LENGTH_SHORT).show();
                     return;
                 }else{
                     Timestamp tarih=stringToTimestamp(odemeTarihi);
-                    Mesaj mesaj=new Mesaj(MainActivity.kullanicistatic.getKullaniciId(),istekAtilanId,aciklamasi,miktari,tarih,mesajinZamani,false);
-                    adapter.mesajEkle(mesaj);
-                    recyclerView.scrollToPosition(adapter.getItemCount() - 1);
-                    //VERİTABANINA EKLEME İSLEMLERİ
-                    miktaredit.setText("");
-                    aciklamaedit.setText("");
-                    odemeTarihiedit.setText("");
+                    mViewModel.SohbetIDsindenAliciya(sohbetIdAdptr);
+                    mViewModel.AliciID().observe(getViewLifecycleOwner(),id->{
+                        Mesaj mesaj=new Mesaj(MainActivity.kullanicistatic.getKullaniciId(),id,aciklama,miktar,tarih,mesajZamani,false);
+                        adapter.mesajEkle(mesaj);
+                        recyclerView.scrollToPosition(adapter.getItemCount() - 1);
+                        mViewModel.BorcIstekleriDb(uyarimesaji,MainActivity.kullanicistatic.getKullaniciId(),id,miktar,aciklama,tarih,MainActivity.kullanicistatic.getKullaniciAdi(),sohbetIdAdptr,System.currentTimeMillis());
+                        miktaredit.setText("");
+                        aciklamaedit.setText("");
+                        odemeTarihiedit.setText("");
+                    });
                 }
             });
         }
@@ -193,7 +199,4 @@ public class mesajFragment extends Fragment {
             return null; // veya default bir Timestamp dönebilirsin
         }
     }
-
-
-
 }

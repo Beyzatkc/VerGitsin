@@ -25,24 +25,20 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.Beem.vergitsin.Kullanici.Kullanici;
 import com.Beem.vergitsin.Kullanici.KullaniciFragment;
 import com.Beem.vergitsin.Kullanici.SharedPreferencesK;
-import com.Beem.vergitsin.Mesaj.MesajViewModel;
-import com.Beem.vergitsin.Mesaj.mesajFragment;
-import com.Beem.vergitsin.Sohbet.Sohbet;
+import com.Beem.vergitsin.Mesaj.MesajFragment;
 import com.Beem.vergitsin.Sohbet.SohbetFragment;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.text.ParseException;
@@ -56,8 +52,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-
-import kotlin.CharCodeJVMKt;
 
 public class MainActivity extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -87,19 +81,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        FirebaseMessaging.getInstance().getToken()
-                .addOnSuccessListener(token -> {
-                    FirebaseFirestore.getInstance()
-                            .collection("users")
-                            .document(MainActivity.kullanicistatic.getKullaniciId())
-                            .update("fcmToken", token)
-                            .addOnSuccessListener(aVoid -> {
-                                Log.d("FCM", "Token başarıyla Firestore'a kaydedildi.");
-                            })
-                            .addOnFailureListener(e -> {
-                                Log.e("FCM", "Token kaydedilemedi", e);
-                            });
-                });
         uyariMesaj=new UyariMesaj(this,false);
         SharedPreferencesK shared = new SharedPreferencesK(this);
         boolean fromFragment = getIntent().getBooleanExtra("fromFragment", false);
@@ -110,6 +91,21 @@ public class MainActivity extends AppCompatActivity {
 
             Kullanici kullanici = new Kullanici(id, kAdi, email);
             MainActivity.kullanicistatic = kullanici;
+
+            FirebaseMessaging.getInstance().getToken()
+                    .addOnSuccessListener(token -> {
+                        FirebaseFirestore.getInstance()
+                                .collection("users")
+                                .document(MainActivity.kullanicistatic.getKullaniciId())
+                                .update("fcmToken", token)
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d("FCM", "Token başarıyla Firestore'a kaydedildi.");
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("FCM", "Token kaydedilemedi", e);
+                                });
+                    });
+
         } else  {
             getSupportFragmentManager()
                     .beginTransaction()
@@ -378,7 +374,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
     }
     public void GrupDb(String grupAdi ,ArrayList<Kullanici> secilenler,UyariMesaj mesaj){
         ArrayList<String>uyeIDleri=new ArrayList<>();
@@ -393,10 +388,17 @@ public class MainActivity extends AppCompatActivity {
 
         db.collection("gruplar")
                 .add(grupVerisi)
-                .addOnSuccessListener(aVoid -> {
+                .addOnSuccessListener(documentReference  -> {
+                    String grupId = documentReference.getId();
+                    SohbetOlusturDb(MainActivity.kullanicistatic.getKullaniciId(),grupId,grupAdi,null, null, String.format("%s için sohbet oluşturuldu", grupAdi),sohbetId -> {
+                        Fragment sohbetFragment = new SohbetFragment();
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.konteynir, sohbetFragment)
+                                .addToBackStack(null)
+                                .commit();
+                    });
                    mesaj.BasariliDurum( "Grup oluşturuldu!",1000);
-
-                   //BURDAN SONRA NOLCAK GRUBA YONLENDRMESİ LAZIM
                 })
                 .addOnFailureListener(e -> {
                     mesaj.BasarisizDurum( "Grup oluşturulumadı!",1000);
@@ -418,7 +420,7 @@ public class MainActivity extends AppCompatActivity {
             });
             btnGrup.setOnClickListener(v -> {
                 dialog.dismiss();
-                GrupDb();
+                GrupDbCek();
 
             });
             dialog.show();
@@ -486,7 +488,7 @@ public class MainActivity extends AppCompatActivity {
                                                 bundle.putString("sohbetId", sohbetId);
                                                 bundle.putLong("mesajinatildigizaman",System.currentTimeMillis());
 
-                                                mesajFragment fragment = new mesajFragment();
+                                                MesajFragment fragment = new MesajFragment();
                                                 fragment.setArguments(bundle);
                                                 getSupportFragmentManager()
                                                         .beginTransaction()
@@ -566,7 +568,7 @@ public class MainActivity extends AppCompatActivity {
                     .commit();
         });
     }
-    public void GrupDb() {
+    public void GrupDbCek() {
         ArrayList<Grup>grupListesi=new ArrayList<Grup>();
         db.collection("gruplar")
                 .whereArrayContains("uyeler", MainActivity.kullanicistatic.getKullaniciId())
@@ -632,8 +634,38 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(this, "Tarih boş olamaz", Toast.LENGTH_SHORT).show();
                         return;
                     }else{
-                        BorcIstekleriDb(MainActivity.kullanicistatic.getKullaniciId(),secilen.getGrupId(),miktar,aciklama,timestamp,MainActivity.kullanicistatic.getKullaniciAdi(),secilen.getGrupAdi());
-                        dialog.dismiss();
+                        SohbetOlusturDb(MainActivity.kullanicistatic.getKullaniciId(),secilen.getGrupId(),secilen.getGrupAdi(), System.currentTimeMillis(), null, String.format("%s %s borç isteği",secilen.getGrupAdi(),miktar), sohbetId -> {
+                            BorcIstekleriDb(
+                                    MainActivity.kullanicistatic.getKullaniciId(),
+                                    secilen.getGrupId(),
+                                    miktar,
+                                    aciklama,
+                                    timestamp,
+                                    MainActivity.kullanicistatic.getKullaniciAdi(),
+                                    sohbetId,
+                                    System.currentTimeMillis(),
+                                    () -> {
+                                        Bundle bundle = new Bundle();
+                                        bundle.putString("kaynak", "mainactivity");
+                                        bundle.putString("istekatilanID", secilen.getGrupId());
+                                        bundle.putString("miktar", miktar);
+                                        bundle.putString("aciklama", aciklama);
+                                        bundle.putString("odemeTarihi", tarih);
+                                        bundle.putString("sohbetId", sohbetId);
+                                        bundle.putLong("mesajinatildigizaman",System.currentTimeMillis());
+
+                                        MesajFragment fragment = new MesajFragment();
+                                        fragment.setArguments(bundle);
+                                        getSupportFragmentManager()
+                                                .beginTransaction()
+                                                .replace(R.id.konteynir, fragment)
+                                                .addToBackStack(null)
+                                                .commit();
+                                        dialog.dismiss();
+                                    }
+                                  );
+                             }
+                        );
                     }
                 });
             }

@@ -1,6 +1,7 @@
 package com.Beem.vergitsin.Sohbet;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,11 +9,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.Beem.vergitsin.Grup;
+import com.Beem.vergitsin.Mesaj.MesajFragment;
 import com.Beem.vergitsin.R;
-import com.google.firebase.Timestamp;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -21,8 +22,10 @@ import java.util.Locale;
 public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder> {
     private ArrayList<Sohbet>sohbetler;
     private Context context;
+    private Fragment fragment;
 
-    public SohbetAdapter(ArrayList<Sohbet> sohbetler, Context context) {
+    public SohbetAdapter(Fragment anaFragment,ArrayList<Sohbet> sohbetler, Context context) {
+        this.fragment=anaFragment;
         this.sohbetler = sohbetler;
         this.context = context;
     }
@@ -51,8 +54,26 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
             holder.kisi_fotosu.setImageResource(resId);
         }
         holder.son_mesaj.setText(sohbet.getSonMesaj());
-        String zaman=longToSaatDakika(sohbet.getSonmsjsaati());
-        holder.mesaj_saat.setText(zaman);
+        if(sohbet.getSonmsjsaati()!=null) {
+            holder.mesaj_saat.setVisibility(View.VISIBLE);
+            String zaman=longToSaatDakika(sohbet.getSonmsjsaati());
+            holder.mesaj_saat.setText(zaman);
+        }else{
+            holder.mesaj_saat.setVisibility(View.GONE);
+        }
+        holder.itemView.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putString("kaynak", "SohbetAdapter");
+            bundle.putString("sohbetId", sohbet.getSohbetID());
+
+            Fragment mesajFragment = new MesajFragment();
+            mesajFragment.setArguments(bundle);
+            fragment.getParentFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.konteynir, mesajFragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
     }
     @Override
     public int getItemCount() {

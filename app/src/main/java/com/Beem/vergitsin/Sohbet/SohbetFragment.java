@@ -42,10 +42,9 @@ public class SohbetFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         mViewModel.SohbetleriCek();
         mViewModel.sohbetler().observe(getViewLifecycleOwner(),sohbetler -> {
-            SohbetAdapter adapter = new SohbetAdapter(sohbetler,requireContext());
+            adapter = new SohbetAdapter(this,sohbetler,requireContext());
             recyclerView.setAdapter(adapter);
         });
-
         return view;
     }
 
