@@ -423,7 +423,6 @@ public class MainActivity extends AppCompatActivity {
             btnGrup.setOnClickListener(v -> {
                 dialog.dismiss();
                 GrupDbCek();
-
             });
             dialog.show();
         });
@@ -454,7 +453,7 @@ public class MainActivity extends AppCompatActivity {
                     String miktar = edtMiktar.getText().toString().trim();
                     String aciklama = edtAciklama.getText().toString().trim();
                     String tarih = edtTarih.getText().toString().trim();
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
                     Date date = null;
                     try {
                         date = sdf.parse(tarih);
@@ -718,5 +717,7 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
+        dialog.show();
     }
+
 }

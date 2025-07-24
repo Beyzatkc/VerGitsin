@@ -28,8 +28,9 @@ public class MesajViewModel extends ViewModel {
 
     public void MesajBorcistekleriDbCek (String aktifSohbetId){
             ArrayList<Mesaj> tumMesajlar = new ArrayList<>();
-            db.collection("borc_istekleri")
-                    .whereEqualTo("sohbetId", aktifSohbetId)
+        db.collection("sohbetler")
+                   .document(aktifSohbetId)
+                   .collection("borc_istekleri")
                     .get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
                         for (DocumentSnapshot doc : queryDocumentSnapshots) {
@@ -48,9 +49,8 @@ public class MesajViewModel extends ViewModel {
             String atilanid = doc.getString("istekatılanID");
             String aciklama = doc.getString("aciklama");
             String miktar = doc.getString("miktar");
-            Timestamp tarih = doc.getTimestamp("tarih");
+            Timestamp tarih = doc.getTimestamp("odenecektarih");
             Long mesajAtilmaZamani=doc.getLong("isteginAtildigiZaman");
-
             return new Mesaj(atanid, atilanid, aciklama, miktar, tarih, mesajAtilmaZamani,false);
     }
     public void BorcIstekleriDb(UyariMesaj uyariMesaj,String istekatan, String istekatilan, String miktar, String aciklama, Timestamp tarih, String ad, String sohbetId, Long zaman){

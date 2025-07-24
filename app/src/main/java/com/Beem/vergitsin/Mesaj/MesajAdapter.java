@@ -86,8 +86,6 @@ public class MesajAdapter extends RecyclerView.Adapter<MesajAdapter.ViewHolder> 
            String zaman=longToSaatDakika(MesajSaati);
            holder.gelenSaat.setText(zaman);
        }
-
-
     }
     @Override
     public int getItemCount() {
