@@ -174,6 +174,13 @@ public class MesajFragment extends Fragment {
                         "user", "drawable", requireContext().getPackageName());
                 kisi_fotosu.setImageResource(resId);
             }
+            mViewModel.MesajBorcistekleriDbCek(sohbetIdAdptr);
+
+            mViewModel.tumMesajlar().observe(getViewLifecycleOwner(), mesajList -> {
+                        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+                        adapter = new MesajAdapter(mesajList, requireContext());
+                        recyclerView.setAdapter(adapter);
+                    });
 
             istekEditTextViewLayout.setVisibility(View.VISIBLE);
             istekTextViewLayout.setVisibility(View.GONE);
@@ -187,16 +194,16 @@ public class MesajFragment extends Fragment {
                     Toast.makeText(getContext(), "Lütfen tarihi gün/ay/yıl formatında girin (örn: 22/07/2025)", Toast.LENGTH_SHORT).show();
                     return;
                 }else{
-                    Timestamp tarih=stringToTimestamp(odemeTarihi);
+                    Timestamp tarih=stringToTimestamp(odemetarihi);
                     mViewModel.SohbetIDsindenAliciya(sohbetIdAdptr);
                     mViewModel.AliciID().observe(getViewLifecycleOwner(),id->{
                         Mesaj mesaj=new Mesaj(MainActivity.kullanicistatic.getKullaniciId(),id,aciklama,miktar,tarih,mesajZamani,false);
-                        adapter.mesajEkle(mesaj);
-                        recyclerView.scrollToPosition(adapter.getItemCount() - 1);
-                        mViewModel.BorcIstekleriDb(uyarimesaji,MainActivity.kullanicistatic.getKullaniciId(),id,miktar,aciklama,tarih,MainActivity.kullanicistatic.getKullaniciAdi(),sohbetIdAdptr,System.currentTimeMillis());
-                        miktaredit.setText("");
-                        aciklamaedit.setText("");
-                        odemeTarihiedit.setText("");
+                            adapter.mesajEkle(mesaj);
+                            recyclerView.scrollToPosition(adapter.getItemCount() - 1);
+                            mViewModel.BorcIstekleriDb(uyarimesaji,MainActivity.kullanicistatic.getKullaniciId(),id,miktar,aciklama,tarih,MainActivity.kullanicistatic.getKullaniciAdi(),sohbetIdAdptr,System.currentTimeMillis());
+                            miktaredit.setText("");
+                            aciklamaedit.setText("");
+                            odemeTarihiedit.setText("");
                     });
                 }
             });

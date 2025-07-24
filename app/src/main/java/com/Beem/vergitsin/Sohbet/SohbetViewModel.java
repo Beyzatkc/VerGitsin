@@ -23,7 +23,6 @@ public class SohbetViewModel extends ViewModel {
     public void SohbetleriCek(){
         db.collection("sohbetler")
                 .whereArrayContains("katilimcilar", MainActivity.kullanicistatic.getKullaniciId())
-                .orderBy("sonMsjSaati", Query.Direction.DESCENDING)
                 .addSnapshotListener((snapshot, e) -> {
                     if (e != null) {
                         Log.e("Firestore", "Hata oluştu", e);

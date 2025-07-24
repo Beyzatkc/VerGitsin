@@ -83,7 +83,6 @@ public class MesajViewModel extends ViewModel {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         ArrayList<String> katilimcilar = (ArrayList<String>) documentSnapshot.get("katilimcilar");
-
                         if (katilimcilar != null) {
                             for (String kisiId : katilimcilar) {
                                 if (!kisiId.equals(MainActivity.kullanicistatic.getKullaniciId())) {
