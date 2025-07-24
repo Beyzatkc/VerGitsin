@@ -23,11 +23,6 @@ public class MesajViewModel extends ViewModel {
     MutableLiveData<ArrayList<Mesaj>>_tumMesajlar=new MutableLiveData<>();
     LiveData<ArrayList<Mesaj>>tumMesajlar(){return _tumMesajlar;}
 
-    MutableLiveData<String>_Adi=new MutableLiveData<>();
-    LiveData<String>Adi(){return _Adi;}
-    MutableLiveData<String>_Profil=new MutableLiveData<>();
-    LiveData<String>Profil(){return _Profil;}
-
     MutableLiveData<String>_AliciId=new MutableLiveData<>();
     LiveData<String>AliciID(){return _AliciId;}
 
@@ -57,19 +52,6 @@ public class MesajViewModel extends ViewModel {
             Long mesajAtilmaZamani=doc.getLong("isteginAtildigiZaman");
 
             return new Mesaj(atanid, atilanid, aciklama, miktar, tarih, mesajAtilmaZamani,false);
-    }
-    public void IDdenAdaUlasma(String ID){
-        db.collection("users")
-                .document(ID)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    String Adi=documentSnapshot.getString("kullaniciAdi");
-                    String pp=documentSnapshot.getString("ProfilFoto");
-                    _Adi.setValue(Adi);
-                    _Profil.setValue(pp);
-                }) .addOnFailureListener(e -> {
-                    Log.e("Firestore", "Kullanıcı verisi çekilirken hata", e);
-                });
     }
     public void BorcIstekleriDb(UyariMesaj uyariMesaj,String istekatan, String istekatilan, String miktar, String aciklama, Timestamp tarih, String ad, String sohbetId, Long zaman){
         uyariMesaj.YuklemeDurum("");

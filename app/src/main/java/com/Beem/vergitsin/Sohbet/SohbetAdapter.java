@@ -9,7 +9,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.Beem.vergitsin.Mesaj.MesajFragment;
@@ -20,14 +23,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder> {
+    public interface OnSohbetClickListener {
+        void onSohbetClicked(Sohbet sohbet);
+    }
     private ArrayList<Sohbet>sohbetler;
     private Context context;
-    private Fragment fragment;
+    private OnSohbetClickListener listener;
 
-    public SohbetAdapter(Fragment anaFragment,ArrayList<Sohbet> sohbetler, Context context) {
-        this.fragment=anaFragment;
+    public SohbetAdapter(ArrayList<Sohbet> sohbetler, Context context, OnSohbetClickListener listener) {
         this.sohbetler = sohbetler;
         this.context = context;
+        this.listener=listener;
     }
     @NonNull
     @Override
@@ -61,7 +67,13 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
         }else{
             holder.mesaj_saat.setVisibility(View.GONE);
         }
-        holder.itemView.setOnClickListener(v -> {
+            holder.sohbet_kutu.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onSohbetClicked(sohbet);
+                }
+            });
+
+            /*
             Bundle bundle = new Bundle();
             bundle.putString("kaynak", "SohbetAdapter");
             bundle.putString("sohbetId", sohbet.getSohbetID());
@@ -72,8 +84,8 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
                     .beginTransaction()
                     .replace(R.id.konteynir, mesajFragment)
                     .addToBackStack(null)
-                    .commit();
-        });
+                    .commit();*/
+
     }
     @Override
     public int getItemCount() {
@@ -84,6 +96,7 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
        private TextView son_mesaj;
        private TextView mesaj_saat;
        private ImageView kisi_fotosu;
+       private ConstraintLayout sohbet_kutu;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -91,6 +104,7 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
             son_mesaj=itemView.findViewById(R.id.son_mesaj);
             mesaj_saat=itemView.findViewById(R.id.mesaj_saat);
             kisi_fotosu=itemView.findViewById(R.id.kisi_fotosu);
+            sohbet_kutu=itemView.findViewById(R.id.sohbet_kutu);
         }
     }
 }

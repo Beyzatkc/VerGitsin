@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 
 import com.Beem.vergitsin.ArkadasAdapter;
 import com.Beem.vergitsin.Kullanici.KullaniciViewModel;
+import com.Beem.vergitsin.Mesaj.MesajFragment;
 import com.Beem.vergitsin.R;
 import com.google.firebase.Timestamp;
 
@@ -42,7 +43,25 @@ public class SohbetFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         mViewModel.SohbetleriCek();
         mViewModel.sohbetler().observe(getViewLifecycleOwner(),sohbetler -> {
-            adapter = new SohbetAdapter(this,sohbetler,requireContext());
+             adapter = new SohbetAdapter(sohbetler, requireContext(), new SohbetAdapter.OnSohbetClickListener() {
+                @Override
+                public void onSohbetClicked(Sohbet sohbet) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("kaynak", "SohbetAdapter");
+                    bundle.putString("sohbetId", sohbet.getSohbetID());
+                    bundle.putString("sohbetedilenAd",sohbet.getKullaniciAdi());
+                    bundle.putString("sohbetEdilenPP",sohbet.getPpfoto());
+                    Fragment mesajFragment = new MesajFragment();
+                    mesajFragment.setArguments(bundle);
+
+                    requireActivity().getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.konteynir, mesajFragment)
+                            .addToBackStack(null)
+                            .commit();
+                }
+            });
+
             recyclerView.setAdapter(adapter);
         });
         return view;

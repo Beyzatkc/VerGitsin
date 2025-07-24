@@ -155,7 +155,6 @@
                 android:padding="8dp"
                 android:textColor="#000"
                 android:textColorHint="#888"
-                android:focusable="false"
                 android:clickable="true"
                 android:layout_marginBottom="8dp" />
         </LinearLayout>

@@ -61,6 +61,10 @@ public class MesajFragment extends Fragment {
     private Long mesajinZamani;
     private String sohbetIdAdptr;
     private UyariMesaj uyarimesaji;
+    private String istekatilanAd;
+    private String sohbetedilenAd;
+    private String sohbetEdilenPP;
+    private String PP;
 
     public static MesajFragment newInstance() {
         return new MesajFragment();
@@ -76,8 +80,12 @@ public class MesajFragment extends Fragment {
 
             if (kaynak.equals("SohbetAdapter")) {
                 sohbetIdAdptr= getArguments().getString("sohbetId");
+                sohbetedilenAd=getArguments().getString("sohbetedilenAd");
+                sohbetEdilenPP=getArguments().getString("sohbetEdilenPP");
             } else if (kaynak.equals("mainactivity")) {
-                istekAtilanId = getArguments().getString("istekatilanID");
+                istekAtilanId=getArguments().getString("istekatilanID");
+                PP=getArguments().getString("pp");
+                istekatilanAd = getArguments().getString("istekatilanAdi");
                 miktari = getArguments().getString("miktar").trim();
                 aciklamasi = getArguments().getString("aciklama").trim();
                 odemeTarihi = getArguments().getString("odemeTarihi").trim();
@@ -131,21 +139,16 @@ public class MesajFragment extends Fragment {
             aciklamatext.setText(aciklamasi);
             odemeTarihitext.setText(odemeTarihi);
 
-            mViewModel.IDdenAdaUlasma(istekAtilanId);
-            mViewModel.Adi().observe(getViewLifecycleOwner(), AD ->{
-                kisiAdiText.setText(AD);
-            });
-            mViewModel.Profil().observe(getViewLifecycleOwner(),Pp->{
-                if (Pp != null && !Pp.isEmpty()) {
-                    int resId = requireContext().getResources().getIdentifier(
-                            Pp, "drawable", requireContext().getPackageName());
-                    kisi_fotosu.setImageResource(resId);
-                }else{
-                    int resId = requireContext().getResources().getIdentifier(
-                            "user", "drawable", requireContext().getPackageName());
-                    kisi_fotosu.setImageResource(resId);
-                }
-            });
+               kisiAdiText.setText(istekatilanAd);
+                   if (PP != null) {
+                       int resId = requireContext().getResources().getIdentifier(
+                               PP, "drawable", requireContext().getPackageName());
+                       kisi_fotosu.setImageResource(resId);
+                   } else {
+                       int resId = requireContext().getResources().getIdentifier(
+                               "user", "drawable", requireContext().getPackageName());
+                       kisi_fotosu.setImageResource(resId);
+                   }
             mViewModel.MesajBorcistekleriDbCek(sohbetID);
 
             mViewModel.tumMesajlar().observe(getViewLifecycleOwner(), mesajList ->{
@@ -161,6 +164,17 @@ public class MesajFragment extends Fragment {
                 istekEditTextViewLayout.setVisibility(View.VISIBLE);
                 istekTextViewLayout.setVisibility(View.GONE);
         } else {
+           kisiAdiText.setText(sohbetedilenAd);
+            if (sohbetEdilenPP != null) {
+                int resId = requireContext().getResources().getIdentifier(
+                        sohbetEdilenPP, "drawable", requireContext().getPackageName());
+                kisi_fotosu.setImageResource(resId);
+            } else {
+                int resId = requireContext().getResources().getIdentifier(
+                        "user", "drawable", requireContext().getPackageName());
+                kisi_fotosu.setImageResource(resId);
+            }
+
             istekEditTextViewLayout.setVisibility(View.VISIBLE);
             istekTextViewLayout.setVisibility(View.GONE);
             gonderButton2edit.setOnClickListener(b->{

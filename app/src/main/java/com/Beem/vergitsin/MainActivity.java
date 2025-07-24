@@ -363,6 +363,7 @@ public class MainActivity extends AppCompatActivity {
                     String grupIsmi = input.getText().toString().trim();
                     if (!grupIsmi.isEmpty()) {
                         GrupDb(grupIsmi,secilenler,uyariMesaj);
+                        dialog.dismiss();
                     } else {
                        uyariMesaj.BasarisizDurum("Grup ismi boş olamaz",1000);
                     }
@@ -380,6 +381,7 @@ public class MainActivity extends AppCompatActivity {
         for(Kullanici uye:secilenler){
             uyeIDleri.add(uye.getKullaniciId());
         }
+        uyeIDleri.add(MainActivity.kullanicistatic.getKullaniciId());
         Map<String, Object> grupVerisi = new HashMap<>();
         grupVerisi.put("grupAdi", grupAdi);
         grupVerisi.put("uyeler", uyeIDleri);
@@ -390,7 +392,7 @@ public class MainActivity extends AppCompatActivity {
                 .add(grupVerisi)
                 .addOnSuccessListener(documentReference  -> {
                     String grupId = documentReference.getId();
-                    SohbetOlusturDb(MainActivity.kullanicistatic.getKullaniciId(),grupId,grupAdi,null, null, String.format("%s için sohbet oluşturuldu", grupAdi),sohbetId -> {
+                    sohbetOlusturDbGrup(grupId,grupAdi,System.currentTimeMillis(), null,"%s sohbet oluşturdu"+MainActivity.kullanicistatic.getKullaniciAdi(),sohbetId -> {
                         Fragment sohbetFragment = new SohbetFragment();
                         getSupportFragmentManager()
                                 .beginTransaction()
@@ -468,7 +470,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(this, "Tarih boş olamaz", Toast.LENGTH_SHORT).show();
                         return;
                     }else{
-                        SohbetOlusturDb(MainActivity.kullanicistatic.getKullaniciId(),secilen.getKullaniciId(),secilen.getKullaniciAdi(), System.currentTimeMillis(), secilen.getProfilFoto(), String.format("%s borç isteği",miktar), sohbetId -> {
+                        SohbetOlusturDbArkadas(MainActivity.kullanicistatic.getKullaniciId(),secilen.getKullaniciId(),secilen.getKullaniciAdi(), System.currentTimeMillis(), secilen.getProfilFoto(), String.format("%s borç isteği",miktar), sohbetId -> {
                                     BorcIstekleriDb(
                                             MainActivity.kullanicistatic.getKullaniciId(),
                                             secilen.getKullaniciId(),
@@ -482,6 +484,8 @@ public class MainActivity extends AppCompatActivity {
                                                 Bundle bundle = new Bundle();
                                                 bundle.putString("kaynak", "mainactivity");
                                                 bundle.putString("istekatilanID", secilen.getKullaniciId());
+                                                bundle.putString("pp",secilen.getProfilFoto());
+                                                bundle.putString("istekatilanAdi",secilen.getKullaniciAdi());
                                                 bundle.putString("miktar", miktar);
                                                 bundle.putString("aciklama", aciklama);
                                                 bundle.putString("odemeTarihi", tarih);
@@ -507,7 +511,7 @@ public class MainActivity extends AppCompatActivity {
         });
         dialog.show();
     }
-    public void SohbetOlusturDb(String gonderenId, String aliciId,String kullaniciAdi, Long sonMsjSaati, String ppfoto, String sonMesaj, Consumer<String> onSohbetOlusturuldu) {
+    public void SohbetOlusturDbArkadas(String gonderenId, String aliciId,String kullaniciAdi, Long sonMsjSaati, String ppfoto, String sonMesaj, Consumer<String> onSohbetOlusturuldu) {
         String sohbetId = gonderenId.compareTo(aliciId) < 0 ?
                 gonderenId + "_" + aliciId :
                 aliciId + "_" + gonderenId;
@@ -533,6 +537,48 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }).addOnFailureListener(e -> Log.e("Firestore", "Sohbet kontrolünde hata oluştu", e));
     }
+    public void sohbetOlusturDbGrup(String grupId, String kullaniciAdi, Long sonMsjSaati, String ppfoto, String sonMesaj, Consumer<String> onSohbetOlusturuldu) {
+        db.collection("gruplar")
+                .document(grupId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        ArrayList<String> uyeler = (ArrayList<String>) documentSnapshot.get("uyeler");
+                        if (uyeler == null) {
+                            uyeler = new ArrayList<>();
+                        }
+                        String sohbetId = grupId;
+                        ArrayList<String> finalUyeler = uyeler;
+                        db.collection("sohbetler")
+                                .document(sohbetId)
+                                .get()
+                                .addOnSuccessListener(sohbetSnapshot -> {
+                                    if (sohbetSnapshot.exists()) {
+                                        onSohbetOlusturuldu.accept(sohbetId);
+                                    } else {
+                                        Map<String, Object> sohbetData = new HashMap<>();
+                                        sohbetData.put("sohbetId", sohbetId);
+                                        sohbetData.put("kullaniciAdi", kullaniciAdi);
+                                        sohbetData.put("sonMsjSaati", sonMsjSaati);
+                                        sohbetData.put("ppfoto", ppfoto);
+                                        sohbetData.put("sonMesaj", sonMesaj);
+                                        sohbetData.put("katilimcilar", finalUyeler); // Grup üyeleri
+
+                                        db.collection("sohbetler")
+                                                .document(sohbetId)
+                                                .set(sohbetData)
+                                                .addOnSuccessListener(aVoid -> onSohbetOlusturuldu.accept(sohbetId))
+                                                .addOnFailureListener(e -> Log.e("Firestore", "Sohbet kaydedilirken hata oluştu", e));
+                                    }
+                                })
+                                .addOnFailureListener(e -> Log.e("Firestore", "Sohbet kontrolünde hata oluştu", e));
+                    } else {
+                        Log.e("Firestore", "Grup bulunamadı: " + grupId);
+                    }
+                })
+                .addOnFailureListener(e -> Log.e("Firestore", "Grup çekilirken hata oluştu", e));
+    }
+
     public void BorcIstekleriDb(String istekatan,String istekatilan,String miktar,String aciklama,Timestamp tarih,String ad,String sohbetId,Long zaman,Runnable onSuccessCallback){
         uyariMesaj.YuklemeDurum("");
         Map<String, Object> borcData = new HashMap<>();
@@ -634,7 +680,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(this, "Tarih boş olamaz", Toast.LENGTH_SHORT).show();
                         return;
                     }else{
-                        SohbetOlusturDb(MainActivity.kullanicistatic.getKullaniciId(),secilen.getGrupId(),secilen.getGrupAdi(), System.currentTimeMillis(), null, String.format("%s %s borç isteği",secilen.getGrupAdi(),miktar), sohbetId -> {
+                        sohbetOlusturDbGrup(secilen.getGrupId(),secilen.getGrupAdi(), System.currentTimeMillis(), null, String.format("%s %s borç isteği"), sohbetId -> {
                             BorcIstekleriDb(
                                     MainActivity.kullanicistatic.getKullaniciId(),
                                     secilen.getGrupId(),
@@ -647,7 +693,9 @@ public class MainActivity extends AppCompatActivity {
                                     () -> {
                                         Bundle bundle = new Bundle();
                                         bundle.putString("kaynak", "mainactivity");
+                                        bundle.putString("istekatilanAdi", secilen.getGrupAdi());
                                         bundle.putString("istekatilanID", secilen.getGrupId());
+                                        bundle.putString("pp",null);
                                         bundle.putString("miktar", miktar);
                                         bundle.putString("aciklama", aciklama);
                                         bundle.putString("odemeTarihi", tarih);
@@ -671,5 +719,4 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
 }
