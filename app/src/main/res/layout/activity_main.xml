@@ -7,6 +7,18 @@
     android:layout_height="match_parent"
     android:background="#F1FFF0"
     tools:context=".MainActivity">
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/menu"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible">
     <!-- PROFİL ALANI -->
     <LinearLayout
         android:id="@+id/profilAlani"
@@ -293,6 +305,7 @@
             android:textStyle="bold"
             android:translationY="-5dp" />
     </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <FrameLayout
         android:id="@+id/konteynir"

@@ -15,6 +15,9 @@ public class Arkadas extends Kullanici implements Serializable {
 
     public Arkadas(Kullanici arkadas){
         super(arkadas.getKullaniciId(),arkadas.getKullaniciAdi(),arkadas.getEmail(),arkadas.getProfilFoto());
+        this.setEngelliMi(arkadas.isEngelliMi());
+        this.setArkdasMi(arkadas.isArkdasMi());
+        this.setKarsiTarafEngellediMi(arkadas.isKarsiTarafEngellediMi());
     }
 
 }

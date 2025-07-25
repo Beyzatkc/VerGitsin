@@ -10,6 +10,8 @@ public class Grup {
     private ArrayList<String> uyeler;
     private String olusturan;
     private Timestamp olusturmaTarihi;
+    private String GrupFoto;
+    private String GrupHakkinda;
 
     public Grup() {}
 
@@ -59,5 +61,21 @@ public class Grup {
 
     public void setOlusturmaTarihi(Timestamp olusturmaTarihi) {
         this.olusturmaTarihi = olusturmaTarihi;
+    }
+
+    public void setGrupFoto(String grupFoto) {
+        GrupFoto = grupFoto;
+    }
+
+    public String getGrupFoto() {
+        return GrupFoto;
+    }
+
+    public String getGrupHakkinda() {
+        return GrupHakkinda;
+    }
+
+    public void setGrupHakkinda(String grupHakkinda) {
+        GrupHakkinda = grupHakkinda;
     }
 }

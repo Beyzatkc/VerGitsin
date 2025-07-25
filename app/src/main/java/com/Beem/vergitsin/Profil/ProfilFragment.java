@@ -15,6 +15,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.Beem.vergitsin.Arkadaslar.ArkadaslarFragment;
+import com.Beem.vergitsin.Gruplar.GruplarFragment;
 import com.Beem.vergitsin.Kullanici.Kullanici;
 import com.Beem.vergitsin.Kullanici.SharedPreferencesK;
 import com.Beem.vergitsin.MainActivity;
@@ -82,6 +83,7 @@ public class ProfilFragment extends Fragment {
         menuButton.setOnClickListener(v->{ MenuGoster(v); });
         editProfileButton.setOnClickListener(v ->{ ProfilEdit(); });
         arkSayisi.setOnClickListener(v ->{ Arkadaslar(); });
+        grupSayisi.setOnClickListener(v ->{ Gruplar(); });
 
         return view;
     }
@@ -127,6 +129,14 @@ public class ProfilFragment extends Fragment {
         FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         ArkadaslarFragment fragment = new ArkadaslarFragment();
+        fragmentTransaction.replace(R.id.konteynir, fragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
+    private void Gruplar(){
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        GruplarFragment fragment = new GruplarFragment();
         fragmentTransaction.replace(R.id.konteynir, fragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();

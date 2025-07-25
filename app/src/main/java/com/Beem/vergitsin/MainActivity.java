@@ -15,14 +15,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
+import com.Beem.vergitsin.BorcAlinanlar.BorcAlinanlarFragment;
+import com.Beem.vergitsin.BorcVerilenler.BorcVerilenlerFragment;
 import com.Beem.vergitsin.Kullanici.Kullanici;
 import com.Beem.vergitsin.Kullanici.KullaniciFragment;
 import com.Beem.vergitsin.Kullanici.SharedPreferencesK;
@@ -50,6 +56,9 @@ public class MainActivity extends AppCompatActivity {
     private Button Borciste;
     private CardView profilAlani;
     private ImageView profilFoto;
+    private ViewPager2 gecisliFragment;
+    private ArrayList<Fragment> fragmentList = new ArrayList<>();
+    private FragmentStateAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,9 +70,11 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
         profilAlani = findViewById(R.id.profilCardView);
         profilFoto = findViewById(R.id.profilFoto);
 
+        BorcVerilenlerAlinanlarGecis();
 
         uyariMesaj=new UyariMesaj(this,false);
         SharedPreferencesK shared = new SharedPreferencesK(this);
@@ -199,12 +210,14 @@ public class MainActivity extends AppCompatActivity {
         KullanicilarAdapter adapter = new KullanicilarAdapter(kullanicilar, this,  new KullanicilarAdapter.OnArkadasEkleListener() {
             @Override
             public void onArkadasEkleTiklandi(Kullanici kullanici) {
-                ArkadasEklemeDb(kullanici);
+                //ArkadasEklemeDb(kullanici);
+                ArkadasEkle.getEkle().ArkadasEklemeDb(kullanici);
             }
 
             @Override
             public void onArkadasCıkarTiklandi(Kullanici kullanici) {
-                ArkadasCikarmaDb(kullanici);
+                //ArkadasCikarmaDb(kullanici);
+                ArkadasEkle.getEkle().ArkadasCikarmaDb(kullanici);
             }
         },getSupportFragmentManager(),()->{
             dialog.dismiss();
@@ -213,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    public void ArkadasEklemeDb(Kullanici kullanici){
+    /*    public void ArkadasEklemeDb(Kullanici kullanici){
         DocumentReference kendiDocRef = db.collection("users").document(MainActivity.kullanicistatic.getKullaniciId());
         kendiDocRef.update("arkadaslar", FieldValue.arrayUnion(kullanici.getKullaniciId()))
                 .addOnSuccessListener(aVoid -> {
@@ -233,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "Ekleme başarısız: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
 
-    }
+    } */
     public void GrupOlustur(){
         grupolsuturlayout.setOnClickListener(b->{
             ArkadaslariGetir(true);
@@ -496,5 +509,38 @@ public class MainActivity extends AppCompatActivity {
     private void ProfilFotoYerlestir(){
         int resId = getResources().getIdentifier(kullanicistatic.getProfilFoto(), "drawable", this.getPackageName());
         profilFoto.setImageResource(resId);
+    }
+
+    private void BorcVerilenlerAlinanlarGecis(){
+        gecisliFragment = findViewById(R.id.viewPager);
+        fragmentList.add(new BorcAlinanlarFragment());
+        fragmentList.add(new AnaSayfaFragment());
+        fragmentList.add(new BorcVerilenlerFragment());
+
+        adapter = new FragmentStateAdapter(this) {
+            @NonNull
+            @Override
+            public Fragment createFragment(int position) {
+                return fragmentList.get(position);
+            }
+
+            @Override
+            public int getItemCount() {
+                return fragmentList.size();
+            }
+        };
+        gecisliFragment.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                if (position != 1) {
+                    findViewById(R.id.menu).setVisibility(View.GONE);
+                } else {
+                    findViewById(R.id.menu).setVisibility(View.VISIBLE);
+                }
+            }
+        });
+        gecisliFragment.setAdapter(adapter);
+        gecisliFragment.setCurrentItem(1);
     }
 }

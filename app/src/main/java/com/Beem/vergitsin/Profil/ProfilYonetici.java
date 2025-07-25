@@ -30,6 +30,9 @@ public class ProfilYonetici {
    public ProfilYonetici(Kullanici kullanici){
        this.kullanici = kullanici;
    }
+   public ProfilYonetici(){
+
+   }
 
     public void ProfilDoldur(Runnable profilTamamdir, Runnable profilBilgileriGuncelle){
         this.profilTamamdir = profilTamamdir;
@@ -56,8 +59,8 @@ public class ProfilYonetici {
 
         String profilFoto = dokuman.contains("ProfilFoto") ? dokuman.getString("ProfilFoto") : "user";
 
-        int grupSayisi = dokuman.contains("GrupSayisi") && dokuman.getLong("GrupSayisi") != null
-                ? dokuman.getLong("GrupSayisi").intValue() : 0;
+       /* int grupSayisi = dokuman.contains("GrupSayisi") && dokuman.getLong("GrupSayisi") != null
+                ? dokuman.getLong("GrupSayisi").intValue() : 0;*/
 
         int arkSayisi = dokuman.contains("arkadaslar") && dokuman.get("arkadaslar") != null
                 ? ((ArrayList<String>) dokuman.get("arkadaslar")).size() : 0;
@@ -69,7 +72,7 @@ public class ProfilYonetici {
         kullanici.setEmail(email);
         kullanici.setBio(bio);
         kullanici.setProfilFoto(profilFoto);
-        kullanici.setGrupSayisi(grupSayisi);
+     //   kullanici.setGrupSayisi(grupSayisi);
         kullanici.setArkSayisi(arkSayisi);
         kullanici.setBorcSayisi(borcSayisi);
         profilTamamdir.run();
@@ -116,6 +119,7 @@ public class ProfilYonetici {
                    .update("engelliler", FieldValue.arrayRemove(kullanici.getKullaniciId()))
                    .addOnSuccessListener(basarili->{
                        kullanici.setEngelliMi(false);
+                       kullanici.setArkdasMi(false);
                        engelkalkti.run();
                    });
        }
@@ -145,8 +149,43 @@ public class ProfilYonetici {
                .addOnSuccessListener(dokuman->{
                    kullanicininEnellilerListesi = dokuman.contains("engelliler") && dokuman.get("engelliler") != null ? (ArrayList<String>) dokuman.get("engelliler") : new ArrayList<>();
                    kullanici.setKarsiTarafEngellediMi(kullanicininEnellilerListesi.contains(MainActivity.kullanicistatic.getKullaniciId()));
+                   BenEngelledimMiKonrol(islemTamamdir);
+               });
+
+    }
+
+    private void BenEngelledimMiKonrol(Runnable islemTamamdir){
+       if(kullanici.isEngelliMi()){
+           System.out.println("ifdeyim dayı");
+           islemTamamdir.run();
+           return;
+       }
+       db.collection("users")
+               .document(MainActivity.kullanicistatic.getKullaniciId())
+               .get()
+               .addOnSuccessListener(dokuman->{
+                   System.out.println("asd");
+                   ArrayList<String> engelliler = dokuman.contains("engelliler") && dokuman.get("engelliler") != null ? (ArrayList<String>) dokuman.get("engelliler") : new ArrayList<>();
+                   kullanici.setEngelliMi(engelliler.contains(kullanici.getKullaniciId()));
+                   System.out.println(kullanici.isEngelliMi());
                    islemTamamdir.run();
                });
+    }
+
+    public void KarsiTarafEngelKontrol(Kullanici kullanici){
+        if(kullanici.isKarsiTarafEngellediMi()){
+            System.out.println("ifdeyim dayı");
+            return;
+        }
+        db.collection("users")
+                .document(kullanici.getKullaniciId())
+                .get()
+                .addOnSuccessListener(dokuman->{
+                    System.out.println("dsa");
+                    kullanicininEnellilerListesi = dokuman.contains("engelliler") && dokuman.get("engelliler") != null ? (ArrayList<String>) dokuman.get("engelliler") : new ArrayList<>();
+                    kullanici.setKarsiTarafEngellediMi(kullanicininEnellilerListesi.contains(MainActivity.kullanicistatic.getKullaniciId()));
+                    System.out.println(kullanici.isKarsiTarafEngellediMi());
+                });
 
     }
 

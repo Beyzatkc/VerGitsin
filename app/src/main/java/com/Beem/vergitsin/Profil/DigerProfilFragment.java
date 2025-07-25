@@ -115,48 +115,7 @@ public class DigerProfilFragment extends Fragment {
     private void TemelGorunumAyarlari(){
         editProfileButton.setVisibility(View.GONE);
         yonetici.KarsiTarafEngelKontrol(()->{
-            if(kullanici.isKarsiTarafEngellediMi()) {
-                ustCubuk.setVisibility(View.GONE);
-                profilKarti.setVisibility(View.GONE);
-                beniEngelledi.setVisibility(View.VISIBLE);
-               /* arkEkle.setVisibility(View.GONE);
-                arkCikart.setVisibility(View.GONE);
-                borcIsteButton.setVisibility(View.GONE);
-                arkSayisi.setVisibility(View.GONE);
-                grupSayisi.setVisibility(View.GONE);
-                editProfileButton.setVisibility(View.GONE);
-                borcSayisiLinearLayout.setVisibility(View.GONE);
-                profilFoto.setImageResource(R.drawable.user);
-                menuButton.setVisibility(View.GONE);
-                userName.setText("Kullanıcı adı yok");
-                bioText.setText("Bio yok");*/
-            }
-            else if(kullanici.isEngelliMi()){
-                arkEkle.setVisibility(View.GONE);
-                arkCikart.setVisibility(View.GONE);
-                borcIsteButton.setVisibility(View.GONE);
-                arkSayisi.setVisibility(View.GONE);
-                grupSayisi.setVisibility(View.GONE);
-                editProfileButton.setVisibility(View.GONE);
-                borcSayisiLinearLayout.setVisibility(View.GONE);
-                ustCubuk.setVisibility(View.VISIBLE);
-                profilKarti.setVisibility(View.VISIBLE);
-            }
-            else{
-                if(kullanici.isArkdasMi()){
-                    borcIsteButton.setVisibility(View.VISIBLE);
-                    arkEkle.setVisibility(View.GONE);
-                    arkCikart.setVisibility(View.VISIBLE);
-                }
-                else{
-                    borcIsteButton.setVisibility(View.GONE);
-                    arkEkle.setVisibility(View.VISIBLE);
-                    arkCikart.setVisibility(View.GONE);
-                }
-                ustCubuk.setVisibility(View.VISIBLE);
-                profilKarti.setVisibility(View.VISIBLE);
-            }
-            YuklemeBitir();
+            TumEngellemeKarmasası();
         });
     }
 
@@ -257,6 +216,10 @@ public class DigerProfilFragment extends Fragment {
 
     private void Engelliyorum(){
         yonetici.Engelle(()->{
+            // engellerken
+            if(kullanici.isKarsiTarafEngellediMi()){
+                return;
+            }
             arkEkle.setVisibility(View.GONE);
             arkCikart.setVisibility(View.GONE);
             borcIsteButton.setVisibility(View.GONE);
@@ -265,6 +228,10 @@ public class DigerProfilFragment extends Fragment {
             editProfileButton.setVisibility(View.GONE);
             borcSayisiLinearLayout.setVisibility(View.GONE);
         },()->{
+            // engeli kaldırırken
+            if(kullanici.isKarsiTarafEngellediMi()){
+                return;
+            }
             arkCikart.setVisibility(View.GONE);
             arkEkle.setVisibility(View.VISIBLE);
             borcIsteButton.setVisibility(View.GONE);
@@ -285,4 +252,53 @@ public class DigerProfilFragment extends Fragment {
         yukleme.setVisibility(View.GONE);
     }
 
+    private void TumEngellemeKarmasası(){
+        System.out.println(kullanici.isKarsiTarafEngellediMi()+"---"+kullanici.isEngelliMi());
+        if(kullanici.isKarsiTarafEngellediMi()) {
+            ustCubuk.setVisibility(View.VISIBLE);
+            profilKarti.setVisibility(View.GONE);
+            beniEngelledi.setVisibility(View.VISIBLE);
+            arkEkle.setVisibility(View.GONE);
+            arkCikart.setVisibility(View.GONE);
+            menuButton.setVisibility(View.VISIBLE);
+            borcIsteButton.setVisibility(View.GONE);
+               /* arkEkle.setVisibility(View.GONE);
+                arkCikart.setVisibility(View.GONE);
+                borcIsteButton.setVisibility(View.GONE);
+                arkSayisi.setVisibility(View.GONE);
+                grupSayisi.setVisibility(View.GONE);
+                editProfileButton.setVisibility(View.GONE);
+                borcSayisiLinearLayout.setVisibility(View.GONE);
+                profilFoto.setImageResource(R.drawable.user);
+                menuButton.setVisibility(View.GONE);
+                userName.setText("Kullanıcı adı yok");
+                bioText.setText("Bio yok");*/
+        }
+        else if(kullanici.isEngelliMi()){
+            arkEkle.setVisibility(View.GONE);
+            arkCikart.setVisibility(View.GONE);
+            borcIsteButton.setVisibility(View.GONE);
+            arkSayisi.setVisibility(View.GONE);
+            grupSayisi.setVisibility(View.GONE);
+            editProfileButton.setVisibility(View.GONE);
+            borcSayisiLinearLayout.setVisibility(View.GONE);
+            ustCubuk.setVisibility(View.VISIBLE);
+            profilKarti.setVisibility(View.VISIBLE);
+        }
+        else{
+            if(kullanici.isArkdasMi()){
+                borcIsteButton.setVisibility(View.VISIBLE);
+                arkEkle.setVisibility(View.GONE);
+                arkCikart.setVisibility(View.VISIBLE);
+            }
+            else{
+                borcIsteButton.setVisibility(View.GONE);
+                arkEkle.setVisibility(View.VISIBLE);
+                arkCikart.setVisibility(View.GONE);
+            }
+            ustCubuk.setVisibility(View.VISIBLE);
+            profilKarti.setVisibility(View.VISIBLE);
+        }
+        YuklemeBitir();
+    }
 }
