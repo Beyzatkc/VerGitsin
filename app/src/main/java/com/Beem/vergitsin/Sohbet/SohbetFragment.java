@@ -10,23 +10,18 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.Beem.vergitsin.Mesaj.MesajGrupFragment;
 import com.Beem.vergitsin.Mesaj.MesajKisiFragment;
-import com.Beem.vergitsin.MesajSohbetOrtakView;
 import com.Beem.vergitsin.R;
-
-import java.util.Map;
 
 public class SohbetFragment extends Fragment{
     private SohbetViewModel mViewModel;
     private RecyclerView recyclerView;
     private SohbetAdapter adapter;
-    private MesajSohbetOrtakView ortakViewModel;
 
     public static SohbetFragment newInstance() {
         return new SohbetFragment();
@@ -36,7 +31,6 @@ public class SohbetFragment extends Fragment{
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mViewModel = new ViewModelProvider(this).get(SohbetViewModel.class);
-        ortakViewModel = new ViewModelProvider(requireActivity()).get(MesajSohbetOrtakView.class);
     }
 
     @Override
@@ -76,21 +70,17 @@ public class SohbetFragment extends Fragment{
                     }
                 }
             });
-
             recyclerView.setAdapter(adapter);
-
         });
-        ortakViewModel.getTumSonMesajlar().observe(getViewLifecycleOwner(), sonMesajMap -> {
-            if (adapter != null) {
-                for (Map.Entry<String, Pair<String, Long>> entry : sonMesajMap.entrySet()) {
-                    String sohbetId = entry.getKey();
-                    Pair<String, Long> mesajVeSaat = entry.getValue();
-                    if (mesajVeSaat != null) {
-                        String mesaj = mesajVeSaat.first;
-                        Long saat = mesajVeSaat.second;
-                        adapter.SetSonMsj(sohbetId, mesaj, saat);
-                    }
-                }
+        mViewModel.eklenenSohbet().observe(getViewLifecycleOwner(), sohbet -> {
+            if (sohbet != null) {
+                adapter.sohbetEkle(sohbet);
+                recyclerView.scrollToPosition(adapter.getItemCount() - 1);
+            }
+        });
+        mViewModel.guncellenenSohbet().observe(getViewLifecycleOwner(), sohbet -> {
+            if (sohbet != null) {
+                adapter.SohbetGuncelle(sohbet);
             }
         });
         return view;

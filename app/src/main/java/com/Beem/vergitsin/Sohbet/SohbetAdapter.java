@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.Beem.vergitsin.Mesaj.Mesaj;
 import com.Beem.vergitsin.R;
 
 import java.text.SimpleDateFormat;
@@ -30,6 +32,13 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
         this.context = context;
         this.listener=listener;
     }
+    public void sohbetEkle(Sohbet yeniSohbet) {
+        sohbetler.add(yeniSohbet);
+        notifyItemInserted(sohbetler.size() - 1);
+    }
+    public void SohbetGuncelle(Sohbet sohbet) {
+        notifyItemInserted(sohbetler.size() - 1);
+    }
     @NonNull
     @Override
     public SohbetAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -41,17 +50,7 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
         Date date = new Date(timeMillis);
         return sdf.format(date);
     }
-    public void SetSonMsj(String sohbetId, String yeniMesaj, Long yeniSaat) {
-        for (int i=0;i< sohbetler.size();i++) {
-            Sohbet s =sohbetler.get(i);
-            if (s.getSohbetID().equals(sohbetId)) {
-                s.setSonMesaj(yeniMesaj);
-                s.setSonmsjsaati(yeniSaat);
-                notifyItemChanged(i);
-                break;
-            }
-        }
-    }
+
     @Override
     public void onBindViewHolder(@NonNull SohbetAdapter.ViewHolder holder, int position) {
         Sohbet sohbet=sohbetler.get(position);

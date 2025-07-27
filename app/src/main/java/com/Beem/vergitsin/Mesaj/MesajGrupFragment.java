@@ -22,7 +22,6 @@ import android.widget.Toast;
 
 import com.Beem.vergitsin.Kullanici.Observe;
 import com.Beem.vergitsin.MainActivity;
-import com.Beem.vergitsin.MesajSohbetOrtakView;
 import com.Beem.vergitsin.R;
 import com.Beem.vergitsin.UyariMesaj;
 import com.google.firebase.Timestamp;
@@ -34,7 +33,6 @@ import java.util.Date;
 import java.util.Locale;
 
 public class MesajGrupFragment extends Fragment implements CevapGeldiGrup{
-    private MesajSohbetOrtakView ortakViewModel;
     private String SonMesaj;
     private String miktari;
     private String aciklamasi;

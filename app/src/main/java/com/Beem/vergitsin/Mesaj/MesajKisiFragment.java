@@ -10,6 +10,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +23,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.Beem.vergitsin.MainActivity;
-import com.Beem.vergitsin.MesajSohbetOrtakView;
 import com.Beem.vergitsin.R;
 import com.Beem.vergitsin.UyariMesaj;
 import com.google.firebase.Timestamp;
@@ -66,7 +67,6 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
     private Long SonMesajSaat;
     private String SonMesajadptr;
     private Long SonMesajSaatadptr;
-    private MesajSohbetOrtakView ortakViewModel;
 
     public static MesajKisiFragment newInstance() {
         return new MesajKisiFragment();
@@ -77,7 +77,6 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mViewModel = new ViewModelProvider(this).get(MesajViewModel.class);
-        ortakViewModel = new ViewModelProvider(requireActivity()).get(MesajSohbetOrtakView.class);
         if (getArguments() != null) {
             String kaynak = getArguments().getString("kaynak", "");
             if (kaynak.equals("SohbetAdapter")) {
@@ -92,19 +91,6 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
                 odemeTarihi = getArguments().getString("odemeTarihi").trim();
                 sohbetID=getArguments().getString("sohbetId");
             }
-        }
-    }
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        String kaynak = null;
-        if (getArguments() != null) {
-            kaynak = getArguments().getString("kaynak");
-        }
-        if ("mainactivity".equals(kaynak)) {
-            ortakViewModel.sonMsjDbKaydi(sohbetID,SonMesaj,SonMesajSaat);
-        }else if("SohbetAdapter".equals(kaynak)){
-            ortakViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesajadptr,SonMesajSaatadptr);
         }
     }
     @Override
@@ -185,7 +171,7 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
                 istekTextViewLayout.setVisibility(View.GONE);
                 SonMesaj=mesajList.get(mesajList.size()-1).getMiktar()+" Tl borç isteği";
                 SonMesajSaat=mesajList.get(mesajList.size()-1).getZaman();
-                ortakViewModel.setSonMesaj(sohbetID,SonMesaj,SonMesajSaat);
+                mViewModel.sonMsjDbKaydi(sohbetID,SonMesaj,SonMesajSaat);
             });
             mViewModel.eklenen().observe(getViewLifecycleOwner(), mesaj -> {
                 if (mesaj != null) {
@@ -193,7 +179,7 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
                     recyclerView.scrollToPosition(adapter.getItemCount() - 1);
                     SonMesaj=mesaj.getMiktar()+" TL borç isteği";
                     SonMesajSaat=mesaj.getZaman();
-                    ortakViewModel.setSonMesaj(sohbetID,SonMesaj,SonMesajSaat);
+                    mViewModel.sonMsjDbKaydi(sohbetID,SonMesaj,SonMesajSaat);
                 }
             });
 
@@ -237,7 +223,7 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
                 adapter.guncelleMesajListesi(mesajList);
                 SonMesajadptr=mesajList.get(mesajList.size()-1).getMiktar()+" Tl borç isteği";
                 SonMesajSaatadptr=mesajList.get(mesajList.size()-1).getZaman();
-                ortakViewModel.setSonMesaj(sohbetID,SonMesaj,SonMesajSaatadptr);
+                mViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesaj,SonMesajSaat);
             });
             mViewModel.eklenen().observe(getViewLifecycleOwner(), mesaj -> {
                 if (mesaj != null) {
@@ -245,7 +231,7 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
                     recyclerView.scrollToPosition(adapter.getItemCount() - 1);
                     SonMesajadptr=mesaj.getMiktar()+" Tl borç isteği";
                     SonMesajSaatadptr=mesaj.getZaman();
-                    ortakViewModel.setSonMesaj(sohbetID,SonMesaj,SonMesajSaatadptr);
+                    mViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesaj,SonMesajSaat);
                 }
             });
             istekEditTextViewLayout.setVisibility(View.VISIBLE);
