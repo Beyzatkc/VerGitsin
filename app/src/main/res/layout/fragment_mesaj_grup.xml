@@ -1,0 +1,259 @@
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/mesajlasma_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5">
+
+    <LinearLayout
+        android:id="@+id/grup_bilgi_layout"
+        android:layout_width="0dp"
+        android:layout_height="72dp"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:gravity="center_vertical"
+        android:background="#FFFFFF"
+        android:elevation="4dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/grup_foto"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            app:cardCornerRadius="26dp"
+            app:cardElevation="4dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <ImageView
+                android:id="@+id/grup_fotosu"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/user"
+                app:civ_border_width="2dp"
+                app:civ_border_color="#FF9800" />
+
+        </androidx.cardview.widget.CardView>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/grupAdi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="kisinin adi"
+                android:translationX="10dp"
+                android:textColor="#13216E"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/kackisicevrimici"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="#BF6A33"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/mesajGrupRecyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="8dp"
+        android:clipToPadding="false"
+        android:scrollbars="none"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintTop_toBottomOf="@id/grup_bilgi_layout"
+        app:layout_constraintBottom_toTopOf="@id/mesaj_gonderGrup_layout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <LinearLayout
+        android:id="@+id/mesaj_gonderGrup_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/mesaj_yazmabg"
+        android:padding="8dp"
+        android:elevation="6dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:id="@+id/istekEditTextViewLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/gelen_mesaj"
+            android:orientation="vertical"
+            android:visibility="visible"
+            android:padding="10dp">
+
+            <TextView
+                android:id="@+id/gonderenadi"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:hint="Gonderen kisi Adi"
+                android:padding="8dp"
+                android:textColor="#000"
+                android:textColorHint="#888"
+                android:inputType="textCapSentences" />
+
+            <!-- Miktar alanı -->
+            <EditText
+                android:id="@+id/miktaredit"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:hint="Miktar"
+                android:padding="8dp"
+                android:textColor="#000"
+                android:textColorHint="#888"
+                android:inputType="textCapSentences"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Açıklama + Gönder Butonu -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp"
+                android:gravity="center_vertical">
+
+                <EditText
+                    android:id="@+id/aciklamaedit"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:hint="Açıklama"
+                    android:padding="8dp"
+                    android:textColor="#000"
+                    android:textColorHint="#888"
+                    android:inputType="textCapSentences" />
+
+                <ImageButton
+                    android:id="@+id/gonderButton2edit"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_send"
+                    android:contentDescription="Gönder"
+                    android:scaleType="centerInside"
+                    android:layout_marginStart="8dp"/>
+            </LinearLayout>
+
+            <!-- Ödeme Tarihi alanı -->
+            <EditText
+                android:id="@+id/odemeTarihiedit"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:hint="Ödeme tarihi (gg.aa.yyyy)"
+                android:padding="8dp"
+                android:textColor="#000"
+                android:textColorHint="#888"
+                android:clickable="true"
+                android:layout_marginBottom="8dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/istekTextViewLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/gelen_mesaj"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:padding="10dp">
+            <TextView
+                android:id="@+id/gonderenadiview"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:hint="Gonderen kisi Adi"
+                android:padding="8dp"
+                android:textColor="#000"
+                android:textColorHint="#888"
+                android:inputType="textCapSentences" />
+            <!-- Miktar alanı -->
+            <TextView
+                android:id="@+id/miktar"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:hint="Miktar"
+                android:padding="8dp"
+                android:textColor="#000"
+                android:textColorHint="#888"
+                android:inputType="textCapSentences"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Açıklama + Gönder Butonu -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/aciklama"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:hint="Açıklama"
+                    android:padding="8dp"
+                    android:textColor="#000"
+                    android:textColorHint="#888"
+                    android:inputType="textCapSentences" />
+
+                <ImageButton
+                    android:id="@+id/gonderButton2"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_send"
+                    android:contentDescription="Gönder"
+                    android:scaleType="centerInside"
+                    android:layout_marginStart="8dp"/>
+            </LinearLayout>
+
+            <!-- Ödeme Tarihi alanı -->
+            <TextView
+                android:id="@+id/odemeTarihi"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:hint="Ödeme tarihi (gg.aa.yyyy)"
+                android:padding="8dp"
+                android:textColor="#000"
+                android:textColorHint="#888"
+                android:focusable="false"
+                android:clickable="true"
+                android:layout_marginBottom="8dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/yukleniyorProgress"
+        style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:indeterminate="true"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

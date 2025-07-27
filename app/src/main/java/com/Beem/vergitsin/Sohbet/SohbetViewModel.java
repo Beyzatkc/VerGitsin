@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.Beem.vergitsin.Kullanici.KullaniciDurum;
 import com.Beem.vergitsin.MainActivity;
 import com.Beem.vergitsin.Mesaj.Mesaj;
 import com.google.firebase.Timestamp;
@@ -13,12 +14,16 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class SohbetViewModel extends ViewModel {
     FirebaseFirestore db=FirebaseFirestore.getInstance();
     MutableLiveData<ArrayList<Sohbet>>_sohbetler=new MutableLiveData<>();
     LiveData<ArrayList<Sohbet>>sohbetler(){return _sohbetler;}
+
 
     public void SohbetleriCek(){
         db.collection("sohbetler")
@@ -30,16 +35,18 @@ public class SohbetViewModel extends ViewModel {
                     }
                     ArrayList<Sohbet> liste = new ArrayList<>();
                     for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                        String tur=doc.getString("tur");
                         String sohbetId = doc.getString("sohbetId");
                         String kullaniciAdi = doc.getString("kullaniciAdi");
                         String ppfoto = doc.getString("ppfoto");
                         String sonMesaj = doc.getString("sonMesaj");
                         Long sonMsjSaati = doc.getLong("sonMsjSaati");
                         ArrayList<String> katilimcilar = (ArrayList<String>) doc.get("katilimcilar");
-                        Sohbet sohbet =new Sohbet(sohbetId,kullaniciAdi,sonMsjSaati,ppfoto,sonMesaj,katilimcilar);
+                        Sohbet sohbet =new Sohbet(sohbetId,kullaniciAdi,sonMsjSaati,ppfoto,sonMesaj,katilimcilar,tur);
                         liste.add(sohbet);
                     }
                     _sohbetler.setValue(liste);
                 });
     }
+
 }

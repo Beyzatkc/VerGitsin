@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -17,14 +18,14 @@ import com.google.firebase.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
-public class MesajAdapter extends RecyclerView.Adapter<MesajAdapter.ViewHolder> {
+public class MesajAdapterKisi extends RecyclerView.Adapter<MesajAdapterKisi.ViewHolder>{
     private ArrayList<Mesaj> tumMesajlar;
     private Context context;
+    private CevapGeldi listenercvp;
 
-    public MesajAdapter(ArrayList<Mesaj>tumMesajlar,Context context) {
+    public MesajAdapterKisi(ArrayList<Mesaj>tumMesajlar, Context context) {
         this.tumMesajlar=tumMesajlar;
         this.context=context;
     }
@@ -32,12 +33,19 @@ public class MesajAdapter extends RecyclerView.Adapter<MesajAdapter.ViewHolder> 
         tumMesajlar.add(yeniMesaj);
         notifyItemInserted(tumMesajlar.size() - 1);
     }
+    public void setListenercvp(CevapGeldi listener) {
+        this.listenercvp = listener;
+    }
 
-
+    public void guncelleMesajListesi(ArrayList<Mesaj> yeniListe) {
+            tumMesajlar.clear();
+            tumMesajlar.addAll(yeniListe);
+            notifyDataSetChanged();
+    }
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.herbi_mesaj, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.herbi_mesaj_kisi, parent, false);
         return new ViewHolder(view);
     }
     public String timestampToGunAyYil(Timestamp timestamp) {
@@ -68,10 +76,11 @@ public class MesajAdapter extends RecyclerView.Adapter<MesajAdapter.ViewHolder> 
            Long MesajSaati=mesaj.getZaman();
            String zaman=longToSaatDakika(MesajSaati);
            holder.gidenSaat.setText(zaman);
-           if (benim.equals(mesaj.getIstekatilanID())) {
-               holder.gorulduDurumu.setVisibility(View.VISIBLE);
-           } else {
-               holder.gorulduDurumu.setVisibility(View.GONE);
+           if(mesaj.isCevabiVarMi()){
+               holder.onaygiden.setVisibility(View.VISIBLE);
+               holder.onaygiden.setText(mesaj.getCevap());
+           }else{
+               holder.onaygiden.setVisibility(View.GONE);
            }
        }else{
            holder.gelenLayout.setVisibility(View.VISIBLE);
@@ -85,8 +94,23 @@ public class MesajAdapter extends RecyclerView.Adapter<MesajAdapter.ViewHolder> 
            Long MesajSaati=mesaj.getZaman();
            String zaman=longToSaatDakika(MesajSaati);
            holder.gelenSaat.setText(zaman);
+           if(mesaj.isCevabiVarMi()){
+               holder.onaygelen.setVisibility(View.VISIBLE);
+               holder.onaygelen.setText(mesaj.getCevap());
+           }else{
+               holder.onaygelen.setVisibility(View.GONE);
+           }
+
+           holder.EVETgelen.setOnClickListener(b->{
+               if (listenercvp != null) {
+                   listenercvp.onCevapGeldi("Borç isteği onaylandı!", mesaj.getMsjID());
+               }
+               mesaj.setCevabiVarMi(true);
+               holder.onaygelen.setVisibility(View.VISIBLE);
+               holder.onaygelen.setText("Borç isteği onaylandı!");
+           });
+          }
        }
-    }
     @Override
     public int getItemCount() {
         return tumMesajlar.size();
@@ -96,6 +120,8 @@ public class MesajAdapter extends RecyclerView.Adapter<MesajAdapter.ViewHolder> 
         LinearLayout gidenLayout, gelenLayout;
         TextView txtMiktarGiden, txtTarihGiden, txtAciklamaGiden, gidenSaat, gorulduDurumu;
         TextView txtMiktarGelen, txtTarihGelen, txtAciklamaGelen, gelenSaat;
+        TextView onaygiden,onaygelen;
+        Button EVETgelen,HAYIRgelen;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -113,6 +139,12 @@ public class MesajAdapter extends RecyclerView.Adapter<MesajAdapter.ViewHolder> 
             txtTarihGelen = itemView.findViewById(R.id.txtOdenecekTarihGelen);
             txtAciklamaGelen = itemView.findViewById(R.id.txtAciklamaGelen);
             gelenSaat = itemView.findViewById(R.id.mesajGelenSaat);
+
+            EVETgelen=itemView.findViewById(R.id.EVETgelen);
+            HAYIRgelen=itemView.findViewById(R.id.HAYIRgelen);
+
+            onaygiden=itemView.findViewById(R.id.onaygiden);
+            onaygelen=itemView.findViewById(R.id.onaygelen);
         }
     }
 

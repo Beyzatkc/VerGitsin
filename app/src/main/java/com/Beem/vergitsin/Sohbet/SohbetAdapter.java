@@ -1,7 +1,6 @@
 package com.Beem.vergitsin.Sohbet;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,19 +9,15 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.Beem.vergitsin.Mesaj.MesajFragment;
 import com.Beem.vergitsin.R;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
-public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder> {
+public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder>{
     public interface OnSohbetClickListener {
         void onSohbetClicked(Sohbet sohbet);
     }
@@ -30,7 +25,7 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
     private Context context;
     private OnSohbetClickListener listener;
 
-    public SohbetAdapter(ArrayList<Sohbet> sohbetler, Context context, OnSohbetClickListener listener) {
+    public SohbetAdapter(ArrayList<Sohbet> sohbetler, Context context,OnSohbetClickListener listener) {
         this.sohbetler = sohbetler;
         this.context = context;
         this.listener=listener;
@@ -46,9 +41,24 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
         Date date = new Date(timeMillis);
         return sdf.format(date);
     }
+    public void SetSonMsj(String sohbetId, String yeniMesaj, Long yeniSaat) {
+        for (int i=0;i< sohbetler.size();i++) {
+            Sohbet s =sohbetler.get(i);
+            if (s.getSohbetID().equals(sohbetId)) {
+                s.setSonMesaj(yeniMesaj);
+                s.setSonmsjsaati(yeniSaat);
+                notifyItemChanged(i);
+                break;
+            }
+        }
+    }
     @Override
     public void onBindViewHolder(@NonNull SohbetAdapter.ViewHolder holder, int position) {
         Sohbet sohbet=sohbetler.get(position);
+        if(sohbet.getSonMesaj()!=null){
+            holder.son_mesaj.setText(sohbet.getSonMesaj());
+        }
+
         holder.kisi_adi.setText(sohbet.getKullaniciAdi());
         if(sohbet.getPpfoto()!=null) {
             int resId = context.getResources().getIdentifier(
@@ -59,7 +69,6 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
                     "user", "drawable", context.getPackageName());
             holder.kisi_fotosu.setImageResource(resId);
         }
-        holder.son_mesaj.setText(sohbet.getSonMesaj());
         if(sohbet.getSonmsjsaati()!=null) {
             holder.mesaj_saat.setVisibility(View.VISIBLE);
             String zaman=longToSaatDakika(sohbet.getSonmsjsaati());
@@ -72,19 +81,6 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
                     listener.onSohbetClicked(sohbet);
                 }
             });
-
-            /*
-            Bundle bundle = new Bundle();
-            bundle.putString("kaynak", "SohbetAdapter");
-            bundle.putString("sohbetId", sohbet.getSohbetID());
-
-            Fragment mesajFragment = new MesajFragment();
-            mesajFragment.setArguments(bundle);
-            fragment.getParentFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.konteynir, mesajFragment)
-                    .addToBackStack(null)
-                    .commit();*/
 
     }
     @Override

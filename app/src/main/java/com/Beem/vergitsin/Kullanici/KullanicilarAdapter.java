@@ -1,4 +1,4 @@
-package com.Beem.vergitsin;
+package com.Beem.vergitsin.Kullanici;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,7 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.Beem.vergitsin.Kullanici.Kullanici;
+import com.Beem.vergitsin.R;
 
 import java.util.ArrayList;
 

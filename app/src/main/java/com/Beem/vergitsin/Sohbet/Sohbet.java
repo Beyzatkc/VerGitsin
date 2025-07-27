@@ -1,7 +1,5 @@
 package com.Beem.vergitsin.Sohbet;
 
-import com.google.firebase.Timestamp;
-
 import java.util.ArrayList;
 
 public class Sohbet {
@@ -11,14 +9,24 @@ public class Sohbet {
     private String ppfoto;
     private String sonMesaj;
     private ArrayList<String> katilimcilar;
+    private String tur;
 
-    public Sohbet(String sohbetID, String kullaniciAdi, Long sonmsjsaati, String ppfoto, String sonMesaj,ArrayList<String> katilimcilar) {
+    public Sohbet(String sohbetID, String kullaniciAdi, Long sonmsjsaati, String ppfoto, String sonMesaj,ArrayList<String> katilimcilar,String tur) {
         this.sohbetID = sohbetID;
         this.kullaniciAdi = kullaniciAdi;
         this.sonmsjsaati = sonmsjsaati;
         this.ppfoto = ppfoto;
         this.sonMesaj = sonMesaj;
         this.katilimcilar=katilimcilar;
+        this.tur=tur;
+    }
+
+    public String getTur() {
+        return tur;
+    }
+
+    public void setTur(String tur) {
+        this.tur = tur;
     }
 
     public ArrayList<String> getKatilimcilar() {

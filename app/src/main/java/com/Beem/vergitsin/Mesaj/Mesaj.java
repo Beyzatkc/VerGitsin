@@ -3,17 +3,21 @@ package com.Beem.vergitsin.Mesaj;
 import com.google.firebase.Timestamp;
 
 public class Mesaj {
+    private String msjID;
     private String istegiAtanId;
     private String istekatilanID;
     private String aciklama;
     private String miktar;
     private Timestamp odenecekTarih;
+    private String cevap;
     private long zaman;
     private boolean goruldu;
+    private boolean cevabiVarMi;
+    public String istekAtanAdi;
 
     public Mesaj() {}
 
-    public Mesaj(String istegiAtanId, String istekatilanID, String aciklama, String miktar, Timestamp odenecekTarih, long zaman, boolean goruldu) {
+    public Mesaj(String istegiAtanId, String istekatilanID, String aciklama, String miktar, Timestamp odenecekTarih, long zaman, boolean goruldu,String cevap,String msjID) {
         this.istegiAtanId = istegiAtanId;
         this.istekatilanID = istekatilanID;
         this.aciklama = aciklama;
@@ -21,6 +25,40 @@ public class Mesaj {
         this.odenecekTarih = odenecekTarih;
         this.zaman = zaman;
         this.goruldu = goruldu;
+        this.cevap=cevap;
+        this.msjID=msjID;
+    }
+
+    public String getIstekAtanAdi() {
+        return istekAtanAdi;
+    }
+
+    public void setIstekAtanAdi(String istekAtanAdi) {
+        this.istekAtanAdi = istekAtanAdi;
+    }
+
+    public boolean isCevabiVarMi() {
+        return cevabiVarMi;
+    }
+
+    public void setCevabiVarMi(boolean cevabiVarMi) {
+        this.cevabiVarMi = cevabiVarMi;
+    }
+
+    public String getMsjID() {
+        return msjID;
+    }
+
+    public void setMsjID(String msjID) {
+        this.msjID = msjID;
+    }
+
+    public String getCevap() {
+        return cevap;
+    }
+
+    public void setCevap(String cevap) {
+        this.cevap = cevap;
     }
 
     public String getIstegiAtanId() {

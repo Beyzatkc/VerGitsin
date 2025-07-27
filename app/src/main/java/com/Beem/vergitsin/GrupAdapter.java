@@ -36,7 +36,7 @@ public class GrupAdapter extends RecyclerView.Adapter<GrupAdapter.ViewHolder> {
     @NonNull
     @Override
     public GrupAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view= LayoutInflater.from(parent.getContext()).inflate(R.layout.herbi_arkadas,parent,false);
+        View view= LayoutInflater.from(parent.getContext()).inflate(R.layout.herbi_grup,parent,false);
         return new GrupAdapter.ViewHolder(view);
     }
 

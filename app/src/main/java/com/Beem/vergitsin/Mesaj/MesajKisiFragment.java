@@ -1,7 +1,5 @@
 package com.Beem.vergitsin.Mesaj;
 
-import androidx.activity.OnBackPressedCallback;
-import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Bundle;
@@ -23,21 +21,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.Beem.vergitsin.MainActivity;
+import com.Beem.vergitsin.MesajSohbetOrtakView;
 import com.Beem.vergitsin.R;
-import com.Beem.vergitsin.Sohbet.SohbetFragment;
 import com.Beem.vergitsin.UyariMesaj;
 import com.google.firebase.Timestamp;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-public class MesajFragment extends Fragment {
+public class MesajKisiFragment extends Fragment implements CevapGeldi {
 
     private MesajViewModel mViewModel;
     private RecyclerView recyclerView;
-    private MesajAdapter adapter;
+    private MesajAdapterKisi adapter;
     private TextView kisiAdiText;
     private ImageView kisi_fotosu;
     private TextView kisiDurumText;
@@ -53,45 +52,59 @@ public class MesajFragment extends Fragment {
     private ImageButton gonderButtontext;
     private TextView odemeTarihitext;
 
-    private String istekAtilanId;
     private String miktari;
     private String aciklamasi;
     private String odemeTarihi;
     private String sohbetID;
-    private Long mesajinZamani;
     private String sohbetIdAdptr;
     private UyariMesaj uyarimesaji;
     private String istekatilanAd;
     private String sohbetedilenAd;
     private String sohbetEdilenPP;
     private String PP;
+    private String SonMesaj;
+    private Long SonMesajSaat;
+    private String SonMesajadptr;
+    private Long SonMesajSaatadptr;
+    private MesajSohbetOrtakView ortakViewModel;
 
-    public static MesajFragment newInstance() {
-        return new MesajFragment();
+    public static MesajKisiFragment newInstance() {
+        return new MesajKisiFragment();
     }
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mViewModel = new ViewModelProvider(this).get(MesajViewModel.class);
-
+        ortakViewModel = new ViewModelProvider(requireActivity()).get(MesajSohbetOrtakView.class);
         if (getArguments() != null) {
             String kaynak = getArguments().getString("kaynak", "");
-
             if (kaynak.equals("SohbetAdapter")) {
                 sohbetIdAdptr= getArguments().getString("sohbetId");
                 sohbetedilenAd=getArguments().getString("sohbetedilenAd");
                 sohbetEdilenPP=getArguments().getString("sohbetEdilenPP");
             } else if (kaynak.equals("mainactivity")) {
-                istekAtilanId=getArguments().getString("istekatilanID");
                 PP=getArguments().getString("pp");
                 istekatilanAd = getArguments().getString("istekatilanAdi");
                 miktari = getArguments().getString("miktar").trim();
                 aciklamasi = getArguments().getString("aciklama").trim();
                 odemeTarihi = getArguments().getString("odemeTarihi").trim();
                 sohbetID=getArguments().getString("sohbetId");
-                mesajinZamani=getArguments().getLong("mesajinatildigizaman");
             }
+        }
+    }
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        String kaynak = null;
+        if (getArguments() != null) {
+            kaynak = getArguments().getString("kaynak");
+        }
+        if ("mainactivity".equals(kaynak)) {
+            ortakViewModel.sonMsjDbKaydi(sohbetID,SonMesaj,SonMesajSaat);
+        }else if("SohbetAdapter".equals(kaynak)){
+            ortakViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesajadptr,SonMesajSaatadptr);
         }
     }
     @Override
@@ -99,18 +112,6 @@ public class MesajFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
        View view =inflater.inflate(R.layout.fragment_mesaj, container, false);
         uyarimesaji=new UyariMesaj(requireContext(),false);
-        requireActivity().getOnBackPressedDispatcher().addCallback(
-                getViewLifecycleOwner(),
-                new OnBackPressedCallback(true) {
-                    @Override
-                    public void handleOnBackPressed() {
-                        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-                        fragmentManager.beginTransaction()
-                                .replace(R.id.konteynir, new SohbetFragment())
-                                .commit();
-                    }
-                }
-        );
         String kaynak = null;
         if (getArguments() != null) {
             kaynak = getArguments().getString("kaynak");
@@ -118,7 +119,7 @@ public class MesajFragment extends Fragment {
         recyclerView=view.findViewById(R.id.mesajRecyclerView);
         kisiAdiText=view.findViewById(R.id.kisiAdiText);
         kisi_fotosu=view.findViewById(R.id.kisi_fotosu);
-        kisiDurumText=view.findViewById(R.id.kisiDurumText);//DAHA YAPMADIM
+        kisiDurumText=view.findViewById(R.id.kisiDurumText);
 
         istekEditTextViewLayout=view.findViewById(R.id.istekEditTextViewLayout);
         miktaredit=view.findViewById(R.id.miktaredit);
@@ -132,7 +133,27 @@ public class MesajFragment extends Fragment {
         gonderButtontext=view.findViewById(R.id.gonderButton2);
         odemeTarihitext=view.findViewById(R.id.odemeTarihi);
 
+        adapter = new MesajAdapterKisi(new ArrayList<>(), requireContext());
+        //adapter.setListenercvp(this);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        recyclerView.setAdapter(adapter);
+
         if ("mainactivity".equals(kaynak)) {
+            mViewModel.SohbetIDsindenAliciya(sohbetID);
+            mViewModel.AliciID().observe(getViewLifecycleOwner(), id -> {
+                if (id != null) {
+                    mViewModel.CevrimiciSongorulmeDb(id);
+                    mViewModel.durum().observe(getViewLifecycleOwner(), durum -> {
+                        if (durum != null) {
+                            if (durum.getCevirmici()) {
+                                kisiDurumText.setText("Çevrimiçi");
+                            } else {
+                                kisiDurumText.setText("Son görülme: " + durum.getSonGorulme());
+                            }
+                        }
+                    });
+                }
+            });
             istekEditTextViewLayout.setVisibility(View.GONE);
             istekTextViewLayout.setVisibility(View.VISIBLE);
             miktartext.setText(miktari);
@@ -149,21 +170,51 @@ public class MesajFragment extends Fragment {
                                "user", "drawable", requireContext().getPackageName());
                        kisi_fotosu.setImageResource(resId);
                    }
+
             mViewModel.MesajBorcistekleriDbCek(sohbetID);
 
-            mViewModel.tumMesajlar().observe(getViewLifecycleOwner(), mesajList ->{
-                recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-                adapter = new MesajAdapter(mesajList,requireContext());
-                recyclerView.setAdapter(adapter);
-            });
-            //BUTONA BASMAYI KALDIRDIM
-                Timestamp tarih=stringToTimestamp(odemeTarihi);
-                Mesaj mesaj=new Mesaj(MainActivity.kullanicistatic.getKullaniciId(),istekAtilanId,aciklamasi,miktari,tarih,mesajinZamani,false);
-                adapter.mesajEkle(mesaj);
-                recyclerView.scrollToPosition(adapter.getItemCount() - 1);
+            mViewModel.tumMesajlar().observe(getViewLifecycleOwner(), mesajList -> {
+                if (adapter == null) {
+                    adapter = new MesajAdapterKisi(new ArrayList<>(), requireContext());
+                   // adapter.setListenercvp(this);
+                    recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+                    recyclerView.setAdapter(adapter);
+                }
+                adapter.guncelleMesajListesi(mesajList);
                 istekEditTextViewLayout.setVisibility(View.VISIBLE);
                 istekTextViewLayout.setVisibility(View.GONE);
+                SonMesaj=mesajList.get(mesajList.size()-1).getMiktar()+" Tl borç isteği";
+                SonMesajSaat=mesajList.get(mesajList.size()-1).getZaman();
+                ortakViewModel.setSonMesaj(sohbetID,SonMesaj,SonMesajSaat);
+            });
+            mViewModel.eklenen().observe(getViewLifecycleOwner(), mesaj -> {
+                if (mesaj != null) {
+                    adapter.mesajEkle(mesaj);
+                    recyclerView.scrollToPosition(adapter.getItemCount() - 1);
+                    SonMesaj=mesaj.getMiktar()+" TL borç isteği";
+                    SonMesajSaat=mesaj.getZaman();
+                    ortakViewModel.setSonMesaj(sohbetID,SonMesaj,SonMesajSaat);
+                }
+            });
+
         } else {
+            mViewModel.SohbetIDsindenAliciya(sohbetIdAdptr);
+
+            mViewModel.AliciID().observe(getViewLifecycleOwner(), id -> {
+                if (id != null) {
+                    mViewModel.CevrimiciSongorulmeDb(id);
+                }
+            });
+
+            mViewModel.durum().observe(getViewLifecycleOwner(), durum -> {
+                if (durum != null) {
+                    if (durum.getCevirmici()) {
+                        kisiDurumText.setText("Çevrimiçi");
+                    } else {
+                        kisiDurumText.setText("Son görülme: " + durum.getSonGorulme());
+                    }
+                }
+            });
            kisiAdiText.setText(sohbetedilenAd);
             if (sohbetEdilenPP != null) {
                 int resId = requireContext().getResources().getIdentifier(
@@ -177,11 +228,26 @@ public class MesajFragment extends Fragment {
             mViewModel.MesajBorcistekleriDbCek(sohbetIdAdptr);
 
             mViewModel.tumMesajlar().observe(getViewLifecycleOwner(), mesajList -> {
-                        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-                        adapter = new MesajAdapter(mesajList, requireContext());
-                        recyclerView.setAdapter(adapter);
-                    });
-
+                if (adapter == null) {
+                    adapter = new MesajAdapterKisi(new ArrayList<>(), requireContext());
+                 //   adapter.setListenercvp(this);
+                    recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+                    recyclerView.setAdapter(adapter);
+                }
+                adapter.guncelleMesajListesi(mesajList);
+                SonMesajadptr=mesajList.get(mesajList.size()-1).getMiktar()+" Tl borç isteği";
+                SonMesajSaatadptr=mesajList.get(mesajList.size()-1).getZaman();
+                ortakViewModel.setSonMesaj(sohbetID,SonMesaj,SonMesajSaatadptr);
+            });
+            mViewModel.eklenen().observe(getViewLifecycleOwner(), mesaj -> {
+                if (mesaj != null) {
+                    adapter.mesajEkle(mesaj);
+                    recyclerView.scrollToPosition(adapter.getItemCount() - 1);
+                    SonMesajadptr=mesaj.getMiktar()+" Tl borç isteği";
+                    SonMesajSaatadptr=mesaj.getZaman();
+                    ortakViewModel.setSonMesaj(sohbetID,SonMesaj,SonMesajSaatadptr);
+                }
+            });
             istekEditTextViewLayout.setVisibility(View.VISIBLE);
             istekTextViewLayout.setVisibility(View.GONE);
             gonderButton2edit.setOnClickListener(b->{
@@ -195,12 +261,8 @@ public class MesajFragment extends Fragment {
                     return;
                 }else{
                     Timestamp tarih=stringToTimestamp(odemetarihi);
-                    mViewModel.SohbetIDsindenAliciya(sohbetIdAdptr);
                     mViewModel.AliciID().observe(getViewLifecycleOwner(),id->{
-                        Mesaj mesaj=new Mesaj(MainActivity.kullanicistatic.getKullaniciId(),id,aciklama,miktar,tarih,mesajZamani,false);
-                            adapter.mesajEkle(mesaj);
-                            recyclerView.scrollToPosition(adapter.getItemCount() - 1);
-                            mViewModel.BorcIstekleriDb(uyarimesaji,MainActivity.kullanicistatic.getKullaniciId(),id,miktar,aciklama,tarih,MainActivity.kullanicistatic.getKullaniciAdi(),sohbetIdAdptr,System.currentTimeMillis());
+                            mViewModel.BorcIstekleriDb(uyarimesaji,MainActivity.kullanicistatic.getKullaniciId(),id,miktar,aciklama,tarih,MainActivity.kullanicistatic.getKullaniciAdi(),sohbetIdAdptr,mesajZamani);
                             miktaredit.setText("");
                             aciklamaedit.setText("");
                             odemeTarihiedit.setText("");
@@ -217,7 +279,11 @@ public class MesajFragment extends Fragment {
             return new Timestamp(date);
         } catch (ParseException e) {
             e.printStackTrace();
-            return null; // veya default bir Timestamp dönebilirsin
+            return null;
         }
+    }
+    @Override
+    public void onCevapGeldi(String cvp,String idmsj) {
+        mViewModel.GelenCevabiKaydetme(sohbetIdAdptr,idmsj,cvp);
     }
 }

@@ -18,8 +18,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
@@ -31,14 +33,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.Beem.vergitsin.Kullanici.Kullanici;
 import com.Beem.vergitsin.Kullanici.KullaniciFragment;
+import com.Beem.vergitsin.Kullanici.KullanicilarAdapter;
 import com.Beem.vergitsin.Kullanici.SharedPreferencesK;
-import com.Beem.vergitsin.Mesaj.MesajFragment;
+import com.Beem.vergitsin.Mesaj.MesajGrupFragment;
+import com.Beem.vergitsin.Mesaj.MesajKisiFragment;
 import com.Beem.vergitsin.Sohbet.SohbetFragment;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.text.ParseException;
@@ -63,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
     private UyariMesaj uyariMesaj;
     private Button Borciste;
     private ImageButton Sohbetler;
+    private ConstraintLayout icerikLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,6 +78,22 @@ public class MainActivity extends AppCompatActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+        });
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.konteynir);
+                if (currentFragment instanceof SohbetFragment) {
+                    getSupportFragmentManager().popBackStack();
+                    icerikLayout.setVisibility(View.VISIBLE);
+                } else {
+                    if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                        getSupportFragmentManager().popBackStack();
+                    } else {
+                        finish();
+                    }
+                }
+            }
         });
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
@@ -91,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
 
             Kullanici kullanici = new Kullanici(id, kAdi, email);
             MainActivity.kullanicistatic = kullanici;
+            cevrimici();
 
             FirebaseMessaging.getInstance().getToken()
                     .addOnSuccessListener(token -> {
@@ -119,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
         grupolsuturlayout=findViewById(R.id.grupolsuturlayout);
         Borciste=findViewById(R.id.Borciste);
         Sohbetler=findViewById(R.id.Sohbetler);
+        icerikLayout=findViewById(R.id.icerikLayout);
         ArkadasEkle();
         GrupOlustur();
         BorcIsteme();
@@ -136,6 +160,34 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Bildirim izni reddedildi", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    protected void cevrimici() {
+        Map<String, Object> data = new HashMap<>();
+        data.put("cevrimici", true);
+        db.collection("users").document(MainActivity.kullanicistatic.getKullaniciId())
+                .set(data, SetOptions.merge())
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("Firestore", "Çevrimiçi durumu güncellendi.");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Firestore", "Hata: " + e.getMessage());
+                });
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Map<String, Object> data = new HashMap<>();
+        data.put("cevrimici", false);
+        data.put("sonGorulme", FieldValue.serverTimestamp());
+        db.collection("users").document(MainActivity.kullanicistatic.getKullaniciId())
+                .set(data, SetOptions.merge())
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("Firestore", "Çevrimdışı durumu ve son görülme zamanı güncellendi.");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Firestore", "Hata: " + e.getMessage());
+                });
     }
 
     public String RastgeleCumle(){
@@ -392,7 +444,8 @@ public class MainActivity extends AppCompatActivity {
                 .add(grupVerisi)
                 .addOnSuccessListener(documentReference  -> {
                     String grupId = documentReference.getId();
-                    sohbetOlusturDbGrup(grupId,grupAdi,System.currentTimeMillis(), null,"%s sohbet oluşturdu"+MainActivity.kullanicistatic.getKullaniciAdi(),sohbetId -> {
+                    sohbetOlusturDbGrup(grupId,grupAdi,System.currentTimeMillis(), null,String.format("%s sohbet oluşturdu",MainActivity.kullanicistatic.getKullaniciAdi()),sohbetId -> {
+                        icerikLayout.setVisibility(View.GONE);
                         Fragment sohbetFragment = new SohbetFragment();
                         getSupportFragmentManager()
                                 .beginTransaction()
@@ -447,29 +500,32 @@ public class MainActivity extends AppCompatActivity {
                 EditText edtMiktar = dialog.findViewById(R.id.edtMiktar);
                 EditText edtAciklama = dialog.findViewById(R.id.edtAciklama);
                 EditText edtTarih = dialog.findViewById(R.id.edtTarih);
+                String regex = "^\\d{2}/\\d{2}/\\d{4}$";
                 Button btnGonder = dialog.findViewById(R.id.btnGonder);
 
                 btnGonder.setOnClickListener(v2 -> {
                     String miktar = edtMiktar.getText().toString().trim();
                     String aciklama = edtAciklama.getText().toString().trim();
                     String tarih = edtTarih.getText().toString().trim();
-                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-                    Date date = null;
-                    try {
-                        date = sdf.parse(tarih);
-                    } catch (ParseException e) {
-                        throw new RuntimeException(e);
-                    }
-                    Timestamp timestamp = new Timestamp(date);
-
                     if (miktar.isEmpty()) {
                         Toast.makeText(this, "Miktar boş olamaz", Toast.LENGTH_SHORT).show();
                         return;
                     }else if(tarih.isEmpty()){
                         Toast.makeText(this, "Tarih boş olamaz", Toast.LENGTH_SHORT).show();
                         return;
+                    }else if(!tarih.matches(regex)){
+                        Toast.makeText(this, "Lütfen tarihi gün/ay/yıl formatında girin (örn: 22/07/2025)", Toast.LENGTH_SHORT).show();
+                        return;
                     }else{
-                        SohbetOlusturDbArkadas(MainActivity.kullanicistatic.getKullaniciId(),secilen.getKullaniciId(),secilen.getKullaniciAdi(), System.currentTimeMillis(), secilen.getProfilFoto(), String.format("%s borç isteği",miktar), sohbetId -> {
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                        Date date = null;
+                        try {
+                            date = sdf.parse(tarih);
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
+                        }
+                        Timestamp timestamp = new Timestamp(date);
+                        SohbetOlusturDbArkadas(MainActivity.kullanicistatic.getKullaniciId(),secilen.getKullaniciId(),secilen.getKullaniciAdi(), System.currentTimeMillis(), secilen.getProfilFoto(), String.format("%s TL borç isteği",miktar), sohbetId -> {
                                     BorcIstekleriDb(
                                             MainActivity.kullanicistatic.getKullaniciId(),
                                             secilen.getKullaniciId(),
@@ -482,16 +538,14 @@ public class MainActivity extends AppCompatActivity {
                                             () -> {
                                                 Bundle bundle = new Bundle();
                                                 bundle.putString("kaynak", "mainactivity");
-                                                bundle.putString("istekatilanID", secilen.getKullaniciId());
                                                 bundle.putString("pp",secilen.getProfilFoto());
                                                 bundle.putString("istekatilanAdi",secilen.getKullaniciAdi());
                                                 bundle.putString("miktar", miktar);
                                                 bundle.putString("aciklama", aciklama);
                                                 bundle.putString("odemeTarihi", tarih);
                                                 bundle.putString("sohbetId", sohbetId);
-                                                bundle.putLong("mesajinatildigizaman",System.currentTimeMillis());
 
-                                                MesajFragment fragment = new MesajFragment();
+                                                MesajKisiFragment fragment = new MesajKisiFragment();
                                                 fragment.setArguments(bundle);
                                                 getSupportFragmentManager()
                                                         .beginTransaction()
@@ -522,6 +576,7 @@ public class MainActivity extends AppCompatActivity {
                         onSohbetOlusturuldu.accept(sohbetId);
                     } else {
                         Map<String, Object> sohbetData = new HashMap<>();
+                        sohbetData.put("tur", "kisi");
                         sohbetData.put("sohbetId",sohbetId);
                         sohbetData.put("kullaniciAdi", kullaniciAdi);
                         sohbetData.put("sonMsjSaati", sonMsjSaati);
@@ -556,6 +611,7 @@ public class MainActivity extends AppCompatActivity {
                                         onSohbetOlusturuldu.accept(sohbetId);
                                     } else {
                                         Map<String, Object> sohbetData = new HashMap<>();
+                                        sohbetData.put("tur", "grup");
                                         sohbetData.put("sohbetId", sohbetId);
                                         sohbetData.put("kullaniciAdi", kullaniciAdi);
                                         sohbetData.put("sonMsjSaati", sonMsjSaati);
@@ -605,6 +661,7 @@ public class MainActivity extends AppCompatActivity {
     }
     public void SohbetlereBasarsa(){
         Sohbetler.setOnClickListener(b->{
+            icerikLayout.setVisibility(View.GONE);
             SohbetFragment fragment = new SohbetFragment();
             getSupportFragmentManager()
                     .beginTransaction()
@@ -663,14 +720,7 @@ public class MainActivity extends AppCompatActivity {
                     String miktar = edtMiktar.getText().toString().trim();
                     String aciklama = edtAciklama.getText().toString().trim();
                     String tarih = edtTarih.getText().toString().trim();
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                    Date date = null;
-                    try {
-                        date = sdf.parse(tarih);
-                    } catch (ParseException e) {
-                        throw new RuntimeException(e);
-                    }
-                    Timestamp timestamp = new Timestamp(date);
+                    String regex = "^\\d{2}/\\d{2}/\\d{4}$";
 
                     if (miktar.isEmpty()) {
                         Toast.makeText(this, "Miktar boş olamaz", Toast.LENGTH_SHORT).show();
@@ -678,8 +728,19 @@ public class MainActivity extends AppCompatActivity {
                     }else if(tarih.isEmpty()){
                         Toast.makeText(this, "Tarih boş olamaz", Toast.LENGTH_SHORT).show();
                         return;
+                    }else if(!tarih.matches(regex)){
+                            Toast.makeText(this, "Lütfen tarihi gün/ay/yıl formatında girin (örn: 22/07/2025)", Toast.LENGTH_SHORT).show();
+                            return;
                     }else{
-                        sohbetOlusturDbGrup(secilen.getGrupId(),secilen.getGrupAdi(), System.currentTimeMillis(), null, String.format("%s %s borç isteği"), sohbetId -> {
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                        Date date = null;
+                        try {
+                            date = sdf.parse(tarih);
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
+                        }
+                        Timestamp timestamp = new Timestamp(date);
+                        sohbetOlusturDbGrup(secilen.getGrupId(),secilen.getGrupAdi(), System.currentTimeMillis(), null,String.format("%s TL borç isteği",miktar), sohbetId -> {
                             BorcIstekleriDb(
                                     MainActivity.kullanicistatic.getKullaniciId(),
                                     secilen.getGrupId(),
@@ -693,15 +754,13 @@ public class MainActivity extends AppCompatActivity {
                                         Bundle bundle = new Bundle();
                                         bundle.putString("kaynak", "mainactivity");
                                         bundle.putString("istekatilanAdi", secilen.getGrupAdi());
-                                        bundle.putString("istekatilanID", secilen.getGrupId());
                                         bundle.putString("pp",null);
                                         bundle.putString("miktar", miktar);
                                         bundle.putString("aciklama", aciklama);
                                         bundle.putString("odemeTarihi", tarih);
                                         bundle.putString("sohbetId", sohbetId);
-                                        bundle.putLong("mesajinatildigizaman",System.currentTimeMillis());
 
-                                        MesajFragment fragment = new MesajFragment();
+                                        MesajGrupFragment fragment = new MesajGrupFragment();
                                         fragment.setArguments(bundle);
                                         getSupportFragmentManager()
                                                 .beginTransaction()

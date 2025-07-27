@@ -10,20 +10,23 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.Beem.vergitsin.ArkadasAdapter;
-import com.Beem.vergitsin.Kullanici.KullaniciViewModel;
-import com.Beem.vergitsin.Mesaj.MesajFragment;
+import com.Beem.vergitsin.Mesaj.MesajGrupFragment;
+import com.Beem.vergitsin.Mesaj.MesajKisiFragment;
+import com.Beem.vergitsin.MesajSohbetOrtakView;
 import com.Beem.vergitsin.R;
-import com.google.firebase.Timestamp;
 
-public class SohbetFragment extends Fragment {
+import java.util.Map;
+
+public class SohbetFragment extends Fragment{
     private SohbetViewModel mViewModel;
     private RecyclerView recyclerView;
     private SohbetAdapter adapter;
+    private MesajSohbetOrtakView ortakViewModel;
 
     public static SohbetFragment newInstance() {
         return new SohbetFragment();
@@ -33,6 +36,7 @@ public class SohbetFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mViewModel = new ViewModelProvider(this).get(SohbetViewModel.class);
+        ortakViewModel = new ViewModelProvider(requireActivity()).get(MesajSohbetOrtakView.class);
     }
 
     @Override
@@ -41,6 +45,7 @@ public class SohbetFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_sohbet, container, false);
         recyclerView=view.findViewById(R.id.recyclerSohbetler);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+
         mViewModel.SohbetleriCek();
         mViewModel.sohbetler().observe(getViewLifecycleOwner(),sohbetler -> {
              adapter = new SohbetAdapter(sohbetler, requireContext(), new SohbetAdapter.OnSohbetClickListener() {
@@ -51,21 +56,43 @@ public class SohbetFragment extends Fragment {
                     bundle.putString("sohbetId", sohbet.getSohbetID());
                     bundle.putString("sohbetedilenAd",sohbet.getKullaniciAdi());
                     bundle.putString("sohbetEdilenPP",sohbet.getPpfoto());
-                    Fragment mesajFragment = new MesajFragment();
-                    mesajFragment.setArguments(bundle);
 
-                    requireActivity().getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(R.id.konteynir, mesajFragment)
-                            .addToBackStack(null)
-                            .commit();
+                    if(sohbet.getTur().equals("grup")) {
+                        Fragment mesajGrupFragment = new MesajGrupFragment();
+                        mesajGrupFragment.setArguments(bundle);
+                        requireActivity().getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.konteynir, mesajGrupFragment)
+                                .addToBackStack(null)
+                                .commit();
+                    }else if(sohbet.getTur().equals("kisi")){
+                        Fragment mesajKisiFragment = new MesajKisiFragment();
+                        mesajKisiFragment.setArguments(bundle);
+                        requireActivity().getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.konteynir, mesajKisiFragment)
+                                .addToBackStack(null)
+                                .commit();
+                    }
                 }
             });
 
             recyclerView.setAdapter(adapter);
+
+        });
+        ortakViewModel.getTumSonMesajlar().observe(getViewLifecycleOwner(), sonMesajMap -> {
+            if (adapter != null) {
+                for (Map.Entry<String, Pair<String, Long>> entry : sonMesajMap.entrySet()) {
+                    String sohbetId = entry.getKey();
+                    Pair<String, Long> mesajVeSaat = entry.getValue();
+                    if (mesajVeSaat != null) {
+                        String mesaj = mesajVeSaat.first;
+                        Long saat = mesajVeSaat.second;
+                        adapter.SetSonMsj(sohbetId, mesaj, saat);
+                    }
+                }
+            }
         });
         return view;
     }
-
-
 }

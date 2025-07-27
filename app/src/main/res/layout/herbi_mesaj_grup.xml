@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="8dp">
+
+    <!-- Giden Mesaj (sağda) -->
+    <LinearLayout
+        android:id="@+id/mesajGidenLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="0dp"
+        android:gravity="end"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/gelen_mesaj"
+            android:elevation="2dp"
+            android:orientation="vertical"
+            android:padding="10dp">
+            <TextView
+                android:id="@+id/gonderenadigiden"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Gonderen kisi Adi"
+                android:textColor="#000"
+                android:textColorHint="#888"
+                android:inputType="textCapSentences" />
+
+            <TextView
+                android:id="@+id/txtBorcMiktariGiden"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Miktar: 250 TL"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtOdenecekTarihGiden"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Ödeme Tarihi: 25.07.2025"
+                android:textColor="#000000"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/txtAciklamaGiden"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Açıklama: Akşam yemeği parası"
+                android:textColor="#000000"
+                android:textSize="14sp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:spacing="8dp">
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/mesajGidenSaat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="200dp"
+                android:layout_marginTop="2dp"
+                android:text="20:14"
+                android:textColor="#888888"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/gorulduDurumu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Görüldü"
+            android:textColor="#888888"
+            android:textSize="12sp"
+            android:translationX="-10dp" />
+
+        <TextView
+            android:id="@+id/onaygiden"
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="50dp"
+            android:background="@drawable/giden_mesaj"
+            android:gravity="start"
+            android:orientation="vertical"
+            android:text="Borç isteğiniz onaylandı!💸💸💸"
+            android:textColor="#000000"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:translationX="-100dp" />
+    </LinearLayout>
+    <!-- Gelen Mesaj (solda) -->
+    <LinearLayout
+        android:id="@+id/mesajGelenLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="0dp"
+        android:visibility="visible"
+        android:orientation="vertical"
+        android:gravity="start">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/giden_mesaj"
+            android:orientation="vertical"
+            android:padding="10dp"
+            android:elevation="2dp">
+            <TextView
+                android:id="@+id/gonderenadigelen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Gonderen kisi Adi"
+                android:textColor="#000"
+                android:textColorHint="#888"
+                android:inputType="textCapSentences" />
+
+            <TextView
+                android:id="@+id/txtBorcMiktariGelen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Miktar: 250 TL"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/txtOdenecekTarihGelen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ödeme Tarihi: 25.07.2025"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp" />
+
+            <TextView
+                android:id="@+id/txtAciklamaGelen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Açıklama: Akşam yemeği parası"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:spacing="8dp"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto">
+
+                <Button
+                    android:id="@+id/EVETgelen"
+                    android:layout_width="100dp"
+                    android:layout_height="40dp"
+                    android:backgroundTint="#C8E6C9"
+                    android:text="Evet"
+                    android:textAllCaps="false"
+                    android:textColor="#000000"
+                    android:textStyle="bold"
+                    app:cornerRadius="8dp"
+                    app:strokeColor="#556B2F"
+                    app:strokeWidth="2dp"
+                    android:layout_marginEnd="8dp" />
+
+                <Button
+                    android:id="@+id/HAYIRgelen"
+                    android:layout_width="100dp"
+                    android:layout_height="40dp"
+                    android:backgroundTint="#FFCDD2"
+                    android:text="Hayır"
+                    android:textAllCaps="false"
+                    android:textColor="#000000"
+                    android:textStyle="bold"
+                    app:cornerRadius="8dp"
+                    app:strokeColor="#FF6B6B"
+                    app:strokeWidth="2dp" />
+            </LinearLayout>
+            <TextView
+                android:id="@+id/mesajGelenSaat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="20:15"
+                android:textSize="12sp"
+                android:textColor="#888888"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+        <TextView
+            android:id="@+id/gorulduDurumubos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text=""
+            android:textColor="#888888"
+            android:textSize="12sp"
+            android:translationX="-10dp" />
+        <TextView
+            android:id="@+id/onaygelen"
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:visibility="gone"
+            android:background="@drawable/gelen_mesaj"
+            android:text="Borç isteğiniz onaylandı!💸💸💸"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="#000000"
+            android:layout_gravity="end"
+            android:layout_marginTop="2dp" />
+    </LinearLayout>
+</RelativeLayout>
