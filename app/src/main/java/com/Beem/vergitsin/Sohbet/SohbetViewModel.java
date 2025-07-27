@@ -36,39 +36,6 @@ public class SohbetViewModel extends ViewModel {
     MutableLiveData<Sohbet>_silinenSohbet=new MutableLiveData<>();
     LiveData<Sohbet>silinenSohbet(){return _silinenSohbet;}
 
-        // Yeni sohbet ekle
-        private void sohbetEkle(Sohbet yeniSohbet) {
-            ArrayList<Sohbet> mevcut = _sohbetler.getValue();
-            if (mevcut == null) mevcut = new ArrayList<>();
-            mevcut.add(yeniSohbet);
-            _sohbetler.setValue(mevcut);
-        }
-
-        // Var olan sohbeti güncelle
-        private void sohbetGuncelle(Sohbet guncelSohbet) {
-            ArrayList<Sohbet> mevcut = _sohbetler.getValue();
-            if (mevcut == null) return;
-
-            for (int i = 0; i < mevcut.size(); i++) {
-                if (mevcut.get(i).getSohbetID().equals(guncelSohbet.getSohbetID())) {
-                    mevcut.set(i, guncelSohbet);
-                    _sohbetler.setValue(mevcut);
-                    break;
-                }
-            }
-        }
-
-        // Sohbet sil
-        private void sohbetSil(String sohbetId) {
-            ArrayList<Sohbet> mevcut = _sohbetler.getValue();
-            if (mevcut == null) return;
-
-            boolean silindi = mevcut.removeIf(s -> s.getSohbetID().equals(sohbetId));
-            if (silindi) {
-                _sohbetler.setValue(mevcut);
-            }
-        }
-
         public void SohbetleriCek() {
             db.collection("sohbetler")
                     .whereArrayContains("katilimcilar", MainActivity.kullanicistatic.getKullaniciId())

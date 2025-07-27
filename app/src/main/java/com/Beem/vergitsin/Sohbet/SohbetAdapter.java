@@ -33,11 +33,23 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
         this.listener=listener;
     }
     public void sohbetEkle(Sohbet yeniSohbet) {
+        for (Sohbet s : sohbetler) {
+            if (s.getSohbetID().equals(yeniSohbet.getSohbetID())) {
+                return;
+            }
+        }
         sohbetler.add(yeniSohbet);
         notifyItemInserted(sohbetler.size() - 1);
     }
-    public void SohbetGuncelle(Sohbet sohbet) {
-        notifyItemInserted(sohbetler.size() - 1);
+
+    public void SohbetGuncelle(Sohbet guncelSohbet) {
+        for (int i = 0; i < sohbetler.size(); i++) {
+            if (sohbetler.get(i).getSohbetID().equals(guncelSohbet.getSohbetID())) {
+                sohbetler.set(i, guncelSohbet);
+                notifyItemChanged(i);
+                break;
+            }
+        }
     }
     @NonNull
     @Override

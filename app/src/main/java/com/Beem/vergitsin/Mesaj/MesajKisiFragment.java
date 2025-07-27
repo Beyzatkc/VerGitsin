@@ -223,7 +223,7 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
                 adapter.guncelleMesajListesi(mesajList);
                 SonMesajadptr=mesajList.get(mesajList.size()-1).getMiktar()+" Tl borç isteği";
                 SonMesajSaatadptr=mesajList.get(mesajList.size()-1).getZaman();
-                mViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesaj,SonMesajSaat);
+                mViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesajadptr,SonMesajSaatadptr);
             });
             mViewModel.eklenen().observe(getViewLifecycleOwner(), mesaj -> {
                 if (mesaj != null) {
@@ -231,7 +231,7 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
                     recyclerView.scrollToPosition(adapter.getItemCount() - 1);
                     SonMesajadptr=mesaj.getMiktar()+" Tl borç isteği";
                     SonMesajSaatadptr=mesaj.getZaman();
-                    mViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesaj,SonMesajSaat);
+                    mViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesajadptr,SonMesajSaatadptr);
                 }
             });
             istekEditTextViewLayout.setVisibility(View.VISIBLE);
