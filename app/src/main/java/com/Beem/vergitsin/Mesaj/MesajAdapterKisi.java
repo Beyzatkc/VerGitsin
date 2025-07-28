@@ -17,6 +17,8 @@ import com.google.firebase.Timestamp;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 
@@ -42,11 +44,12 @@ public class MesajAdapterKisi extends RecyclerView.Adapter<MesajAdapterKisi.View
         this.listenercvp = listener;
     }
 
-    /*public void guncelleMesajListesi(ArrayList<Mesaj> yeniListe) {
+    public void guncelleMesajListesi(ArrayList<Mesaj> yeniListe) {
+        Collections.sort(yeniListe, Comparator.comparingLong(Mesaj::getZaman));
             tumMesajlar.clear();
             tumMesajlar.addAll(yeniListe);
             notifyDataSetChanged();
-    }*/
+    }
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

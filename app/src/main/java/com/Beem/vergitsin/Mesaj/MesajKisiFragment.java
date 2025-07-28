@@ -68,6 +68,11 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
     private String SonMesajadptr;
     private Long SonMesajSaatadptr;
     String kaynak;
+    private boolean ilkMesajAlindi = false;
+    private boolean ilkMesajAlindiadptr = false;
+    private Long ilkmsjSaati;
+    private Long ilkmsjSaatiadptr;
+
 
     public static MesajKisiFragment newInstance() {
         return new MesajKisiFragment();
@@ -131,14 +136,19 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (layoutManager.findFirstVisibleItemPosition() == 0 && !isLoading) {
-                    isLoading = true; // yükleniyor flag'i
-                    if ("mainactivity".equals(kaynak)) {
-                        mViewModel.EskiMesajlariYukle(sohbetID);
-                    }else{
-                        mViewModel.EskiMesajlariYukle(sohbetIdAdptr);
-                    }
 
+                int firstVisible = layoutManager.findFirstVisibleItemPosition();
+                int toplamMesaj = adapter.getItemCount();
+
+                // Eğer en üstteysek, loading yapılmıyorsa ve 30'dan fazla mesaj varsa
+                if (firstVisible == 0 && !isLoading && toplamMesaj >= 30) {
+                    isLoading = true;
+
+                    if ("mainactivity".equals(kaynak)) {
+                        mViewModel.EskiMesajlariYukle(sohbetID, ilkmsjSaati);
+                    } else {
+                        mViewModel.EskiMesajlariYukle(sohbetIdAdptr, ilkmsjSaatiadptr);
+                    }
                 }
             }
             @Override
@@ -191,14 +201,22 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
                     recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
                     recyclerView.setAdapter(adapter);
                 }
-               // adapter.guncelleMesajListesi(mesajList);
-                adapter.eskiMesajlariBasaEkle(mesajList);
+                if(!ilkMesajAlindi){
+                    ilkmsjSaati=mesajList.get(0).getZaman();
+                    ilkMesajAlindi=true;
+                }
+                adapter.guncelleMesajListesi(mesajList);
                 istekEditTextViewLayout.setVisibility(View.VISIBLE);
                 istekTextViewLayout.setVisibility(View.GONE);
                 SonMesaj=mesajList.get(mesajList.size()-1).getMiktar()+" Tl borç isteği";
                 SonMesajSaat=mesajList.get(mesajList.size()-1).getZaman();
                 mViewModel.sonMsjDbKaydi(sohbetID,SonMesaj,SonMesajSaat);
+                recyclerView.scrollToPosition(adapter.getItemCount() - 1);
             });
+            mViewModel.eskiMesajlar().observe(getViewLifecycleOwner(), mesajList -> {
+                adapter.eskiMesajlariBasaEkle(mesajList);
+            });
+
             mViewModel.eklenen().observe(getViewLifecycleOwner(), mesaj -> {
                 if (mesaj != null) {
                     adapter.mesajEkle(mesaj);
@@ -246,11 +264,19 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
                     recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
                     recyclerView.setAdapter(adapter);
                 }
-                adapter.eskiMesajlariBasaEkle(mesajList);
+                if(!ilkMesajAlindiadptr){
+                    ilkmsjSaatiadptr=mesajList.get(0).getZaman();
+                    ilkMesajAlindiadptr=true;
+                }
+                adapter.guncelleMesajListesi(mesajList);
                 SonMesajadptr=mesajList.get(mesajList.size()-1).getMiktar()+" Tl borç isteği";
                 SonMesajSaatadptr=mesajList.get(mesajList.size()-1).getZaman();
                 mViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesajadptr,SonMesajSaatadptr);
             });
+            mViewModel.eskiMesajlar().observe(getViewLifecycleOwner(), mesajList -> {
+                adapter.eskiMesajlariBasaEkle(mesajList);
+            });
+
             mViewModel.eklenen().observe(getViewLifecycleOwner(), mesaj -> {
                 if (mesaj != null) {
                     adapter.mesajEkle(mesaj);

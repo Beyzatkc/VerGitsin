@@ -33,6 +33,9 @@ public class MesajViewModel extends ViewModel {
     MutableLiveData<ArrayList<Mesaj>>_tumMesajlar=new MutableLiveData<>();
     LiveData<ArrayList<Mesaj>>tumMesajlar(){return _tumMesajlar;}
 
+    MutableLiveData<ArrayList<Mesaj>>_eskimesajlar=new MutableLiveData<>();
+    LiveData<ArrayList<Mesaj>>eskiMesajlar(){return _eskimesajlar;}
+
     MutableLiveData<String>_AliciId=new MutableLiveData<>();
     LiveData<String>AliciID(){return _AliciId;}
 
@@ -47,46 +50,57 @@ public class MesajViewModel extends ViewModel {
     LiveData<Mesaj>silinen(){return _silinenMesaj;}
 
     public void MesajBorcistekleriDbCek(String aktifSohbetId){
-    Query query=db.collection("sohbetler")
+        Query query = db.collection("sohbetler")
                 .document(aktifSohbetId)
                 .collection("borc_istekleri")
-                .orderBy("zaman", Query.Direction.DESCENDING)
+                .orderBy("isteginAtildigiZaman", Query.Direction.ASCENDING)
                 .limit(30);
+
         query.addSnapshotListener((queryDocumentSnapshots, error) -> {
             if (error != null) {
                 Log.e("Firestore", "Mesajlar dinlenirken hata oluştu", error);
                 return;
             }
             if (queryDocumentSnapshots != null) {
-                for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
-                    Mesaj mesaj = documentToMesaj(dc.getDocument());
-                    switch (dc.getType()) {
-                        case ADDED:
-                            _eklenenMesaj.setValue(mesaj);
-                            break;
-                        case MODIFIED:
-                            _guncellenenMesaj.setValue(mesaj);
-                            break;
-                        case REMOVED:
-                            _silinenMesaj.setValue(mesaj);
-                            break;
+                if (ilkTetikleme) {
+                    ArrayList<Mesaj> tumMesajlar = new ArrayList<>();
+                    for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
+                        tumMesajlar.add(documentToMesaj(doc));
+                    }
+                    Collections.sort(tumMesajlar, Comparator.comparingLong(Mesaj::getZaman));
+                    _tumMesajlar.setValue(tumMesajlar);
+                    ilkTetikleme = false;
+                } else {
+                    for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
+                        Mesaj mesaj = documentToMesaj(dc.getDocument());
+                        switch (dc.getType()) {
+                            case ADDED:
+                                _eklenenMesaj.setValue(mesaj);
+                                break;
+                            case MODIFIED:
+                                _guncellenenMesaj.setValue(mesaj);
+                                break;
+                            case REMOVED:
+                                _silinenMesaj.setValue(mesaj);
+                                break;
+                        }
                     }
                 }
             }
-       });
+        });
     }
+
     private DocumentSnapshot sonYuklenenMesajSnapshot = null;
-    public void EskiMesajlariYukle(String aktifSohbetId){
+    public void EskiMesajlariYukle(String aktifSohbetId,Long zaman){
         Query query = db.collection("sohbetler")
                 .document(aktifSohbetId)
                 .collection("borc_istekleri")
-                .orderBy("zaman", Query.Direction.DESCENDING)
+                .orderBy("isteginAtildigiZaman", Query.Direction.DESCENDING)
                 .limit(30);
 
-        if (sonYuklenenMesajSnapshot != null) {
-            query = query.startAfter(sonYuklenenMesajSnapshot);
+        if (zaman != null) {
+            query = query.whereLessThan("isteginAtildigiZaman", zaman);
         }
-
         query.get().addOnSuccessListener(queryDocumentSnapshots -> {
             ArrayList<Mesaj> eskiMesajlar = new ArrayList<>();
             for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
@@ -95,11 +109,12 @@ public class MesajViewModel extends ViewModel {
 
             Collections.reverse(eskiMesajlar); // ters çeviriyoruz (eski->yeni)
 
-            ArrayList<Mesaj> mevcutMesajlar = _tumMesajlar.getValue();
+           /* ArrayList<Mesaj> mevcutMesajlar = _tumMesajlar.getValue();
             if (mevcutMesajlar == null) mevcutMesajlar = new ArrayList<>();
 
             mevcutMesajlar.addAll(0, eskiMesajlar); // eski mesajları başa ekle
-            _tumMesajlar.setValue(mevcutMesajlar);
+            */
+            _eskimesajlar.setValue(eskiMesajlar);
 
             if (!queryDocumentSnapshots.isEmpty()) {
                 sonYuklenenMesajSnapshot = queryDocumentSnapshots.getDocuments()
