@@ -54,7 +54,7 @@ public class MesajViewModel extends ViewModel {
                 .document(aktifSohbetId)
                 .collection("borc_istekleri")
                 .orderBy("isteginAtildigiZaman", Query.Direction.ASCENDING)
-                .limit(30);
+                .limit(3);
 
         query.addSnapshotListener((queryDocumentSnapshots, error) -> {
             if (error != null) {
@@ -96,7 +96,7 @@ public class MesajViewModel extends ViewModel {
                 .document(aktifSohbetId)
                 .collection("borc_istekleri")
                 .orderBy("isteginAtildigiZaman", Query.Direction.DESCENDING)
-                .limit(30);
+                .limit(3);
 
         if (zaman != null) {
             query = query.whereLessThan("isteginAtildigiZaman", zaman);

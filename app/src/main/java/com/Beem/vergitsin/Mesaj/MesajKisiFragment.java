@@ -136,19 +136,14 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-
-                int firstVisible = layoutManager.findFirstVisibleItemPosition();
-                int toplamMesaj = adapter.getItemCount();
-
-                // Eğer en üstteysek, loading yapılmıyorsa ve 30'dan fazla mesaj varsa
-                if (firstVisible == 0 && !isLoading && toplamMesaj >= 30) {
-                    isLoading = true;
-
+                if (layoutManager.findFirstVisibleItemPosition() == 0 && !isLoading) {
+                    isLoading = true; // yükleniyor flag'i
                     if ("mainactivity".equals(kaynak)) {
-                        mViewModel.EskiMesajlariYukle(sohbetID, ilkmsjSaati);
-                    } else {
-                        mViewModel.EskiMesajlariYukle(sohbetIdAdptr, ilkmsjSaatiadptr);
+                        mViewModel.EskiMesajlariYukle(sohbetID,ilkmsjSaati);
+                    }else{
+                        mViewModel.EskiMesajlariYukle(sohbetIdAdptr,ilkmsjSaatiadptr);
                     }
+
                 }
             }
             @Override
@@ -272,6 +267,7 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
                 SonMesajadptr=mesajList.get(mesajList.size()-1).getMiktar()+" Tl borç isteği";
                 SonMesajSaatadptr=mesajList.get(mesajList.size()-1).getZaman();
                 mViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesajadptr,SonMesajSaatadptr);
+                recyclerView.scrollToPosition(adapter.getItemCount() - 1);
             });
             mViewModel.eskiMesajlar().observe(getViewLifecycleOwner(), mesajList -> {
                 adapter.eskiMesajlariBasaEkle(mesajList);
