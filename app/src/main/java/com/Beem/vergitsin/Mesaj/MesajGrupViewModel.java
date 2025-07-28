@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel;
 import com.Beem.vergitsin.UyariMesaj;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -17,6 +18,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MesajGrupViewModel extends ViewModel {
@@ -95,6 +97,30 @@ public class MesajGrupViewModel extends ViewModel {
             mesaj.setCevabiVarMi(false);
         }
         return mesaj;
+    }
+    public void sonMsjDbKaydi(String sohbetId, String yeniSonMesaj, Long yeniSonMsjSaati) {
+        DocumentReference docRef = db.collection("sohbetler").document(sohbetId);
+
+        docRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                String mevcutMesaj = documentSnapshot.getString("sonMesaj");
+                Long mevcutSaat = documentSnapshot.getLong("sonMsjSaati");
+
+                if (!Objects.equals(mevcutMesaj, yeniSonMesaj) || !Objects.equals(mevcutSaat, yeniSonMsjSaati)) {
+                    Map<String, Object> guncelleme = new HashMap<>();
+                    guncelleme.put("sonMesaj", yeniSonMesaj);
+                    guncelleme.put("sonMsjSaati", yeniSonMsjSaati);
+
+                    docRef.update(guncelleme)
+                            .addOnSuccessListener(aVoid -> Log.d("Firestore", "Son mesaj ve saat güncellendi"))
+                            .addOnFailureListener(e -> Log.e("Firestore", "Güncelleme hatası", e));
+                } else {
+                    Log.d("Firestore", "Son mesajda değişiklik yok, güncellenmedi");
+                }
+            } else {
+                Log.w("Firestore", "Belge bulunamadı: " + sohbetId);
+            }
+        }).addOnFailureListener(e -> Log.e("Firestore", "Belge okunamadı", e));
     }
     public void IddenGonderenAdaUlasma(ArrayList<Mesaj>tummesajlar){
         AtomicInteger sayac = new AtomicInteger(0);

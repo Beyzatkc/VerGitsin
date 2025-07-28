@@ -33,15 +33,20 @@ public class MesajAdapterKisi extends RecyclerView.Adapter<MesajAdapterKisi.View
         tumMesajlar.add(yeniMesaj);
         notifyItemInserted(tumMesajlar.size() - 1);
     }
+    public void eskiMesajlariBasaEkle(ArrayList<Mesaj> mesajlar) {
+        tumMesajlar.addAll(0, mesajlar);
+        notifyItemRangeInserted(0, mesajlar.size());
+    }
+
     public void setListenercvp(CevapGeldi listener) {
         this.listenercvp = listener;
     }
 
-    public void guncelleMesajListesi(ArrayList<Mesaj> yeniListe) {
+    /*public void guncelleMesajListesi(ArrayList<Mesaj> yeniListe) {
             tumMesajlar.clear();
             tumMesajlar.addAll(yeniListe);
             notifyDataSetChanged();
-    }
+    }*/
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

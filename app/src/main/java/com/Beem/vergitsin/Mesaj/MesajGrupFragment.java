@@ -33,7 +33,6 @@ import java.util.Date;
 import java.util.Locale;
 
 public class MesajGrupFragment extends Fragment implements CevapGeldiGrup{
-    private String SonMesaj;
     private String miktari;
     private String aciklamasi;
     private String odemeTarihi;
@@ -64,6 +63,12 @@ public class MesajGrupFragment extends Fragment implements CevapGeldiGrup{
     private TextView aciklamatext;
     private ImageButton gonderButtontext;
     private TextView odemeTarihitext;
+
+    private String SonMesaj;
+    private Long SonMesajSaat;
+    private String SonMesajadptr;
+    private Long SonMesajSaatadptr;
+
 
     public static MesajGrupFragment newInstance() {
         return new MesajGrupFragment();
@@ -167,6 +172,9 @@ public class MesajGrupFragment extends Fragment implements CevapGeldiGrup{
                 if (msj != null) {
                     adapter.mesajEkle(msj);
                     mesajGrupRecyclerView.scrollToPosition(adapter.getItemCount() - 1);
+                    SonMesaj=msj.getIstekAtanAdi()+" "+msj.getMiktar()+" TL borç isteği";
+                    SonMesajSaat=msj.getZaman();
+                    mViewModel.sonMsjDbKaydi(sohbetID,SonMesaj,SonMesajSaat);
                 }
             });
             Observe.observeOnce(mViewModel.tumMesajlar(), getViewLifecycleOwner(), mesajList -> {
@@ -180,6 +188,9 @@ public class MesajGrupFragment extends Fragment implements CevapGeldiGrup{
                         listeyiGuncelle(mesajList);
                         istekEditTextViewLayout.setVisibility(View.VISIBLE);
                         istekTextViewLayout.setVisibility(View.GONE);
+                        SonMesaj=mesajList.get(mesajList.size()-1).getIstekAtanAdi()+" "+mesajList.get(mesajList.size()-1).getMiktar()+" Tl borç isteği";
+                        SonMesajSaat=mesajList.get(mesajList.size()-1).getZaman();
+                        mViewModel.sonMsjDbKaydi(sohbetID,SonMesaj,SonMesajSaat);
                     }
                 }
             });
@@ -210,6 +221,9 @@ public class MesajGrupFragment extends Fragment implements CevapGeldiGrup{
                 if (msj != null) {
                     adapter.mesajEkle(msj);
                     mesajGrupRecyclerView.scrollToPosition(adapter.getItemCount() - 1);
+                    SonMesajadptr=msj.getIstekAtanAdi()+" "+msj.getMiktar()+" TL borç isteği";
+                    SonMesajSaatadptr=msj.getZaman();
+                    mViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesajadptr,SonMesajSaatadptr);
                 }
             });
             Observe.observeOnce(mViewModel.tumMesajlar(), getViewLifecycleOwner(), mesajList -> {
@@ -220,6 +234,9 @@ public class MesajGrupFragment extends Fragment implements CevapGeldiGrup{
                     ArrayList<Mesaj> mesajList = mViewModel.tumMesajlar().getValue();
                     if (mesajList != null) {
                         listeyiGuncelle(mesajList);
+                        SonMesajadptr=mesajList.get(mesajList.size()-1).getIstekAtanAdi()+" "+mesajList.get(mesajList.size()-1).getMiktar()+" Tl borç isteği";
+                        SonMesajSaatadptr=mesajList.get(mesajList.size()-1).getZaman();
+                        mViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesajadptr,SonMesajSaatadptr);
                     }
                 }
             });

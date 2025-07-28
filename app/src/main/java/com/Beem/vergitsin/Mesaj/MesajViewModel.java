@@ -15,6 +15,7 @@ import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -45,7 +46,70 @@ public class MesajViewModel extends ViewModel {
     MutableLiveData<Mesaj>_silinenMesaj=new MutableLiveData<>();
     LiveData<Mesaj>silinen(){return _silinenMesaj;}
 
+    public void MesajBorcistekleriDbCek(String aktifSohbetId){
+    Query query=db.collection("sohbetler")
+                .document(aktifSohbetId)
+                .collection("borc_istekleri")
+                .orderBy("zaman", Query.Direction.DESCENDING)
+                .limit(30);
+        query.addSnapshotListener((queryDocumentSnapshots, error) -> {
+            if (error != null) {
+                Log.e("Firestore", "Mesajlar dinlenirken hata oluştu", error);
+                return;
+            }
+            if (queryDocumentSnapshots != null) {
+                for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
+                    Mesaj mesaj = documentToMesaj(dc.getDocument());
+                    switch (dc.getType()) {
+                        case ADDED:
+                            _eklenenMesaj.setValue(mesaj);
+                            break;
+                        case MODIFIED:
+                            _guncellenenMesaj.setValue(mesaj);
+                            break;
+                        case REMOVED:
+                            _silinenMesaj.setValue(mesaj);
+                            break;
+                    }
+                }
+            }
+       });
+    }
+    private DocumentSnapshot sonYuklenenMesajSnapshot = null;
+    public void EskiMesajlariYukle(String aktifSohbetId){
+        Query query = db.collection("sohbetler")
+                .document(aktifSohbetId)
+                .collection("borc_istekleri")
+                .orderBy("zaman", Query.Direction.DESCENDING)
+                .limit(30);
 
+        if (sonYuklenenMesajSnapshot != null) {
+            query = query.startAfter(sonYuklenenMesajSnapshot);
+        }
+
+        query.get().addOnSuccessListener(queryDocumentSnapshots -> {
+            ArrayList<Mesaj> eskiMesajlar = new ArrayList<>();
+            for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
+                eskiMesajlar.add(documentToMesaj(doc));
+            }
+
+            Collections.reverse(eskiMesajlar); // ters çeviriyoruz (eski->yeni)
+
+            ArrayList<Mesaj> mevcutMesajlar = _tumMesajlar.getValue();
+            if (mevcutMesajlar == null) mevcutMesajlar = new ArrayList<>();
+
+            mevcutMesajlar.addAll(0, eskiMesajlar); // eski mesajları başa ekle
+            _tumMesajlar.setValue(mevcutMesajlar);
+
+            if (!queryDocumentSnapshots.isEmpty()) {
+                sonYuklenenMesajSnapshot = queryDocumentSnapshots.getDocuments()
+                        .get(queryDocumentSnapshots.size() - 1);
+            }
+        });
+
+    }
+
+/*
     public void MesajBorcistekleriDbCek(String aktifSohbetId) {
         db.collection("sohbetler")
                 .document(aktifSohbetId)
@@ -82,7 +146,7 @@ public class MesajViewModel extends ViewModel {
                         }
                     }
                 });
-    }
+    }*/
     public Mesaj documentToMesaj(DocumentSnapshot doc){
             String id=doc.getId();
             String cevap=doc.getString("cevap");

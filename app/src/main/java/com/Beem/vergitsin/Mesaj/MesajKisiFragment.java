@@ -67,6 +67,7 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
     private Long SonMesajSaat;
     private String SonMesajadptr;
     private Long SonMesajSaatadptr;
+    String kaynak;
 
     public static MesajKisiFragment newInstance() {
         return new MesajKisiFragment();
@@ -98,7 +99,7 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
                              @Nullable Bundle savedInstanceState) {
        View view =inflater.inflate(R.layout.fragment_mesaj, container, false);
         uyarimesaji=new UyariMesaj(requireContext(),false);
-        String kaynak = null;
+        kaynak = null;
         if (getArguments() != null) {
             kaynak = getArguments().getString("kaynak");
         }
@@ -119,10 +120,34 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
         gonderButtontext=view.findViewById(R.id.gonderButton2);
         odemeTarihitext=view.findViewById(R.id.odemeTarihi);
 
-        adapter = new MesajAdapterKisi(new ArrayList<>(), requireContext());
         //adapter.setListenercvp(this);
-        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext());
+        recyclerView.setLayoutManager(layoutManager);
+        adapter = new MesajAdapterKisi(new ArrayList<>(), requireContext());
         recyclerView.setAdapter(adapter);
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            private boolean isLoading = false;
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (layoutManager.findFirstVisibleItemPosition() == 0 && !isLoading) {
+                    isLoading = true; // yükleniyor flag'i
+                    if ("mainactivity".equals(kaynak)) {
+                        mViewModel.EskiMesajlariYukle(sohbetID);
+                    }else{
+                        mViewModel.EskiMesajlariYukle(sohbetIdAdptr);
+                    }
+
+                }
+            }
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                // Mesajlar yüklendikten sonra scroll durunca tekrar isLoading false yapılır.
+                isLoading = false;
+            }
+        });
 
         if ("mainactivity".equals(kaynak)) {
             mViewModel.SohbetIDsindenAliciya(sohbetID);
@@ -166,7 +191,8 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
                     recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
                     recyclerView.setAdapter(adapter);
                 }
-                adapter.guncelleMesajListesi(mesajList);
+               // adapter.guncelleMesajListesi(mesajList);
+                adapter.eskiMesajlariBasaEkle(mesajList);
                 istekEditTextViewLayout.setVisibility(View.VISIBLE);
                 istekTextViewLayout.setVisibility(View.GONE);
                 SonMesaj=mesajList.get(mesajList.size()-1).getMiktar()+" Tl borç isteği";
@@ -220,7 +246,7 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
                     recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
                     recyclerView.setAdapter(adapter);
                 }
-                adapter.guncelleMesajListesi(mesajList);
+                adapter.eskiMesajlariBasaEkle(mesajList);
                 SonMesajadptr=mesajList.get(mesajList.size()-1).getMiktar()+" Tl borç isteği";
                 SonMesajSaatadptr=mesajList.get(mesajList.size()-1).getZaman();
                 mViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesajadptr,SonMesajSaatadptr);
