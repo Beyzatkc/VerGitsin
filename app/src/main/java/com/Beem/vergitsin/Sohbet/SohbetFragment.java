@@ -18,6 +18,8 @@ import com.Beem.vergitsin.Mesaj.MesajGrupFragment;
 import com.Beem.vergitsin.Mesaj.MesajKisiFragment;
 import com.Beem.vergitsin.R;
 
+import java.util.Map;
+
 public class SohbetFragment extends Fragment{
     private SohbetViewModel mViewModel;
     private RecyclerView recyclerView;
@@ -45,6 +47,7 @@ public class SohbetFragment extends Fragment{
              adapter = new SohbetAdapter(sohbetler, requireContext(), new SohbetAdapter.OnSohbetClickListener() {
                 @Override
                 public void onSohbetClicked(Sohbet sohbet) {
+                    sohbet.setGorulmemisMesajSayisi(0);
                     Bundle bundle = new Bundle();
                     bundle.putString("kaynak", "SohbetAdapter");
                     bundle.putString("sohbetId", sohbet.getSohbetID());
@@ -72,6 +75,11 @@ public class SohbetFragment extends Fragment{
             });
             recyclerView.setAdapter(adapter);
         });
+
+        mViewModel.getGorulmeyenMesajSayilari().observe(getViewLifecycleOwner(), sohbet -> {
+                    adapter.GorulmeyenSayisi(sohbet);
+        });
+
         mViewModel.eklenenSohbet().observe(getViewLifecycleOwner(), sohbet -> {
             if (sohbet != null) {
                 adapter.sohbetEkle(sohbet);

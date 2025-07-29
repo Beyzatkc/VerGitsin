@@ -10,8 +10,9 @@ public class Sohbet {
     private String sonMesaj;
     private ArrayList<String> katilimcilar;
     private String tur;
+    private int gorulmemisMesajSayisi;
 
-    public Sohbet(String sohbetID, String kullaniciAdi, Long sonmsjsaati, String ppfoto, String sonMesaj,ArrayList<String> katilimcilar,String tur) {
+    public Sohbet(String sohbetID, String kullaniciAdi, Long sonmsjsaati, String ppfoto, String sonMesaj, ArrayList<String> katilimcilar, String tur) {
         this.sohbetID = sohbetID;
         this.kullaniciAdi = kullaniciAdi;
         this.sonmsjsaati = sonmsjsaati;
@@ -20,6 +21,14 @@ public class Sohbet {
         this.katilimcilar=katilimcilar;
         this.tur=tur;
     }
+    public int getGorulmemisMesajSayisi() {
+        return gorulmemisMesajSayisi;
+    }
+
+    public void setGorulmemisMesajSayisi(int gorulmemisMesajSayisi) {
+        this.gorulmemisMesajSayisi = gorulmemisMesajSayisi;
+    }
+
 
     public String getTur() {
         return tur;

@@ -33,12 +33,16 @@ public class MesajAdapterGrup extends RecyclerView.Adapter<MesajAdapterGrup.View
         tumMesajlar.add(yeniMesaj);
         notifyItemInserted(tumMesajlar.size() - 1);
     }
-
+    public void eskiMesajlariBasaEkle(ArrayList<Mesaj> mesajlar) {
+        tumMesajlar.addAll(0, mesajlar);
+        notifyItemRangeInserted(0, mesajlar.size());
+    }
     public void guncelleMesajListesi(ArrayList<Mesaj> yeniListe) {
         tumMesajlar.clear();
         tumMesajlar.addAll(yeniListe);
         notifyDataSetChanged();
     }
+
     public void setMesajList(ArrayList<Mesaj> yeniListe) {
         this.tumMesajlar = yeniListe;
     }

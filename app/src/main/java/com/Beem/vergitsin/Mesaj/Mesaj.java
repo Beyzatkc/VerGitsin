@@ -15,6 +15,7 @@ public class Mesaj {
     private boolean cevabiVarMi;
     public String istekAtanAdi;
 
+
     public Mesaj() {}
 
     public Mesaj(String istegiAtanId, String istekatilanID, String aciklama, String miktar, Timestamp odenecekTarih, long zaman, boolean goruldu,String cevap,String msjID) {

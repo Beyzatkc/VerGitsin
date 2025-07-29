@@ -72,6 +72,7 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
     private boolean ilkMesajAlindiadptr = false;
     private Long ilkmsjSaati;
     private Long ilkmsjSaatiadptr;
+    private boolean isLoading = false;
 
 
     public static MesajKisiFragment newInstance() {
@@ -132,7 +133,6 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
         recyclerView.setAdapter(adapter);
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            private boolean isLoading = false;
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
@@ -145,12 +145,6 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
                     }
 
                 }
-            }
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                // Mesajlar yüklendikten sonra scroll durunca tekrar isLoading false yapılır.
-                isLoading = false;
             }
         });
 
@@ -209,7 +203,11 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
                 recyclerView.scrollToPosition(adapter.getItemCount() - 1);
             });
             mViewModel.eskiMesajlar().observe(getViewLifecycleOwner(), mesajList -> {
-                adapter.eskiMesajlariBasaEkle(mesajList);
+                if (mesajList != null && !mesajList.isEmpty()) {
+                    ilkmsjSaati=mesajList.get(0).getZaman();
+                    adapter.eskiMesajlariBasaEkle(mesajList);
+                    isLoading = false;
+                }
             });
 
             mViewModel.eklenen().observe(getViewLifecycleOwner(), mesaj -> {
@@ -219,6 +217,12 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
                     SonMesaj=mesaj.getMiktar()+" TL borç isteği";
                     SonMesajSaat=mesaj.getZaman();
                     mViewModel.sonMsjDbKaydi(sohbetID,SonMesaj,SonMesajSaat);
+                }
+            });
+            mViewModel.goruldu().observe(getViewLifecycleOwner(),goruldumesaj->{
+                ArrayList<Mesaj>mesajlar=mViewModel._tumMesajlar.getValue();
+                if(mesajlar!=null&&mesajlar.isEmpty()&&goruldumesaj!=null&&mesajlar.get(mesajlar.size()-1).equals(goruldumesaj)) {
+                    adapter.notifyItemInserted(mesajlar.size() - 1);
                 }
             });
 
@@ -270,7 +274,11 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
                 recyclerView.scrollToPosition(adapter.getItemCount() - 1);
             });
             mViewModel.eskiMesajlar().observe(getViewLifecycleOwner(), mesajList -> {
-                adapter.eskiMesajlariBasaEkle(mesajList);
+                if (mesajList != null && !mesajList.isEmpty()) {
+                    ilkmsjSaatiadptr=mesajList.get(0).getZaman();
+                    adapter.eskiMesajlariBasaEkle(mesajList);
+                    isLoading = false;
+                }
             });
 
             mViewModel.eklenen().observe(getViewLifecycleOwner(), mesaj -> {
@@ -282,6 +290,16 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
                     mViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesajadptr,SonMesajSaatadptr);
                 }
             });
+            mViewModel.goruldu().observe(getViewLifecycleOwner(), goruldumesaj -> {
+                ArrayList<Mesaj> mesajlar = mViewModel._tumMesajlar.getValue();
+                if (mesajlar != null && goruldumesaj != null) {
+                    int index = mesajlar.indexOf(goruldumesaj);
+                    if (index != -1) {
+                        adapter.notifyItemChanged(index);
+                    }
+                }
+            });
+
             istekEditTextViewLayout.setVisibility(View.VISIBLE);
             istekTextViewLayout.setVisibility(View.GONE);
             gonderButton2edit.setOnClickListener(b->{

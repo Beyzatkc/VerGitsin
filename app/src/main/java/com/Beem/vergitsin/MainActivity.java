@@ -644,6 +644,7 @@ public class MainActivity extends AppCompatActivity {
         borcData.put("miktar", miktar);
         borcData.put("odenecektarih", tarih);
         borcData.put("isteginAtildigiZaman",zaman);
+        borcData.put("GorulduMu",false);
 
         db.collection("sohbetler")
                 .document(sohbetId)

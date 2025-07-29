@@ -51,6 +51,14 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
             }
         }
     }
+    public void GorulmeyenSayisi(Sohbet sohbet) {
+        for (int i = 0; i < sohbetler.size(); i++) {
+            if (sohbetler.get(i).equals(sohbet)) {
+                notifyItemChanged(i);
+                break;
+            }
+        }
+    }
     @NonNull
     @Override
     public SohbetAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -68,6 +76,14 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
         Sohbet sohbet=sohbetler.get(position);
         if(sohbet.getSonMesaj()!=null){
             holder.son_mesaj.setText(sohbet.getSonMesaj());
+        }
+        if(sohbet.getGorulmemisMesajSayisi()!=0){
+            holder.gorulmeyen_sayi.setVisibility(View.VISIBLE);
+            holder.yazi.setVisibility(View.VISIBLE);
+            holder.gorulmeyen_sayi.setText(String.valueOf(sohbet.getGorulmemisMesajSayisi()));
+        }else{
+            holder.gorulmeyen_sayi.setVisibility(View.GONE);
+            holder.yazi.setVisibility(View.GONE);
         }
 
         holder.kisi_adi.setText(sohbet.getKullaniciAdi());
@@ -87,11 +103,11 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
         }else{
             holder.mesaj_saat.setVisibility(View.GONE);
         }
-            holder.sohbet_kutu.setOnClickListener(v -> {
-                if (listener != null) {
-                    listener.onSohbetClicked(sohbet);
-                }
-            });
+        holder.sohbet_kutu.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onSohbetClicked(sohbet);
+            }
+        });
 
     }
     @Override
@@ -104,6 +120,8 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
        private TextView mesaj_saat;
        private ImageView kisi_fotosu;
        private ConstraintLayout sohbet_kutu;
+       private TextView gorulmeyen_sayi;
+       private TextView yazi;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -112,6 +130,8 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
             mesaj_saat=itemView.findViewById(R.id.mesaj_saat);
             kisi_fotosu=itemView.findViewById(R.id.kisi_fotosu);
             sohbet_kutu=itemView.findViewById(R.id.sohbet_kutu);
+            gorulmeyen_sayi=itemView.findViewById(R.id.gorulmeyen_sayi);
+            yazi=itemView.findViewById(R.id.yazi);
         }
     }
 }

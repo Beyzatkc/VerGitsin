@@ -33,6 +33,7 @@ import java.util.Date;
 import java.util.Locale;
 
 public class MesajGrupFragment extends Fragment implements CevapGeldiGrup{
+    String kaynak;
     private String miktari;
     private String aciklamasi;
     private String odemeTarihi;
@@ -69,6 +70,12 @@ public class MesajGrupFragment extends Fragment implements CevapGeldiGrup{
     private String SonMesajadptr;
     private Long SonMesajSaatadptr;
 
+    private boolean ilkMesajAlindi = false;
+    private boolean ilkMesajAlindiadptr = false;
+    private Long ilkmsjSaati;
+    private Long ilkmsjSaatiadptr;
+    private boolean isLoading = false;
+
 
     public static MesajGrupFragment newInstance() {
         return new MesajGrupFragment();
@@ -96,22 +103,12 @@ public class MesajGrupFragment extends Fragment implements CevapGeldiGrup{
         }
     }
 
-    private void listeyiGuncelle(ArrayList<Mesaj> guncelMesajListesi) {
-        if (adapter != null) {
-            adapter.setMesajList(guncelMesajListesi);
-            adapter.notifyDataSetChanged();
-        } else {
-            adapter = new MesajAdapterGrup(guncelMesajListesi, requireContext());
-            mesajGrupRecyclerView.setAdapter(adapter);
-        }
-    }
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view =inflater.inflate(R.layout.fragment_mesaj_grup, container, false);
         uyarimesaji=new UyariMesaj(requireContext(),false);
-        String kaynak = null;
+         kaynak = null;
         if (getArguments() != null) {
             kaynak = getArguments().getString("kaynak");
         }
@@ -135,9 +132,27 @@ public class MesajGrupFragment extends Fragment implements CevapGeldiGrup{
         odemeTarihitext=view.findViewById(R.id.odemeTarihi);
 
         ArrayList<Mesaj> bosListe = new ArrayList<>();
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext());
+        mesajGrupRecyclerView.setLayoutManager(layoutManager);
         adapter = new MesajAdapterGrup(bosListe, requireContext());
-        mesajGrupRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         mesajGrupRecyclerView.setAdapter(adapter);
+
+        mesajGrupRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (layoutManager.findFirstVisibleItemPosition() == 0 && !isLoading) {
+                    isLoading = true; // yükleniyor flag'i
+                    if ("mainactivity".equals(kaynak)) {
+                        mViewModel.EskiMesajlariYukle(sohbetID,ilkmsjSaati);
+                    }else{
+                        mViewModel.EskiMesajlariYukle(sohbetIdAdptr,ilkmsjSaatiadptr);
+                    }
+
+                }
+            }
+        });
 
         if ("mainactivity".equals(kaynak)) {
             mViewModel.KacKisiCevrimiciGrup(sohbetID);
@@ -178,22 +193,44 @@ public class MesajGrupFragment extends Fragment implements CevapGeldiGrup{
                 }
             });
             Observe.observeOnce(mViewModel.tumMesajlar(), getViewLifecycleOwner(), mesajList -> {
-                mViewModel.IddenGonderenAdaUlasma(mesajList);
+                mViewModel.IddenGonderenAdaUlasma(mesajList,"mesajlar");
             });
 
             mViewModel.tamamlandi().observe(getViewLifecycleOwner(), tamamlandiMi -> {
                 if (Boolean.TRUE.equals(tamamlandiMi)) {
                     ArrayList<Mesaj> mesajList = mViewModel.tumMesajlar().getValue();
                     if (mesajList != null) {
-                        listeyiGuncelle(mesajList);
+                        if(!ilkMesajAlindi){
+                            ilkmsjSaati=mesajList.get(0).getZaman();
+                            ilkMesajAlindi=true;
+                        }
+                        adapter.guncelleMesajListesi(mesajList);
                         istekEditTextViewLayout.setVisibility(View.VISIBLE);
                         istekTextViewLayout.setVisibility(View.GONE);
                         SonMesaj=mesajList.get(mesajList.size()-1).getIstekAtanAdi()+" "+mesajList.get(mesajList.size()-1).getMiktar()+" Tl borç isteği";
                         SonMesajSaat=mesajList.get(mesajList.size()-1).getZaman();
                         mViewModel.sonMsjDbKaydi(sohbetID,SonMesaj,SonMesajSaat);
+                        mesajGrupRecyclerView.scrollToPosition(adapter.getItemCount() - 1);
                     }
                 }
             });
+
+            mViewModel.eskiMesajlar().observe(getViewLifecycleOwner(), mesajList -> {
+                mViewModel.setGeciciEskiMesajListesi(mesajList);
+                  mViewModel.IddenGonderenAdaUlasma(mesajList,"eskimsjlar");
+            });
+
+            mViewModel.tamamlandieski().observe(getViewLifecycleOwner(), tamamlandiMi -> {
+                if (Boolean.TRUE.equals(tamamlandiMi)) {
+                    ArrayList<Mesaj> mesajList = mViewModel.getGeciciEskiMesajListesi();
+                    if (mesajList != null && !mesajList.isEmpty()) {
+                        ilkmsjSaati=mesajList.get(0).getZaman();
+                        adapter.eskiMesajlariBasaEkle(mesajList);
+                        isLoading = false;
+                    }
+                }
+            });
+
         } else {
             mViewModel.KacKisiCevrimiciGrup(sohbetIdAdptr);
             mViewModel.kackisicevrimici().observe(getViewLifecycleOwner(),kisisayisi-> {
@@ -227,19 +264,40 @@ public class MesajGrupFragment extends Fragment implements CevapGeldiGrup{
                 }
             });
             Observe.observeOnce(mViewModel.tumMesajlar(), getViewLifecycleOwner(), mesajList -> {
-                mViewModel.IddenGonderenAdaUlasma(mesajList);
+                mViewModel.IddenGonderenAdaUlasma(mesajList,"mesajlar");
             });
             mViewModel.tamamlandi().observe(getViewLifecycleOwner(), tamamlandiMi -> {
                 if (Boolean.TRUE.equals(tamamlandiMi)) {
                     ArrayList<Mesaj> mesajList = mViewModel.tumMesajlar().getValue();
                     if (mesajList != null) {
-                        listeyiGuncelle(mesajList);
+                        if(!ilkMesajAlindiadptr){
+                            ilkmsjSaatiadptr=mesajList.get(0).getZaman();
+                            ilkMesajAlindiadptr=true;
+                        }
+                        adapter.guncelleMesajListesi(mesajList);
                         SonMesajadptr=mesajList.get(mesajList.size()-1).getIstekAtanAdi()+" "+mesajList.get(mesajList.size()-1).getMiktar()+" Tl borç isteği";
                         SonMesajSaatadptr=mesajList.get(mesajList.size()-1).getZaman();
                         mViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesajadptr,SonMesajSaatadptr);
+                        mesajGrupRecyclerView.scrollToPosition(adapter.getItemCount() - 1);
                     }
                 }
             });
+            mViewModel.eskiMesajlar().observe(getViewLifecycleOwner(), mesajList -> {
+                mViewModel.setGeciciEskiMesajListesi(mesajList);
+                mViewModel.IddenGonderenAdaUlasma(mesajList,"eskimsjlar");
+            });
+
+            mViewModel.tamamlandieski().observe(getViewLifecycleOwner(), tamamlandiMi -> {
+                if (Boolean.TRUE.equals(tamamlandiMi)) {
+                    ArrayList<Mesaj> mesajList = mViewModel.getGeciciEskiMesajListesi();
+                    if (mesajList != null && !mesajList.isEmpty()) {
+                        ilkmsjSaati=mesajList.get(0).getZaman();
+                        adapter.eskiMesajlariBasaEkle(mesajList);
+                        isLoading = false;
+                    }
+                }
+            });
+
             istekEditTextViewLayout.setVisibility(View.VISIBLE);
             istekTextViewLayout.setVisibility(View.GONE);
             gonderButton2edit.setOnClickListener(b->{

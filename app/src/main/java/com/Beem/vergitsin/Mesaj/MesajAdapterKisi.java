@@ -35,6 +35,12 @@ public class MesajAdapterKisi extends RecyclerView.Adapter<MesajAdapterKisi.View
         tumMesajlar.add(yeniMesaj);
         notifyItemInserted(tumMesajlar.size() - 1);
     }
+    /*
+    public void notifymetod(Mesaj mesaj){
+        if(tumMesajlar.get(tumMesajlar.size()-1).equals(mesaj)) {
+            notifyItemInserted(tumMesajlar.size() - 1);
+        }
+    }*/
     public void eskiMesajlariBasaEkle(ArrayList<Mesaj> mesajlar) {
         tumMesajlar.addAll(0, mesajlar);
         notifyItemRangeInserted(0, mesajlar.size());
@@ -45,7 +51,6 @@ public class MesajAdapterKisi extends RecyclerView.Adapter<MesajAdapterKisi.View
     }
 
     public void guncelleMesajListesi(ArrayList<Mesaj> yeniListe) {
-        Collections.sort(yeniListe, Comparator.comparingLong(Mesaj::getZaman));
             tumMesajlar.clear();
             tumMesajlar.addAll(yeniListe);
             notifyDataSetChanged();
@@ -89,6 +94,12 @@ public class MesajAdapterKisi extends RecyclerView.Adapter<MesajAdapterKisi.View
                holder.onaygiden.setText(mesaj.getCevap());
            }else{
                holder.onaygiden.setVisibility(View.GONE);
+           }
+           if(tumMesajlar.get(tumMesajlar.size()-1).equals(mesaj)&&mesaj.isGoruldu()){
+               holder.gorulduDurumu.setVisibility(View.VISIBLE);
+
+           }else{
+               holder.gorulduDurumu.setVisibility(View.GONE);
            }
        }else{
            holder.gelenLayout.setVisibility(View.VISIBLE);
