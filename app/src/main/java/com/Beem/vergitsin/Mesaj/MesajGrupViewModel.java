@@ -135,13 +135,11 @@ public class MesajGrupViewModel extends ViewModel {
                                 gorecekler.add(katilimci);
                             }
                         }
-
                         if (gorecekler.contains(kendiId)) {
                             Map<String, Boolean> gorulmeler = mesaj.getGorulmeler();
                             if (gorulmeler == null) {
                                 gorulmeler = new HashMap<>();
                             }
-
                             if (!Boolean.TRUE.equals(gorulmeler.get(kendiId))) {
                                 gorulmeler.put(kendiId, true);
                                 mesaj.setGorulmeler(gorulmeler);
@@ -204,9 +202,7 @@ public class MesajGrupViewModel extends ViewModel {
             mevcutMesajlar.addAll(0, eskiMesajlar); // eski mesajları başa ekle
             */
             _eskimesajlar.setValue(eskiMesajlar);
-
         });
-
     }
 
     public Mesaj documentToMesaj(DocumentSnapshot doc){

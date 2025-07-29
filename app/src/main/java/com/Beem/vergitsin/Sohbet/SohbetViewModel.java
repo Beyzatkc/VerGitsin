@@ -54,7 +54,6 @@ public class SohbetViewModel extends ViewModel {
     }
 
 
-
     public void SohbetleriCek() {
             db.collection("sohbetler")
                     .whereArrayContains("katilimcilar", MainActivity.kullanicistatic.getKullaniciId())
@@ -101,7 +100,7 @@ public class SohbetViewModel extends ViewModel {
                                     Sohbet yeniSohbet = new Sohbet(sohbetId, kullaniciAdi, sonMsjSaati, ppfoto, sonMesaj, katilimcilar, tur);
                                     switch (change.getType()) {
                                         case ADDED:
-                                            if(tur.equals("kisi")) {
+                                            if(tur.equals("kisi")){
                                                 GorulmeyenMesajSayisi(yeniSohbet);
                                             }else{
                                                 GorulmeyenMesajSayisiGrup(yeniSohbet);
@@ -171,15 +170,14 @@ public class SohbetViewModel extends ViewModel {
                     if (snapshots != null) {
                         for (DocumentSnapshot doc : snapshots.getDocuments()) {
                             Map<String, Boolean> gorulmeler = (Map<String, Boolean>) doc.get("gorulmeler");
-
-                            boolean gorulmedi = (gorulmeler == null) || !Boolean.TRUE.equals(gorulmeler.get(kendiId));
+                            String atanid=doc.getString("istekatanID");
+                            boolean gorulmedi = (gorulmeler == null) || (!Boolean.TRUE.equals(gorulmeler.get(kendiId)) && !atanid.equals(kendiId));
                             if (gorulmedi) {
                                 int sayi=sohbet.getGorulmemisMesajSayisi();
                                 sayi++;
                                 sohbet.setGorulmemisMesajSayisi(sayi);
                             }
                         }
-
                         _gorulmeyenMesajSayilariGrup.setValue(sohbet);
                     }
                 });

@@ -116,12 +116,13 @@ public class MesajAdapterGrup extends RecyclerView.Adapter<MesajAdapterGrup.View
                             }
                     }
                 }
-
                 if (gorulduYazanlar.length() > 0) {
                     holder.gorulduDurumu.setText("Gördü: " + gorulduYazanlar.toString());
                 } else {
                     holder.gorulduDurumu.setText("");
                 }
+            }else{
+                holder.gorulduDurumu.setVisibility(View.GONE);
             }
 
         }else{
@@ -177,7 +178,7 @@ public class MesajAdapterGrup extends RecyclerView.Adapter<MesajAdapterGrup.View
             txtTarihGiden = itemView.findViewById(R.id.txtOdenecekTarihGiden);
             txtAciklamaGiden = itemView.findViewById(R.id.txtAciklamaGiden);
             gidenSaat = itemView.findViewById(R.id.mesajGidenSaat);
-           // gorulduDurumu = itemView.findViewById(R.id.gorulduDurumu);YAPMADIM
+            gorulduDurumu = itemView.findViewById(R.id.gorulduDurumu);
 
             txtMiktarGelen = itemView.findViewById(R.id.txtBorcMiktariGelen);
             gonderenadigelen=itemView.findViewById(R.id.gonderenadigelen);
