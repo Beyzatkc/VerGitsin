@@ -219,11 +219,8 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
                     mViewModel.sonMsjDbKaydi(sohbetID,SonMesaj,SonMesajSaat);
                 }
             });
-            mViewModel.goruldu().observe(getViewLifecycleOwner(),goruldumesaj->{
-                ArrayList<Mesaj>mesajlar=mViewModel._tumMesajlar.getValue();
-                if(mesajlar!=null&&mesajlar.isEmpty()&&goruldumesaj!=null&&mesajlar.get(mesajlar.size()-1).equals(goruldumesaj)) {
-                    adapter.notifyItemInserted(mesajlar.size() - 1);
-                }
+            mViewModel.guncellenen().observe(getViewLifecycleOwner(),mesaj->{
+                adapter.mesajGuncelle(mesaj);
             });
 
         } else {
@@ -290,14 +287,8 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
                     mViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesajadptr,SonMesajSaatadptr);
                 }
             });
-            mViewModel.goruldu().observe(getViewLifecycleOwner(), goruldumesaj -> {
-                ArrayList<Mesaj> mesajlar = mViewModel._tumMesajlar.getValue();
-                if (mesajlar != null && goruldumesaj != null) {
-                    int index = mesajlar.indexOf(goruldumesaj);
-                    if (index != -1) {
-                        adapter.notifyItemChanged(index);
-                    }
-                }
+            mViewModel.guncellenen().observe(getViewLifecycleOwner(),mesaj->{
+                adapter.mesajGuncelle(mesaj);
             });
 
             istekEditTextViewLayout.setVisibility(View.VISIBLE);

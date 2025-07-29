@@ -35,12 +35,16 @@ public class MesajAdapterKisi extends RecyclerView.Adapter<MesajAdapterKisi.View
         tumMesajlar.add(yeniMesaj);
         notifyItemInserted(tumMesajlar.size() - 1);
     }
-    /*
-    public void notifymetod(Mesaj mesaj){
-        if(tumMesajlar.get(tumMesajlar.size()-1).equals(mesaj)) {
-            notifyItemInserted(tumMesajlar.size() - 1);
+
+    public void mesajGuncelle(Mesaj mesaj){
+        for (int i = 0; i < tumMesajlar.size(); i++) {
+            if (tumMesajlar.get(i).getMsjID().equals(mesaj.getMsjID())) {
+                tumMesajlar.set(i, mesaj);
+                notifyItemChanged(i);
+                break;
+            }
         }
-    }*/
+    }
     public void eskiMesajlariBasaEkle(ArrayList<Mesaj> mesajlar) {
         tumMesajlar.addAll(0, mesajlar);
         notifyItemRangeInserted(0, mesajlar.size());

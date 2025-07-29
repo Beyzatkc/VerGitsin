@@ -49,9 +49,6 @@ public class MesajViewModel extends ViewModel {
     MutableLiveData<Mesaj>_silinenMesaj=new MutableLiveData<>();
     LiveData<Mesaj>silinen(){return _silinenMesaj;}
 
-    MutableLiveData<Mesaj>_goruldu=new MutableLiveData<>();
-    LiveData<Mesaj>goruldu(){return _goruldu;}
-
     public void MesajBorcistekleriDbCek(String aktifSohbetId){
         Query query = db.collection("sohbetler")
                 .document(aktifSohbetId)
@@ -70,16 +67,11 @@ public class MesajViewModel extends ViewModel {
                     for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
                         Mesaj mesaj=documentToMesaj(doc);
                         tumMesajlar.add(mesaj);
-                        GorulmeKontrolEtVeGuncelle(mesaj, aktifSohbetId, "degil",() -> {
+                        GorulmeKontrolEtVeGuncelle(mesaj, aktifSohbetId,() -> {
                         });
-
                     }
                     Collections.sort(tumMesajlar, Comparator.comparingLong(Mesaj::getZaman));
-                    if (!tumMesajlar.isEmpty()) {
-                        Mesaj sonMesaj = tumMesajlar.get(tumMesajlar.size() - 1);
-                        GorulmeKontrolEtVeGuncelle(sonMesaj, aktifSohbetId,"sonmsj", () -> {
-                        });
-                    }
+
                     _tumMesajlar.setValue(tumMesajlar);
                     ilkTetikleme = false;
                 } else {
@@ -87,12 +79,12 @@ public class MesajViewModel extends ViewModel {
                         Mesaj mesaj = documentToMesaj(dc.getDocument());
                         switch (dc.getType()) {
                             case ADDED:
-                                GorulmeKontrolEtVeGuncelle(mesaj, aktifSohbetId,"degil", () -> {
+                                GorulmeKontrolEtVeGuncelle(mesaj, aktifSohbetId, () -> {
                                     _eklenenMesaj.setValue(mesaj);
                                 });
                                 break;
                             case MODIFIED:
-                                GorulmeKontrolEtVeGuncelle(mesaj, aktifSohbetId, "degil",() -> {
+                                GorulmeKontrolEtVeGuncelle(mesaj, aktifSohbetId,() -> {
                                     _guncellenenMesaj.setValue(mesaj);
                                 });
                                 break;
@@ -105,7 +97,7 @@ public class MesajViewModel extends ViewModel {
             }
         });
     }
-    public void GorulmeKontrolEtVeGuncelle(Mesaj mesaj, String aktifSohbetId,String tur, Runnable onComplete) {
+    public void GorulmeKontrolEtVeGuncelle(Mesaj mesaj, String aktifSohbetId, Runnable onComplete) {
         String kendiId = MainActivity.kullanicistatic.getKullaniciId();
         if (!mesaj.getIstegiAtanId().equals(kendiId) && !mesaj.isGoruldu()) {
             mesaj.setGoruldu(true);
@@ -116,17 +108,13 @@ public class MesajViewModel extends ViewModel {
                     .update("GorulduMu", true)
                     .addOnSuccessListener(aVoid -> {
                         if (onComplete != null) onComplete.run();
-                        if(tur.equals("sonmsj"))
-                        _goruldu.setValue(mesaj);
                     })
                     .addOnFailureListener(e -> {
                         Log.e("Firestore", "Gorulme durumu güncellenemedi", e);
                         if (onComplete != null) onComplete.run(); // Hata olsa da devam et
-                        _goruldu.setValue(null);
                     });
         } else {
             if (onComplete != null) onComplete.run();
-            _goruldu.setValue(null);
         }
     }
 
@@ -146,7 +134,7 @@ public class MesajViewModel extends ViewModel {
             for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
                 Mesaj mesaj = documentToMesaj(doc);
                 eskiMesajlar.add(mesaj);
-                GorulmeKontrolEtVeGuncelle(mesaj, aktifSohbetId,"degil", () -> {
+                GorulmeKontrolEtVeGuncelle(mesaj, aktifSohbetId, () -> {
                 });
             }
             Collections.reverse(eskiMesajlar); // ters çeviriyoruz (eski->yeni)

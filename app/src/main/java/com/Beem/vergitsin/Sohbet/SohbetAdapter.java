@@ -45,7 +45,8 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
     public void SohbetGuncelle(Sohbet guncelSohbet) {
         for (int i = 0; i < sohbetler.size(); i++) {
             if (sohbetler.get(i).getSohbetID().equals(guncelSohbet.getSohbetID())) {
-                sohbetler.set(i, guncelSohbet);
+                sohbetler.get(i).setSonMesaj(guncelSohbet.getSonMesaj());
+                sohbetler.get(i).setSonmsjsaati(guncelSohbet.getSonmsjsaati());
                 notifyItemChanged(i);
                 break;
             }
