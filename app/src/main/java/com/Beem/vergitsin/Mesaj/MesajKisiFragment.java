@@ -1,5 +1,6 @@
 package com.Beem.vergitsin.Mesaj;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Bundle;
@@ -99,6 +100,14 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
                 sohbetID=getArguments().getString("sohbetId");
             }
         }
+        // Geri tuşuna basıldığında fragmentten çık
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                requireActivity().getSupportFragmentManager().popBackStack();
+                 mViewModel.DinleyiciKaldir();
+            }
+        });
     }
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,

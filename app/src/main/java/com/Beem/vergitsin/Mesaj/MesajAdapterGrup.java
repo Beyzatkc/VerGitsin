@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
 
 public class MesajAdapterGrup extends RecyclerView.Adapter<MesajAdapterGrup.ViewHolder>{
     private ArrayList<Mesaj> tumMesajlar;
@@ -41,6 +42,15 @@ public class MesajAdapterGrup extends RecyclerView.Adapter<MesajAdapterGrup.View
         tumMesajlar.clear();
         tumMesajlar.addAll(yeniListe);
         notifyDataSetChanged();
+    }
+    public void mesajGuncelle(Mesaj mesaj){
+        for (int i = 0; i < tumMesajlar.size(); i++) {
+            if (tumMesajlar.get(i).getMsjID().equals(mesaj.getMsjID())) {
+                tumMesajlar.set(i, mesaj);
+                notifyDataSetChanged();
+                break;
+            }
+        }
     }
 
     public void setMesajList(ArrayList<Mesaj> yeniListe) {
@@ -88,6 +98,32 @@ public class MesajAdapterGrup extends RecyclerView.Adapter<MesajAdapterGrup.View
             }else{
                 holder.onaygiden.setVisibility(View.GONE);
             }
+            if (tumMesajlar.get(tumMesajlar.size() - 1).equals(mesaj)) {
+                Map<String, Boolean> gorulmeler = mesaj.getGorulmeler();
+
+                StringBuilder gorulduYazanlar = new StringBuilder();
+
+                if (gorulmeler != null) {
+                    for (Map.Entry<String, Boolean> entry : gorulmeler.entrySet()) {
+                        String kullaniciId = entry.getKey();
+                        Boolean gorulduMu = entry.getValue();
+
+                        if (Boolean.TRUE.equals(gorulduMu)) {
+                                if (gorulduYazanlar.length() > 0) {
+                                    gorulduYazanlar.append(", ");
+                                }
+                                gorulduYazanlar.append(kullaniciId);
+                            }
+                    }
+                }
+
+                if (gorulduYazanlar.length() > 0) {
+                    holder.gorulduDurumu.setText("Gördü: " + gorulduYazanlar.toString());
+                } else {
+                    holder.gorulduDurumu.setText("");
+                }
+            }
+
         }else{
             holder.gelenLayout.setVisibility(View.VISIBLE);
             holder.gidenLayout.setVisibility(View.GONE);

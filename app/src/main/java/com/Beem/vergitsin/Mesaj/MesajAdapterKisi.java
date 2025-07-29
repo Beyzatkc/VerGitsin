@@ -40,7 +40,7 @@ public class MesajAdapterKisi extends RecyclerView.Adapter<MesajAdapterKisi.View
         for (int i = 0; i < tumMesajlar.size(); i++) {
             if (tumMesajlar.get(i).getMsjID().equals(mesaj.getMsjID())) {
                 tumMesajlar.set(i, mesaj);
-                notifyItemChanged(i);
+                notifyDataSetChanged();
                 break;
             }
         }
@@ -101,7 +101,6 @@ public class MesajAdapterKisi extends RecyclerView.Adapter<MesajAdapterKisi.View
            }
            if(tumMesajlar.get(tumMesajlar.size()-1).equals(mesaj)&&mesaj.isGoruldu()){
                holder.gorulduDurumu.setVisibility(View.VISIBLE);
-
            }else{
                holder.gorulduDurumu.setVisibility(View.GONE);
            }

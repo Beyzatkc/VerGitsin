@@ -15,6 +15,7 @@ import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 
 import java.text.SimpleDateFormat;
@@ -49,6 +50,9 @@ public class MesajViewModel extends ViewModel {
     MutableLiveData<Mesaj>_silinenMesaj=new MutableLiveData<>();
     LiveData<Mesaj>silinen(){return _silinenMesaj;}
 
+    private ListenerRegistration borcIstekleriListener;
+
+
     public void MesajBorcistekleriDbCek(String aktifSohbetId){
         Query query = db.collection("sohbetler")
                 .document(aktifSohbetId)
@@ -56,7 +60,7 @@ public class MesajViewModel extends ViewModel {
                 .orderBy("isteginAtildigiZaman", Query.Direction.DESCENDING)
                 .limit(3);
 
-        query.addSnapshotListener((queryDocumentSnapshots, error) -> {
+        borcIstekleriListener = query.addSnapshotListener((queryDocumentSnapshots, error) -> {
             if (error != null) {
                 Log.e("Firestore", "Mesajlar dinlenirken hata oluştu", error);
                 return;
@@ -96,6 +100,12 @@ public class MesajViewModel extends ViewModel {
                 }
             }
         });
+    }
+    public void DinleyiciKaldir(){
+        if (borcIstekleriListener != null) {
+            borcIstekleriListener.remove();
+            borcIstekleriListener = null;
+        }
     }
     public void GorulmeKontrolEtVeGuncelle(Mesaj mesaj, String aktifSohbetId, Runnable onComplete) {
         String kendiId = MainActivity.kullanicistatic.getKullaniciId();

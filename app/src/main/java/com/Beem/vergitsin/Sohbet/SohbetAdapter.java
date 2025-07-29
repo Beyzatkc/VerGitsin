@@ -12,6 +12,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.Beem.vergitsin.Kullanici.Kullanici;
 import com.Beem.vergitsin.Mesaj.Mesaj;
 import com.Beem.vergitsin.R;
 

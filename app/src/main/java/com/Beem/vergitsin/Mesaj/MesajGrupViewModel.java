@@ -6,14 +6,18 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.Beem.vergitsin.Kullanici.Kullanici;
+import com.Beem.vergitsin.MainActivity;
 import com.Beem.vergitsin.UyariMesaj;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -54,10 +58,13 @@ public class MesajGrupViewModel extends ViewModel {
     public void setGeciciEskiMesajListesi(ArrayList<Mesaj> liste) {
         this.geciciEskiMesajListesi = liste;
     }
+    private ListenerRegistration borcIstekleriListener;
     public ArrayList<Mesaj> getGeciciEskiMesajListesi() {
         return geciciEskiMesajListesi;
     }
 
+    private MutableLiveData<ArrayList<String>>_getirildiadlar=new MutableLiveData<>();
+    public LiveData<ArrayList<String>>getirildiadlar(){return _getirildiadlar;}
 
     public void MesajBorcistekleriDbCek(String aktifSohbetId){
         Query query = db.collection("sohbetler")
@@ -66,7 +73,7 @@ public class MesajGrupViewModel extends ViewModel {
                 .orderBy("isteginAtildigiZaman", Query.Direction.DESCENDING)
                 .limit(3);
 
-        query.addSnapshotListener((queryDocumentSnapshots, error) -> {
+        borcIstekleriListener = query.addSnapshotListener((queryDocumentSnapshots, error) -> {
             if (error != null) {
                 Log.e("Firestore", "Mesajlar dinlenirken hata oluştu", error);
                 return;
@@ -75,9 +82,13 @@ public class MesajGrupViewModel extends ViewModel {
                 if (ilkTetikleme) {
                     ArrayList<Mesaj> tumMesajlar = new ArrayList<>();
                     for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
-                        tumMesajlar.add(documentToMesaj(doc));
+                        Mesaj mesaj=documentToMesaj(doc);
+                        tumMesajlar.add(mesaj);
+                        GorulmeKontrolEtVeGuncelle(mesaj, aktifSohbetId,() -> {
+                        });
                     }
                     Collections.sort(tumMesajlar, Comparator.comparingLong(Mesaj::getZaman));
+
                     _tumMesajlar.setValue(tumMesajlar);
                     ilkTetikleme = false;
                 } else {
@@ -85,10 +96,14 @@ public class MesajGrupViewModel extends ViewModel {
                         Mesaj mesaj = documentToMesaj(dc.getDocument());
                         switch (dc.getType()) {
                             case ADDED:
-                                _eklenenMesaj.setValue(mesaj);
+                                GorulmeKontrolEtVeGuncelle(mesaj, aktifSohbetId, () -> {
+                                    _eklenenMesaj.setValue(mesaj);
+                                });
                                 break;
                             case MODIFIED:
-                                _guncellenenMesaj.setValue(mesaj);
+                                GorulmeKontrolEtVeGuncelle(mesaj, aktifSohbetId,() -> {
+                                    _guncellenenMesaj.setValue(mesaj);
+                                });
                                 break;
                             case REMOVED:
                                 _silinenMesaj.setValue(mesaj);
@@ -99,6 +114,69 @@ public class MesajGrupViewModel extends ViewModel {
             }
         });
     }
+    public void DinleyiciKaldir(){
+        if (borcIstekleriListener != null) {
+            borcIstekleriListener.remove();
+            borcIstekleriListener = null;
+        }
+    }
+    public void GorulmeKontrolEtVeGuncelle(Mesaj mesaj, String aktifSohbetId, Runnable onComplete) {
+        String kendiId = MainActivity.kullanicistatic.getKullaniciId();
+        db.collection("gruplar")
+                .document(aktifSohbetId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        ArrayList<String> katilimcilar = (ArrayList<String>) documentSnapshot.get("uyeler");
+                        ArrayList<String> gorecekler = new ArrayList<>();
+
+                        for (String katilimci : katilimcilar) {
+                            if (!katilimci.equals(mesaj.getIstegiAtanId())) {
+                                gorecekler.add(katilimci);
+                            }
+                        }
+
+                        if (gorecekler.contains(kendiId)) {
+                            Map<String, Boolean> gorulmeler = mesaj.getGorulmeler();
+                            if (gorulmeler == null) {
+                                gorulmeler = new HashMap<>();
+                            }
+
+                            if (!Boolean.TRUE.equals(gorulmeler.get(kendiId))) {
+                                gorulmeler.put(kendiId, true);
+                                mesaj.setGorulmeler(gorulmeler);
+
+                                db.collection("sohbetler")
+                                        .document(aktifSohbetId)
+                                        .collection("borc_istekleri")
+                                        .document(mesaj.getMsjID())
+                                        .update("gorulmeler", gorulmeler)
+                                        .addOnSuccessListener(aVoid -> {
+                                            if (onComplete != null) onComplete.run();
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Log.e("Firestore", "Görülme durumu güncellenemedi", e);
+                                            if (onComplete != null) onComplete.run();
+                                        });
+                            } else {
+                                if (onComplete != null) onComplete.run();
+                            }
+                        } else {
+                            if (onComplete != null) onComplete.run();
+                        }
+
+                    } else {
+                        Log.e("Firestore", "Grup bulunamadı");
+                        if (onComplete != null) onComplete.run();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Firestore", "Katılımcılar çekilirken hata oluştu", e);
+                    if (onComplete != null) onComplete.run();
+                });
+    }
+
+
     public void EskiMesajlariYukle(String aktifSohbetId,Long zaman){
         Query query = db.collection("sohbetler")
                 .document(aktifSohbetId)
@@ -112,7 +190,10 @@ public class MesajGrupViewModel extends ViewModel {
         query.get().addOnSuccessListener(queryDocumentSnapshots -> {
             ArrayList<Mesaj> eskiMesajlar = new ArrayList<>();
             for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
-                eskiMesajlar.add(documentToMesaj(doc));
+                Mesaj mesaj=documentToMesaj(doc);
+                eskiMesajlar.add(mesaj);
+                GorulmeKontrolEtVeGuncelle(mesaj, aktifSohbetId, () -> {
+                });
             }
 
             Collections.reverse(eskiMesajlar); // ters çeviriyoruz (eski->yeni)
@@ -127,7 +208,6 @@ public class MesajGrupViewModel extends ViewModel {
         });
 
     }
-
 
     public Mesaj documentToMesaj(DocumentSnapshot doc){
         String id=doc.getId();
@@ -144,6 +224,11 @@ public class MesajGrupViewModel extends ViewModel {
         }else{
             mesaj.setCevabiVarMi(false);
         }
+        Map<String, Boolean> gorulmeler = (Map<String, Boolean>) doc.get("gorulmeler");
+        if (gorulmeler != null)
+            mesaj.setGorulmeler(gorulmeler);
+        else
+            mesaj.setGorulmeler(new HashMap<>());
         return mesaj;
     }
     public void sonMsjDbKaydi(String sohbetId, String yeniSonMesaj, Long yeniSonMsjSaati) {
@@ -196,6 +281,7 @@ public class MesajGrupViewModel extends ViewModel {
         }
 
     }
+
     public void IddenGonderenAdaUlasmaTekKisi(Mesaj mesaj){
             db.collection("users")
                     .document(mesaj.getIstegiAtanId())
@@ -281,5 +367,31 @@ public class MesajGrupViewModel extends ViewModel {
                     uyariMesaj.BasarisizDurum("",1000);
                     Log.e("Firestore", "Borç isteği kaydedilirken hata: ", e);
                 });
+    }
+    public void kullaniciAdlariniGetir(String grupid) {
+        ArrayList<String> bos = new ArrayList<>();
+        db.collection("gruplar")
+                .document(grupid)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    ArrayList<String> uyeIDleri = (ArrayList<String>) documentSnapshot.get("uyeler");
+                    if (uyeIDleri != null) {
+                        for (String kullaniciId : uyeIDleri) {
+                            db.collection("users")
+                                    .document(kullaniciId)
+                                    .get()
+                                    .addOnSuccessListener(userDoc -> {
+                                        if (userDoc.exists()) {
+                                            String kAdi = userDoc.getString("ad") + " " + userDoc.getString("kullaniciAdi");
+                                            bos.add(kAdi);
+                                        }
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.e("Firestore", "Kullanıcı bilgisi alınamadı", e);
+                                    });
+                        }
+                    }
+                });
+        _getirildiadlar.setValue(bos);
     }
 }

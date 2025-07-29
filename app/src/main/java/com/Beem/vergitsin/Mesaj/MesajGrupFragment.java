@@ -1,5 +1,6 @@
 package com.Beem.vergitsin.Mesaj;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Bundle;
@@ -101,6 +102,14 @@ public class MesajGrupFragment extends Fragment implements CevapGeldiGrup{
                 sohbetID=getArguments().getString("sohbetId");
             }
         }
+        // Geri tuşuna basıldığında fragmentten çık
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                requireActivity().getSupportFragmentManager().popBackStack();
+                mViewModel.DinleyiciKaldir();
+            }
+        });
     }
 
     @Override
@@ -183,6 +192,9 @@ public class MesajGrupFragment extends Fragment implements CevapGeldiGrup{
                     mViewModel.IddenGonderenAdaUlasmaTekKisi(mesaj);
                 }
             });
+            mViewModel.guncellenen().observe(getViewLifecycleOwner(),mesaj->{
+                adapter.mesajGuncelle(mesaj);
+            });
             mViewModel.tamamlandimsj().observe(getViewLifecycleOwner(), msj -> {
                 if (msj != null) {
                     adapter.mesajEkle(msj);
@@ -262,6 +274,9 @@ public class MesajGrupFragment extends Fragment implements CevapGeldiGrup{
                     SonMesajSaatadptr=msj.getZaman();
                     mViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesajadptr,SonMesajSaatadptr);
                 }
+            });
+            mViewModel.guncellenen().observe(getViewLifecycleOwner(),mesaj->{
+                adapter.mesajGuncelle(mesaj);
             });
             Observe.observeOnce(mViewModel.tumMesajlar(), getViewLifecycleOwner(), mesajList -> {
                 mViewModel.IddenGonderenAdaUlasma(mesajList,"mesajlar");

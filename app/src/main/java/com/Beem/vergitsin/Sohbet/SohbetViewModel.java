@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.Beem.vergitsin.Kullanici.Kullanici;
 import com.Beem.vergitsin.Kullanici.KullaniciDurum;
 import com.Beem.vergitsin.MainActivity;
 import com.Beem.vergitsin.Mesaj.Mesaj;
@@ -40,11 +41,19 @@ public class SohbetViewModel extends ViewModel {
     MutableLiveData<Sohbet>_silinenSohbet=new MutableLiveData<>();
     LiveData<Sohbet>silinenSohbet(){return _silinenSohbet;}
     private Map<String, ListenerRegistration> listenerMap = new HashMap<>();
+    private Map<String, ListenerRegistration> listenerMapGrup = new HashMap<>();
 
     private  MutableLiveData<Sohbet> _gorulmeyenMesajSayilari = new MutableLiveData<>();
     public LiveData<Sohbet> getGorulmeyenMesajSayilari() {
         return _gorulmeyenMesajSayilari;
     }
+
+    private  MutableLiveData<Sohbet> _gorulmeyenMesajSayilariGrup = new MutableLiveData<>();
+    public LiveData<Sohbet> getGorulmeyenMesajSayilariGrup() {
+        return _gorulmeyenMesajSayilariGrup;
+    }
+
+
 
     public void SohbetleriCek() {
             db.collection("sohbetler")
@@ -67,7 +76,11 @@ public class SohbetViewModel extends ViewModel {
                                     Long sonMsjSaati = doc.getLong("sonMsjSaati");
                                     ArrayList<String> katilimcilar = (ArrayList<String>) doc.get("katilimcilar");
                                     Sohbet sohbet = new Sohbet(sohbetId, kullaniciAdi, sonMsjSaati, ppfoto, sonMesaj, katilimcilar, tur);
-                                    GorulmeyenMesajSayisi(sohbet);
+                                    if(tur.equals("kisi")) {
+                                        GorulmeyenMesajSayisi(sohbet);
+                                    }else{
+                                        GorulmeyenMesajSayisiGrup(sohbet);
+                                    }
                                     tumSohbetler.add(sohbet);
                                 }
                                 Collections.sort(tumSohbetler, Comparator.comparingLong(Sohbet::getSonmsjsaati));
@@ -88,7 +101,11 @@ public class SohbetViewModel extends ViewModel {
                                     Sohbet yeniSohbet = new Sohbet(sohbetId, kullaniciAdi, sonMsjSaati, ppfoto, sonMesaj, katilimcilar, tur);
                                     switch (change.getType()) {
                                         case ADDED:
-                                             GorulmeyenMesajSayisi(yeniSohbet);
+                                            if(tur.equals("kisi")) {
+                                                GorulmeyenMesajSayisi(yeniSohbet);
+                                            }else{
+                                                GorulmeyenMesajSayisiGrup(yeniSohbet);
+                                            }
                                             _eklenenSohbet.setValue(yeniSohbet);
                                             break;
                                         case MODIFIED:
@@ -103,6 +120,7 @@ public class SohbetViewModel extends ViewModel {
                         }
                     });
         }
+
     public void GorulmeyenMesajSayisi(Sohbet sohbet) {
         if(listenerMap.containsKey(sohbet.getSohbetID())){
             return;
@@ -114,6 +132,9 @@ public class SohbetViewModel extends ViewModel {
                 .addSnapshotListener((snapshots, e) -> {
                     if (e != null) {
                         Log.e("Firestore", "Hata oluştu", e);
+                        return;
+                    }
+                    if(sohbet.getSohbeteGirildiMi()){
                         return;
                     }
                     if (snapshots != null) {
@@ -130,4 +151,40 @@ public class SohbetViewModel extends ViewModel {
                 });
         listenerMap.put(sohbet.getSohbetID(), listenerRegistration);
     }
+    public void GorulmeyenMesajSayisiGrup(Sohbet sohbet) {
+        if(listenerMapGrup.containsKey(sohbet.getSohbetID())){
+            return;
+        }
+        String kendiId = MainActivity.kullanicistatic.getKullaniciId();
+
+        ListenerRegistration listenerRegistration = db.collection("sohbetler")
+                .document(sohbet.getSohbetID())
+                .collection("borc_istekleri")
+                .addSnapshotListener((snapshots, e) -> {
+                    if (e != null) {
+                        Log.e("Firestore", "Hata oluştu", e);
+                        return;
+                    }
+                    if(sohbet.getSohbeteGirildiMi()){
+                        return;
+                    }
+                    if (snapshots != null) {
+                        for (DocumentSnapshot doc : snapshots.getDocuments()) {
+                            Map<String, Boolean> gorulmeler = (Map<String, Boolean>) doc.get("gorulmeler");
+
+                            boolean gorulmedi = (gorulmeler == null) || !Boolean.TRUE.equals(gorulmeler.get(kendiId));
+                            if (gorulmedi) {
+                                int sayi=sohbet.getGorulmemisMesajSayisi();
+                                sayi++;
+                                sohbet.setGorulmemisMesajSayisi(sayi);
+                            }
+                        }
+
+                        _gorulmeyenMesajSayilariGrup.setValue(sohbet);
+                    }
+                });
+
+        listenerMapGrup.put(sohbet.getSohbetID(), listenerRegistration);
+    }
+
 }

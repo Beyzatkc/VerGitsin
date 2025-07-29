@@ -18,6 +18,7 @@ import com.Beem.vergitsin.Mesaj.MesajGrupFragment;
 import com.Beem.vergitsin.Mesaj.MesajKisiFragment;
 import com.Beem.vergitsin.R;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 public class SohbetFragment extends Fragment{
@@ -34,6 +35,23 @@ public class SohbetFragment extends Fragment{
         super.onCreate(savedInstanceState);
         mViewModel = new ViewModelProvider(this).get(SohbetViewModel.class);
     }
+    public void msjlaraUlas() {
+        ArrayList<Sohbet> sohbetler = mViewModel._sohbetler.getValue();
+
+        if (sohbetler != null&&!sohbetler.isEmpty()) {
+            for (int i = 0; i < sohbetler.size(); i++) {
+                Sohbet sohbet = sohbetler.get(i);
+                if (sohbet != null && Boolean.TRUE.equals(sohbet.getSohbeteGirildiMi())) {
+                    sohbet.setSohbeteGirildiMi(false);
+                }
+            }
+        }
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        msjlaraUlas();
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -48,11 +66,13 @@ public class SohbetFragment extends Fragment{
                 @Override
                 public void onSohbetClicked(Sohbet sohbet) {
                     sohbet.setGorulmemisMesajSayisi(0);
+                    sohbet.setSohbeteGirildiMi(true);
                     Bundle bundle = new Bundle();
                     bundle.putString("kaynak", "SohbetAdapter");
                     bundle.putString("sohbetId", sohbet.getSohbetID());
                     bundle.putString("sohbetedilenAd",sohbet.getKullaniciAdi());
                     bundle.putString("sohbetEdilenPP",sohbet.getPpfoto());
+
 
                     if(sohbet.getTur().equals("grup")) {
                         Fragment mesajGrupFragment = new MesajGrupFragment();
@@ -80,6 +100,10 @@ public class SohbetFragment extends Fragment{
                     adapter.GorulmeyenSayisi(sohbet);
         });
 
+
+        mViewModel.getGorulmeyenMesajSayilariGrup().observe(getViewLifecycleOwner(), sohbet -> {
+            adapter.GorulmeyenSayisi(sohbet);
+        });
         mViewModel.eklenenSohbet().observe(getViewLifecycleOwner(), sohbet -> {
             if (sohbet != null) {
                 adapter.sohbetEkle(sohbet);

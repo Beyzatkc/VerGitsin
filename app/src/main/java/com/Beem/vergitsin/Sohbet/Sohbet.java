@@ -11,6 +11,7 @@ public class Sohbet {
     private ArrayList<String> katilimcilar;
     private String tur;
     private int gorulmemisMesajSayisi;
+    private Boolean sohbeteGirildiMi=false;
 
     public Sohbet(String sohbetID, String kullaniciAdi, Long sonmsjsaati, String ppfoto, String sonMesaj, ArrayList<String> katilimcilar, String tur) {
         this.sohbetID = sohbetID;
@@ -29,6 +30,13 @@ public class Sohbet {
         this.gorulmemisMesajSayisi = gorulmemisMesajSayisi;
     }
 
+    public Boolean getSohbeteGirildiMi() {
+        return sohbeteGirildiMi;
+    }
+
+    public void setSohbeteGirildiMi(Boolean sohbeteGirildiMi) {
+        this.sohbeteGirildiMi = sohbeteGirildiMi;
+    }
 
     public String getTur() {
         return tur;

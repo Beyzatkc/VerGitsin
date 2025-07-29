@@ -2,6 +2,8 @@ package com.Beem.vergitsin.Mesaj;
 
 import com.google.firebase.Timestamp;
 
+import java.util.Map;
+
 public class Mesaj {
     private String msjID;
     private String istegiAtanId;
@@ -14,7 +16,7 @@ public class Mesaj {
     private boolean goruldu;
     private boolean cevabiVarMi;
     public String istekAtanAdi;
-
+    public Map<String, Boolean> gorulmeler;
 
     public Mesaj() {}
 
@@ -29,6 +31,15 @@ public class Mesaj {
         this.cevap=cevap;
         this.msjID=msjID;
     }
+
+    public Map<String, Boolean> getGorulmeler() {
+        return gorulmeler;
+    }
+
+    public void setGorulmeler(Map<String, Boolean> gorulmeler) {
+        this.gorulmeler = gorulmeler;
+    }
+
 
     public String getIstekAtanAdi() {
         return istekAtanAdi;
@@ -111,6 +122,7 @@ public class Mesaj {
     }
 
     public boolean isGoruldu() {
+
         return goruldu;
     }
 
