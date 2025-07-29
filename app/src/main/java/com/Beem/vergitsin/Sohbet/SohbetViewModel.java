@@ -181,8 +181,6 @@ public class SohbetViewModel extends ViewModel {
                         _gorulmeyenMesajSayilariGrup.setValue(sohbet);
                     }
                 });
-
         listenerMapGrup.put(sohbet.getSohbetID(), listenerRegistration);
     }
-
 }
