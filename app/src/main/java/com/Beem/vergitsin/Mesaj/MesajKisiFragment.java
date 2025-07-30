@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-public class MesajKisiFragment extends Fragment implements CevapGeldi {
+public class MesajKisiFragment extends Fragment {
 
     private MesajViewModel mViewModel;
     private RecyclerView recyclerView;
@@ -74,6 +74,7 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
     private Long ilkmsjSaati;
     private Long ilkmsjSaatiadptr;
     private boolean isLoading = false;
+    private CevapGeldi arayuzum;
 
 
     public static MesajKisiFragment newInstance() {
@@ -135,7 +136,7 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
         gonderButtontext=view.findViewById(R.id.gonderButton2);
         odemeTarihitext=view.findViewById(R.id.odemeTarihi);
 
-        //adapter.setListenercvp(this);
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext());
         recyclerView.setLayoutManager(layoutManager);
         adapter = new MesajAdapterKisi(new ArrayList<>(), requireContext());
@@ -152,12 +153,18 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
                     }else{
                         mViewModel.EskiMesajlariYukle(sohbetIdAdptr,ilkmsjSaatiadptr);
                     }
-
                 }
             }
         });
 
         if ("mainactivity".equals(kaynak)) {
+            arayuzum=new CevapGeldi() {
+                @Override
+                public void onCevapGeldi(String cvpverenid, String mesajID,String cvpverenad,String icerik) {
+                    mViewModel.GelenCevabiKaydetme(sohbetID,mesajID,cvpverenid,cvpverenad,icerik);
+                }
+            };
+            adapter.setListenercvp(arayuzum);
             mViewModel.SohbetIDsindenAliciya(sohbetID);
             mViewModel.AliciID().observe(getViewLifecycleOwner(), id -> {
                 if (id != null) {
@@ -195,7 +202,6 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
             mViewModel.tumMesajlar().observe(getViewLifecycleOwner(), mesajList -> {
                 if (adapter == null) {
                     adapter = new MesajAdapterKisi(new ArrayList<>(), requireContext());
-                   // adapter.setListenercvp(this);
                     recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
                     recyclerView.setAdapter(adapter);
                 }
@@ -233,8 +239,14 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
             });
 
         } else {
+            arayuzum=new CevapGeldi() {
+                @Override
+                public void onCevapGeldi(String cvpverenid, String mesajID,String cvpverenad,String icerik) {
+                    mViewModel.GelenCevabiKaydetme(sohbetIdAdptr,mesajID,cvpverenid,cvpverenad,icerik);
+                }
+            };
+            adapter.setListenercvp(arayuzum);
             mViewModel.SohbetIDsindenAliciya(sohbetIdAdptr);
-
             mViewModel.AliciID().observe(getViewLifecycleOwner(), id -> {
                 if (id != null) {
                     mViewModel.CevrimiciSongorulmeDb(id);
@@ -263,12 +275,6 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
             mViewModel.MesajBorcistekleriDbCek(sohbetIdAdptr);
 
             mViewModel.tumMesajlar().observe(getViewLifecycleOwner(), mesajList -> {
-                if (adapter == null) {
-                    adapter = new MesajAdapterKisi(new ArrayList<>(), requireContext());
-                 //   adapter.setListenercvp(this);
-                    recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-                    recyclerView.setAdapter(adapter);
-                }
                 if(!ilkMesajAlindiadptr){
                     ilkmsjSaatiadptr=mesajList.get(0).getZaman();
                     ilkMesajAlindiadptr=true;
@@ -279,6 +285,7 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
                 mViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesajadptr,SonMesajSaatadptr);
                 recyclerView.scrollToPosition(adapter.getItemCount() - 1);
             });
+
             mViewModel.eskiMesajlar().observe(getViewLifecycleOwner(), mesajList -> {
                 if (mesajList != null && !mesajList.isEmpty()) {
                     ilkmsjSaatiadptr=mesajList.get(0).getZaman();
@@ -286,7 +293,6 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
                     isLoading = false;
                 }
             });
-
             mViewModel.eklenen().observe(getViewLifecycleOwner(), mesaj -> {
                 if (mesaj != null) {
                     adapter.mesajEkle(mesaj);
@@ -334,8 +340,6 @@ public class MesajKisiFragment extends Fragment implements CevapGeldi {
             return null;
         }
     }
-    @Override
-    public void onCevapGeldi(String cvp,String idmsj) {
-        mViewModel.GelenCevabiKaydetme(sohbetIdAdptr,idmsj,cvp);
-    }
 }
+
+

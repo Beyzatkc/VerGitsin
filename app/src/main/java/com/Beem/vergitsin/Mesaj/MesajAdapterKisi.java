@@ -1,11 +1,14 @@
 package com.Beem.vergitsin.Mesaj;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -95,7 +98,8 @@ public class MesajAdapterKisi extends RecyclerView.Adapter<MesajAdapterKisi.View
            holder.gidenSaat.setText(zaman);
            if(mesaj.isCevabiVarMi()){
                holder.onaygiden.setVisibility(View.VISIBLE);
-               holder.onaygiden.setText(mesaj.getCevap());
+               holder.onay_giden_gonderen_ad.setText(mesaj.getCevap());
+               holder.onaygidenicerik.setText(mesaj.getCevapicerigi());
            }else{
                holder.onaygiden.setVisibility(View.GONE);
            }
@@ -104,7 +108,7 @@ public class MesajAdapterKisi extends RecyclerView.Adapter<MesajAdapterKisi.View
            }else{
                holder.gorulduDurumu.setVisibility(View.GONE);
            }
-       }else{
+       }else {
            holder.gelenLayout.setVisibility(View.VISIBLE);
            holder.gidenLayout.setVisibility(View.GONE);
            holder.txtMiktarGelen.setText(mesaj.getMiktar());
@@ -113,26 +117,63 @@ public class MesajAdapterKisi extends RecyclerView.Adapter<MesajAdapterKisi.View
            String tarihStr = timestampToGunAyYil(odemeTarihi);
            holder.txtTarihGelen.setText(tarihStr);
 
-           Long MesajSaati=mesaj.getZaman();
-           String zaman=longToSaatDakika(MesajSaati);
+           Long MesajSaati = mesaj.getZaman();
+           String zaman = longToSaatDakika(MesajSaati);
            holder.gelenSaat.setText(zaman);
-           if(mesaj.isCevabiVarMi()){
+           if (mesaj.isCevabiVarMi()) {
                holder.onaygelen.setVisibility(View.VISIBLE);
-               holder.onaygelen.setText(mesaj.getCevap());
-           }else{
+               holder.onay_gonderen_adgelen.setText(mesaj.getCevap());
+               holder.onaygelenicerikgelen.setText(mesaj.getCevapicerigi());
+               holder.EVETgelen.setVisibility(View.GONE);
+               holder.HAYIRgelen.setVisibility(View.GONE);
+               holder.onaylayicigelen.setVisibility(View.VISIBLE);
+           } else {
                holder.onaygelen.setVisibility(View.GONE);
+               holder.EVETgelen.setVisibility(View.VISIBLE);
+               holder.HAYIRgelen.setVisibility(View.VISIBLE);
+               holder.onaylayicigelen.setVisibility(View.GONE);
            }
-
-           holder.EVETgelen.setOnClickListener(b->{
+           holder.EVETgelen.setOnClickListener(b -> {
                if (listenercvp != null) {
-                   listenercvp.onCevapGeldi("Borç isteği onaylandı!", mesaj.getMsjID());
+                   listenercvp.onCevapGeldi(MainActivity.kullanicistatic.getKullaniciId(), mesaj.getMsjID(), MainActivity.kullanicistatic.getKullaniciAdi(),"Borç isteği onaylandı");
                }
                mesaj.setCevabiVarMi(true);
-               holder.onaygelen.setVisibility(View.VISIBLE);
-               holder.onaygelen.setText("Borç isteği onaylandı!");
            });
-          }
+
+           holder.HAYIRgelen.setOnClickListener(b -> {
+               mesaj.setCevabiVarMi(true);
+               Context context = holder.itemView.getContext();
+
+               LayoutInflater inflater = LayoutInflater.from(context);
+               View dialogView = inflater.inflate(R.layout.hayir_icin_cvp, null);
+
+               ListView listView = dialogView.findViewById(R.id.cevapListesi);
+               TextView baslik = dialogView.findViewById(R.id.dialogBaslik);
+
+               String[] secenekler = {
+                       "O kadar çıkmaz, cüzdanımın nüfusu sıfır!",
+                       "Başka bir miktar dene bakalım, belki bende o var!",
+                       "Param yoook, hesabım boş!",
+                       "Şu an param yok ama kalbim hep seninle!"
+               };
+               ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, secenekler);
+               listView.setAdapter(adapter);
+
+               AlertDialog dialog = new AlertDialog.Builder(context)
+                       .setView(dialogView)
+                       .create();
+
+               listView.setOnItemClickListener((parent, view, position2, id) -> {
+                   String secilen = secenekler[position2];
+                   if (listenercvp != null) {
+                       listenercvp.onCevapGeldi(MainActivity.kullanicistatic.getKullaniciId(), mesaj.getMsjID(), MainActivity.kullanicistatic.getKullaniciAdi(),secilen);
+                   }
+                   dialog.dismiss();
+               });
+               dialog.show();
+           });
        }
+    }
     @Override
     public int getItemCount() {
         return tumMesajlar.size();
@@ -141,8 +182,8 @@ public class MesajAdapterKisi extends RecyclerView.Adapter<MesajAdapterKisi.View
     public static class ViewHolder extends RecyclerView.ViewHolder {
         LinearLayout gidenLayout, gelenLayout;
         TextView txtMiktarGiden, txtTarihGiden, txtAciklamaGiden, gidenSaat, gorulduDurumu;
-        TextView txtMiktarGelen, txtTarihGelen, txtAciklamaGelen, gelenSaat;
-        TextView onaygiden,onaygelen;
+        TextView txtMiktarGelen, txtTarihGelen, txtAciklamaGelen, gelenSaat,onaylayicigelen;
+        TextView onaygiden,onaygelen,onay_gonderen_adgelen,onaygelenicerikgelen,onay_giden_gonderen_ad,onaygidenicerik;
         Button EVETgelen,HAYIRgelen;
 
         public ViewHolder(View itemView) {
@@ -161,12 +202,18 @@ public class MesajAdapterKisi extends RecyclerView.Adapter<MesajAdapterKisi.View
             txtTarihGelen = itemView.findViewById(R.id.txtOdenecekTarihGelen);
             txtAciklamaGelen = itemView.findViewById(R.id.txtAciklamaGelen);
             gelenSaat = itemView.findViewById(R.id.mesajGelenSaat);
+            onaylayicigelen=itemView.findViewById(R.id.onaylayicigelen);
 
             EVETgelen=itemView.findViewById(R.id.EVETgelen);
             HAYIRgelen=itemView.findViewById(R.id.HAYIRgelen);
 
             onaygiden=itemView.findViewById(R.id.onaygiden);
+            onay_giden_gonderen_ad=itemView.findViewById(R.id.onay_giden_gonderen_ad);
+            onaygidenicerik=itemView.findViewById(R.id.onaygidenicerik);
+
             onaygelen=itemView.findViewById(R.id.onaygelen);
+            onay_gonderen_adgelen=itemView.findViewById(R.id.onay_gonderen_adgelen);
+            onaygelenicerikgelen=itemView.findViewById(R.id.onaygelenicerikgelen);
         }
     }
 

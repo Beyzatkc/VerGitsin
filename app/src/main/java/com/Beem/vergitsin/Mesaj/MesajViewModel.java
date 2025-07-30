@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MesajViewModel extends ViewModel {
     private boolean ilkTetikleme = true;
@@ -49,6 +50,14 @@ public class MesajViewModel extends ViewModel {
     LiveData<Mesaj>guncellenen(){return _guncellenenMesaj;}
     MutableLiveData<Mesaj>_silinenMesaj=new MutableLiveData<>();
     LiveData<Mesaj>silinen(){return _silinenMesaj;}
+
+    MutableLiveData<ArrayList<Mesaj>>_adlargeldi=new MutableLiveData<>();
+    LiveData<ArrayList<Mesaj>>adlargeldi(){return _adlargeldi;}
+    MutableLiveData<ArrayList<Mesaj>>_adlargeldieskimsjlar=new MutableLiveData<>();
+    LiveData<ArrayList<Mesaj>>adlargeldieskimsjlar(){return _adlargeldieskimsjlar;}
+
+    MutableLiveData<Mesaj>_tamamlananMesaj=new MutableLiveData<>();
+    LiveData<Mesaj>tamamlandimsj(){return _tamamlananMesaj;}
 
     private ListenerRegistration borcIstekleriListener;
 
@@ -154,8 +163,18 @@ public class MesajViewModel extends ViewModel {
     }
 
     public Mesaj documentToMesaj(DocumentSnapshot doc){
+           Map<String, Object> cevapVerenMap = (Map<String, Object>) doc.get("cevap_veren");
+
+           String cevapId = null;
+           String cevapAd = null;
+           String cevapicerik=null;
+
+           if (cevapVerenMap != null) {
+            cevapId = (String) cevapVerenMap.get("id");
+            cevapAd = (String) cevapVerenMap.get("ad");
+            cevapicerik = (String) cevapVerenMap.get("icerik");
+             }
             String id=doc.getId();
-            String cevap=doc.getString("cevap");
             String atanid = doc.getString("istekatanID");
             String atilanid = doc.getString("istekatılanID");
             String aciklama = doc.getString("aciklama");
@@ -166,8 +185,8 @@ public class MesajViewModel extends ViewModel {
              if (gorulduMu == null) {
                  gorulduMu = false;
             }
-            Mesaj mesaj=new Mesaj(atanid, atilanid, aciklama, miktar, tarih, mesajAtilmaZamani,gorulduMu,cevap,id);
-            if(cevap!=null){
+            Mesaj mesaj=new Mesaj(atanid, atilanid, aciklama, miktar, tarih, mesajAtilmaZamani,gorulduMu,cevapAd,id,cevapicerik);
+            if(cevapAd!=null){
                 mesaj.setCevabiVarMi(true);
             }else{
                 mesaj.setCevabiVarMi(false);
@@ -243,13 +262,18 @@ public class MesajViewModel extends ViewModel {
                     }
                 });
     }
-    public void GelenCevabiKaydetme(String sohbetId,String borcIstekId,String cevap){
+    public void GelenCevabiKaydetme(String sohbetId, String borcIstekId, String cevapVerenId, String kullaniciAdi,String icerik) {
+        Map<String, Object> cevapVeri = new HashMap<>();
+        cevapVeri.put("id", cevapVerenId);
+        cevapVeri.put("ad", kullaniciAdi);
+        cevapVeri.put("icerik",icerik);
+
         FirebaseFirestore.getInstance()
                 .collection("sohbetler")
                 .document(sohbetId)
                 .collection("borc_istekleri")
                 .document(borcIstekId)
-                .update("cevap", cevap)
+                .update("cevap_veren", cevapVeri)
                 .addOnSuccessListener(aVoid -> {
                     Log.d("Firestore", "Cevap başarıyla güncellendi.");
                 })
@@ -257,6 +281,7 @@ public class MesajViewModel extends ViewModel {
                     Log.e("Firestore", "Cevap güncellenirken hata oluştu: ", e);
                 });
     }
+
     public void sonMsjDbKaydi(String sohbetId, String yeniSonMesaj, Long yeniSonMsjSaati) {
         DocumentReference docRef = db.collection("sohbetler").document(sohbetId);
 
@@ -288,4 +313,5 @@ public class MesajViewModel extends ViewModel {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
         return sdf.format(date);
     }
+
 }

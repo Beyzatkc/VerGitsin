@@ -77,7 +77,6 @@ public class MesajGrupFragment extends Fragment implements CevapGeldiGrup{
     private Long ilkmsjSaatiadptr;
     private boolean isLoading = false;
 
-
     public static MesajGrupFragment newInstance() {
         return new MesajGrupFragment();
     }
@@ -306,7 +305,7 @@ public class MesajGrupFragment extends Fragment implements CevapGeldiGrup{
                 if (Boolean.TRUE.equals(tamamlandiMi)) {
                     ArrayList<Mesaj> mesajList = mViewModel.getGeciciEskiMesajListesi();
                     if (mesajList != null && !mesajList.isEmpty()) {
-                        ilkmsjSaati=mesajList.get(0).getZaman();
+                        ilkmsjSaatiadptr=mesajList.get(0).getZaman();
                         adapter.eskiMesajlariBasaEkle(mesajList);
                         isLoading = false;
                     }

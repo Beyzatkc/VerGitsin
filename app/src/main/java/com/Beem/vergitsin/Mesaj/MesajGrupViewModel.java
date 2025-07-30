@@ -63,8 +63,6 @@ public class MesajGrupViewModel extends ViewModel {
         return geciciEskiMesajListesi;
     }
 
-    private MutableLiveData<ArrayList<String>>_getirildiadlar=new MutableLiveData<>();
-    public LiveData<ArrayList<String>>getirildiadlar(){return _getirildiadlar;}
 
     public void MesajBorcistekleriDbCek(String aktifSohbetId){
         Query query = db.collection("sohbetler")
@@ -137,13 +135,19 @@ public class MesajGrupViewModel extends ViewModel {
                         }
                         if (gorecekler.contains(kendiId)) {
                             Map<String, Boolean> gorulmeler = mesaj.getGorulmeler();
+                            Map<String, Boolean> gorulmeleradlar = mesaj.getadlar();
                             if (gorulmeler == null) {
                                 gorulmeler = new HashMap<>();
                             }
+                            if (gorulmeleradlar == null) {
+                                gorulmeleradlar = new HashMap<>();
+                            }
+
                             if (!Boolean.TRUE.equals(gorulmeler.get(kendiId))) {
                                 gorulmeler.put(kendiId, true);
+                                gorulmeleradlar.put(MainActivity.kullanicistatic.getKullaniciAdi(),true);
                                 mesaj.setGorulmeler(gorulmeler);
-
+                                mesaj.setadlar(gorulmeleradlar);
                                 db.collection("sohbetler")
                                         .document(aktifSohbetId)
                                         .collection("borc_istekleri")
@@ -193,14 +197,8 @@ public class MesajGrupViewModel extends ViewModel {
                 GorulmeKontrolEtVeGuncelle(mesaj, aktifSohbetId, () -> {
                 });
             }
-
             Collections.reverse(eskiMesajlar); // ters çeviriyoruz (eski->yeni)
 
-           /* ArrayList<Mesaj> mevcutMesajlar = _tumMesajlar.getValue();
-            if (mevcutMesajlar == null) mevcutMesajlar = new ArrayList<>();
-
-            mevcutMesajlar.addAll(0, eskiMesajlar); // eski mesajları başa ekle
-            */
             _eskimesajlar.setValue(eskiMesajlar);
         });
     }
@@ -221,12 +219,46 @@ public class MesajGrupViewModel extends ViewModel {
             mesaj.setCevabiVarMi(false);
         }
         Map<String, Boolean> gorulmeler = (Map<String, Boolean>) doc.get("gorulmeler");
-        if (gorulmeler != null)
-            mesaj.setGorulmeler(gorulmeler);
-        else
+        if (gorulmeler != null) {
+            GorenlerinAdlariniBul(gorulmeler, mesaj, () -> {
+                mesaj.setGorulmeler(gorulmeler);
+            });
+        } else {
             mesaj.setGorulmeler(new HashMap<>());
+            mesaj.setadlar(new HashMap<>());
+        }
         return mesaj;
     }
+    public void GorenlerinAdlariniBul(Map<String, Boolean> gorulmeler,Mesaj mesaj,Runnable onComplete) {
+        if (gorulmeler == null || gorulmeler.isEmpty()) return;
+        int toplam = gorulmeler.size();
+        Map<String, Boolean> adlarigtr = new HashMap<>();
+        AtomicInteger sayac = new AtomicInteger(0);
+        for (Map.Entry<String, Boolean> entry : gorulmeler.entrySet()) {
+            String kullaniciId = entry.getKey();
+            Boolean gorulduMu = entry.getValue();
+                db.collection("users")
+                        .document(kullaniciId)
+                        .get()
+                        .addOnSuccessListener(documentSnapshot -> {
+                            if (documentSnapshot.exists()) {
+                                String adSoyad = documentSnapshot.getString("kullaniciAdi");
+                                adlarigtr.put(adSoyad, gorulduMu);
+                                if (sayac.incrementAndGet() == toplam) {
+                                     mesaj.setadlar(adlarigtr);
+                                    if (onComplete != null) onComplete.run();
+                                }
+                            }
+                        })
+                        .addOnFailureListener(e -> {
+                            Log.e("Hata", "Kullanıcı alınamadı: " + kullaniciId, e);
+                            if (sayac.incrementAndGet() == toplam) {
+                                if (onComplete != null) onComplete.run();
+                            }
+                        });
+        }
+    }
+
     public void sonMsjDbKaydi(String sohbetId, String yeniSonMesaj, Long yeniSonMsjSaati) {
         DocumentReference docRef = db.collection("sohbetler").document(sohbetId);
 
@@ -364,30 +396,20 @@ public class MesajGrupViewModel extends ViewModel {
                     Log.e("Firestore", "Borç isteği kaydedilirken hata: ", e);
                 });
     }
-    public void kullaniciAdlariniGetir(String grupid) {
-        ArrayList<String> bos = new ArrayList<>();
-        db.collection("gruplar")
-                .document(grupid)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    ArrayList<String> uyeIDleri = (ArrayList<String>) documentSnapshot.get("uyeler");
-                    if (uyeIDleri != null) {
-                        for (String kullaniciId : uyeIDleri) {
-                            db.collection("users")
-                                    .document(kullaniciId)
-                                    .get()
-                                    .addOnSuccessListener(userDoc -> {
-                                        if (userDoc.exists()) {
-                                            String kAdi = userDoc.getString("ad") + " " + userDoc.getString("kullaniciAdi");
-                                            bos.add(kAdi);
-                                        }
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Log.e("Firestore", "Kullanıcı bilgisi alınamadı", e);
-                                    });
-                        }
-                    }
-                });
-        _getirildiadlar.setValue(bos);
-    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

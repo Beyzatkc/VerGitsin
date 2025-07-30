@@ -24,7 +24,7 @@ import java.util.Map;
 public class MesajAdapterGrup extends RecyclerView.Adapter<MesajAdapterGrup.ViewHolder>{
     private ArrayList<Mesaj> tumMesajlar;
     private Context context;
-    private CevapGeldi listenercvp;
+    private CevapGeldiGrup listenercvp;
 
     public MesajAdapterGrup(ArrayList<Mesaj>tumMesajlar, Context context) {
         this.tumMesajlar=tumMesajlar;
@@ -46,6 +46,7 @@ public class MesajAdapterGrup extends RecyclerView.Adapter<MesajAdapterGrup.View
     public void mesajGuncelle(Mesaj mesaj){
         for (int i = 0; i < tumMesajlar.size(); i++) {
             if (tumMesajlar.get(i).getMsjID().equals(mesaj.getMsjID())) {
+                mesaj.setIstekAtanAdi(tumMesajlar.get(i).istekAtanAdi);
                 tumMesajlar.set(i, mesaj);
                 notifyDataSetChanged();
                 break;
@@ -99,20 +100,20 @@ public class MesajAdapterGrup extends RecyclerView.Adapter<MesajAdapterGrup.View
                 holder.onaygiden.setVisibility(View.GONE);
             }
             if (tumMesajlar.get(tumMesajlar.size() - 1).equals(mesaj)) {
-                Map<String, Boolean> gorulmeler = mesaj.getGorulmeler();
+                Map<String, Boolean> gorulmeler = mesaj.getadlar();
 
                 StringBuilder gorulduYazanlar = new StringBuilder();
 
                 if (gorulmeler != null) {
                     for (Map.Entry<String, Boolean> entry : gorulmeler.entrySet()) {
-                        String kullaniciId = entry.getKey();
+                        String kullaniciAdi = entry.getKey();
                         Boolean gorulduMu = entry.getValue();
 
                         if (Boolean.TRUE.equals(gorulduMu)) {
                                 if (gorulduYazanlar.length() > 0) {
                                     gorulduYazanlar.append(", ");
                                 }
-                                gorulduYazanlar.append(kullaniciId);
+                                gorulduYazanlar.append(kullaniciAdi);
                             }
                     }
                 }
@@ -124,7 +125,6 @@ public class MesajAdapterGrup extends RecyclerView.Adapter<MesajAdapterGrup.View
             }else{
                 holder.gorulduDurumu.setVisibility(View.GONE);
             }
-
         }else{
             holder.gelenLayout.setVisibility(View.VISIBLE);
             holder.gidenLayout.setVisibility(View.GONE);
@@ -147,7 +147,7 @@ public class MesajAdapterGrup extends RecyclerView.Adapter<MesajAdapterGrup.View
 
             holder.EVETgelen.setOnClickListener(b->{
                 if (listenercvp != null) {
-                    listenercvp.onCevapGeldi(String.format("%s Borç isteğinizi onaylandı!",MainActivity.kullanicistatic.getKullaniciAdi()), mesaj.getMsjID());
+                    listenercvp.onCevapGeldiGrup(String.format("%s Borç isteğinizi onaylandı!",MainActivity.kullanicistatic.getKullaniciAdi()), mesaj.getMsjID());
                 }
                 mesaj.setCevabiVarMi(true);
                 holder.onaygelen.setVisibility(View.VISIBLE);

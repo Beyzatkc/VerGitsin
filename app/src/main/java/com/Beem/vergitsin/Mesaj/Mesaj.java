@@ -17,10 +17,12 @@ public class Mesaj {
     private boolean cevabiVarMi;
     public String istekAtanAdi;
     public Map<String, Boolean> gorulmeler;
+    private Map<String, Boolean> adlar;
+    public String cevapicerigi;
 
     public Mesaj() {}
 
-    public Mesaj(String istegiAtanId, String istekatilanID, String aciklama, String miktar, Timestamp odenecekTarih, long zaman, boolean goruldu,String cevap,String msjID) {
+    public Mesaj(String istegiAtanId, String istekatilanID, String aciklama, String miktar, Timestamp odenecekTarih, long zaman, boolean goruldu,String cevap,String msjID,String cevapicerigi) {
         this.istegiAtanId = istegiAtanId;
         this.istekatilanID = istekatilanID;
         this.aciklama = aciklama;
@@ -30,6 +32,7 @@ public class Mesaj {
         this.goruldu = goruldu;
         this.cevap=cevap;
         this.msjID=msjID;
+        this.cevapicerigi=cevapicerigi;
     }
 
     public Map<String, Boolean> getGorulmeler() {
@@ -39,7 +42,13 @@ public class Mesaj {
     public void setGorulmeler(Map<String, Boolean> gorulmeler) {
         this.gorulmeler = gorulmeler;
     }
+    public Map<String, Boolean> getadlar() {
+        return adlar;
+    }
 
+    public void setadlar(Map<String, Boolean> adlar) {
+        this.adlar = adlar;
+    }
 
     public String getIstekAtanAdi() {
         return istekAtanAdi;
@@ -50,6 +59,7 @@ public class Mesaj {
     }
 
     public boolean isCevabiVarMi() {
+
         return cevabiVarMi;
     }
 
@@ -66,6 +76,7 @@ public class Mesaj {
     }
 
     public String getCevap() {
+
         return cevap;
     }
 
@@ -124,6 +135,14 @@ public class Mesaj {
     public boolean isGoruldu() {
 
         return goruldu;
+    }
+
+    public String getCevapicerigi() {
+        return cevapicerigi;
+    }
+
+    public void setCevapicerigi(String cevapicerigi) {
+        this.cevapicerigi = cevapicerigi;
     }
 
     public void setGoruldu(boolean goruldu) {
