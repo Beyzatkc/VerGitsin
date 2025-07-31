@@ -1,4 +1,4 @@
-package com.Beem.vergitsin;
+package com.Beem.vergitsin.Kullanici;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.Beem.vergitsin.Arkadaslar.Arkadas;
 import com.Beem.vergitsin.Kullanici.Kullanici;
 import com.Beem.vergitsin.Profil.DigerProfilFragment;
+import com.Beem.vergitsin.R;
 
 import java.util.ArrayList;
 
@@ -65,7 +66,6 @@ public class KullanicilarAdapter extends RecyclerView.Adapter<KullanicilarAdapte
             if (listener != null) {
                 holder.eklendi.setVisibility(View.GONE);
                 holder.ekle.setVisibility(View.VISIBLE);
-                kullanici.setArkdasMi(false);
                 listener.onArkadasCıkarTiklandi(kullanici);
             }
         });

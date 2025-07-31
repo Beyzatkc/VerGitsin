@@ -43,6 +43,7 @@ public class ArkadasAdapter extends RecyclerView.Adapter<ArkadasAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull ArkadasAdapter.ViewHolder holder, int position) {
         Kullanici kullanici=arkadaslar.get(position);
+
         holder.KullaniciAdiark.setText(kullanici.getKullaniciAdi());
         int resId = context.getResources().getIdentifier(
                 kullanici.getProfilFoto(), "drawable", context.getPackageName());
@@ -53,14 +54,11 @@ public class ArkadasAdapter extends RecyclerView.Adapter<ArkadasAdapter.ViewHold
 
         holder.radioButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                secilenPozisyon = position;
-                notifyDataSetChanged();
+                int oncekiPozisyon = secilenPozisyon;
+                secilenPozisyon = holder.getAdapterPosition();
+                notifyItemChanged(oncekiPozisyon);
+                notifyItemChanged(secilenPozisyon);
             }
-        });
-
-        holder.itemView.setOnClickListener(v -> {
-            secilenPozisyon = position;
-            notifyDataSetChanged();
         });
 
     }
