@@ -67,6 +67,9 @@ public class MesajAdapterGrup extends RecyclerView.Adapter<MesajAdapterGrup.View
                 mesaj.setIstekAtanAdi(tumMesajlar.get(i).istekAtanAdi);
                 tumMesajlar.set(i, mesaj);
                 notifyDataSetChanged();
+                if (i == tumMesajlar.size() - 1 && listenersilme != null) {
+                    listenersilme.onSonMesajGuncelleme(mesaj);
+                }
                 break;
             }
         }
