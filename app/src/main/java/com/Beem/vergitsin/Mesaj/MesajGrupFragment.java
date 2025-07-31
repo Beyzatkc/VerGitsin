@@ -195,6 +195,13 @@ public class MesajGrupFragment extends Fragment{
                 public void onMesajGuncelleme(Mesaj mesaj) {
                     mViewModel.MesajGuncelleme(sohbetID,mesaj);
                 }
+
+                @Override
+                public void onSonMesajGuncelleme(Mesaj msj) {
+                    SonMesaj=msj.getIstekAtanAdi()+" "+msj.getMiktar()+" TL borç isteği";
+                    SonMesajSaat=msj.getZaman();
+                    mViewModel.sonMsjDbKaydi(sohbetID,SonMesaj,SonMesajSaat);
+                }
             };
             adapter.setListenersil(arayuzSilme);
             mViewModel.KacKisiCevrimiciGrup(sohbetID);
@@ -302,13 +309,20 @@ public class MesajGrupFragment extends Fragment{
                     }else{
                         SonMesajadptr =" ";
                         SonMesajSaatadptr =System.currentTimeMillis();
-                        mViewModel.sonMsjDbKaydi(sohbetIdAdptr, SonMesaj, SonMesajSaat);
+                        mViewModel.sonMsjDbKaydi(sohbetIdAdptr, SonMesajadptr, SonMesajSaatadptr);
                     }
                 }
 
                 @Override
                 public void onMesajGuncelleme(Mesaj mesaj) {
                     mViewModel.MesajGuncelleme(sohbetIdAdptr,mesaj);
+                }
+
+                @Override
+                public void onSonMesajGuncelleme(Mesaj msj) {
+                    SonMesajadptr=msj.getIstekAtanAdi()+" "+msj.getMiktar()+" TL borç isteği";
+                    SonMesajSaatadptr=msj.getZaman();
+                    mViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesajadptr,SonMesajSaatadptr);
                 }
             };
             adapter.setListenersil(arayuzSilme);

@@ -171,6 +171,13 @@ public class MesajKisiFragment extends Fragment {
                 }
 
                 @Override
+                public void onSonMesajGuncelleme(Mesaj mesaj) {
+                    SonMesaj=mesaj.getMiktar()+" TL borç isteği";
+                    SonMesajSaat=mesaj.getZaman();
+                    mViewModel.sonMsjDbKaydi(sohbetID,SonMesaj,SonMesajSaat);
+                }
+
+                @Override
                 public void onSilmeislemi(Mesaj mesaj) {
                     mViewModel.MesajSilme(sohbetID,mesaj);
                 }
@@ -289,13 +296,20 @@ public class MesajKisiFragment extends Fragment {
                     }else{
                         SonMesajadptr =" ";
                         SonMesajSaatadptr =System.currentTimeMillis();
-                        mViewModel.sonMsjDbKaydi(sohbetIdAdptr, SonMesaj, SonMesajSaat);
+                        mViewModel.sonMsjDbKaydi(sohbetIdAdptr, SonMesajadptr, SonMesajSaatadptr);
                     }
                 }
 
                 @Override
                 public void onMesajGuncelleme(Mesaj mesaj) {
                     mViewModel.MesajGuncelleme(sohbetIdAdptr,mesaj);
+                }
+
+                @Override
+                public void onSonMesajGuncelleme(Mesaj mesaj) {
+                    SonMesajadptr=mesaj.getMiktar()+" Tl borç isteği";
+                    SonMesajSaatadptr=mesaj.getZaman();
+                    mViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesajadptr,SonMesajSaatadptr);
                 }
             };
             adapter.setListenersil(arayuzSilme);
