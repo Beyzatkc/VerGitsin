@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="20dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/gelen_mesaj"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/editMiktar"
+        android:hint="Miktar"
+        android:inputType="numberDecimal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <EditText
+        android:id="@+id/editAciklama"
+        android:hint="Açıklama"
+        android:layout_marginTop="10dp"
+        android:inputType="text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <EditText
+        android:id="@+id/editTarih"
+        android:hint="Tarih (gg.aa.yyyy)"
+        android:focusable="false"
+        android:clickable="true"
+        android:layout_marginTop="10dp"
+        android:inputType="date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</LinearLayout>

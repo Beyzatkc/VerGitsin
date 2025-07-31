@@ -185,7 +185,7 @@ public class MesajViewModel extends ViewModel {
              if (gorulduMu == null) {
                  gorulduMu = false;
             }
-            Mesaj mesaj=new Mesaj(atanid, atilanid, aciklama, miktar, tarih, mesajAtilmaZamani,gorulduMu,cevapAd,id,cevapicerik);
+            Mesaj mesaj=new Mesaj(atanid, atilanid, aciklama, miktar, tarih, mesajAtilmaZamani,gorulduMu,cevapId,id,cevapicerik,cevapAd);
             if(cevapAd!=null){
                 mesaj.setCevabiVarMi(true);
             }else{
@@ -306,7 +306,36 @@ public class MesajViewModel extends ViewModel {
             }
         }).addOnFailureListener(e -> Log.e("Firestore", "Belge okunamadı", e));
     }
+    public void MesajSilme(String sohbetid,Mesaj mesaj){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("sohbetler")
+                .document(sohbetid)
+                .collection("borc_istekleri")
+                .document(mesaj.getMsjID())
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                })
+                .addOnFailureListener(e -> {
+                });
 
+    }
+    public void MesajGuncelleme(String sohbetid,Mesaj mesaj){
+        Map<String, Object> guncellemeVerisi = new HashMap<>();
+        guncellemeVerisi.put("miktar", mesaj.getMiktar());
+        guncellemeVerisi.put("aciklama", mesaj.getAciklama());
+        guncellemeVerisi.put("odenecektarih", mesaj.getOdenecekTarih());
+
+        db.collection("sohbetler")
+                .document(sohbetid)
+                .collection("borc_istekleri")
+                .document(mesaj.getMsjID())
+                .update(guncellemeVerisi)
+                .addOnSuccessListener(aVoid -> {
+                })
+                .addOnFailureListener(e -> {
+                });
+
+    }
     private String TimeStampiSaate(Timestamp gorulme){
         if (gorulme == null) return "";
         Date date = gorulme.toDate();

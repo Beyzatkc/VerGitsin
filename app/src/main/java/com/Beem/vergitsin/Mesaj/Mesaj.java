@@ -19,10 +19,11 @@ public class Mesaj {
     public Map<String, Boolean> gorulmeler;
     private Map<String, Boolean> adlar;
     public String cevapicerigi;
+    public String cevapvrnAdi;
 
     public Mesaj() {}
 
-    public Mesaj(String istegiAtanId, String istekatilanID, String aciklama, String miktar, Timestamp odenecekTarih, long zaman, boolean goruldu,String cevap,String msjID,String cevapicerigi) {
+    public Mesaj(String istegiAtanId, String istekatilanID, String aciklama, String miktar, Timestamp odenecekTarih, long zaman, boolean goruldu,String cevap,String msjID,String cevapicerigi,String cevapvrnAdi) {
         this.istegiAtanId = istegiAtanId;
         this.istekatilanID = istekatilanID;
         this.aciklama = aciklama;
@@ -33,6 +34,7 @@ public class Mesaj {
         this.cevap=cevap;
         this.msjID=msjID;
         this.cevapicerigi=cevapicerigi;
+        this.cevapvrnAdi=cevapvrnAdi;
     }
 
     public Map<String, Boolean> getGorulmeler() {
@@ -61,6 +63,14 @@ public class Mesaj {
     public boolean isCevabiVarMi() {
 
         return cevabiVarMi;
+    }
+
+    public String getCevapvrnAdi() {
+        return cevapvrnAdi;
+    }
+
+    public void setCevapvrnAdi(String cevapvrnAdi) {
+        this.cevapvrnAdi = cevapvrnAdi;
     }
 
     public void setCevabiVarMi(boolean cevabiVarMi) {

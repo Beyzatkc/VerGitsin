@@ -11,8 +11,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -75,6 +73,7 @@ public class MesajKisiFragment extends Fragment {
     private Long ilkmsjSaatiadptr;
     private boolean isLoading = false;
     private CevapGeldi arayuzum;
+    private MesajSilmeGuncellemeKisi arayuzSilme;
 
 
     public static MesajKisiFragment newInstance() {
@@ -165,6 +164,31 @@ public class MesajKisiFragment extends Fragment {
                 }
             };
             adapter.setListenercvp(arayuzum);
+            arayuzSilme=new MesajSilmeGuncellemeKisi() {
+                @Override
+                public void onMesajGuncelleme(Mesaj mesaj) {
+                    mViewModel.MesajGuncelleme(sohbetID,mesaj);
+                }
+
+                @Override
+                public void onSilmeislemi(Mesaj mesaj) {
+                    mViewModel.MesajSilme(sohbetID,mesaj);
+                }
+
+                @Override
+                public void onSonMesajSilme(Mesaj oncekiMesaj) {
+                    if(oncekiMesaj!=null) {
+                        SonMesaj = oncekiMesaj.getMiktar() + " TL borç isteği";
+                        SonMesajSaat = oncekiMesaj.getZaman();
+                        mViewModel.sonMsjDbKaydi(sohbetID, SonMesaj, SonMesajSaat);
+                    }else{
+                        SonMesaj =" ";
+                        SonMesajSaat =System.currentTimeMillis();
+                        mViewModel.sonMsjDbKaydi(sohbetID, SonMesaj, SonMesajSaat);
+                    }
+                }
+            };
+            adapter.setListenersil(arayuzSilme);
             mViewModel.SohbetIDsindenAliciya(sohbetID);
             mViewModel.AliciID().observe(getViewLifecycleOwner(), id -> {
                 if (id != null) {
@@ -237,6 +261,11 @@ public class MesajKisiFragment extends Fragment {
             mViewModel.guncellenen().observe(getViewLifecycleOwner(),mesaj->{
                 adapter.mesajGuncelle(mesaj);
             });
+            mViewModel.silinen().observe(getViewLifecycleOwner(),mesaj->{
+                if (mesaj != null) {
+                    adapter.MesajSilme(mesaj);
+                }
+            });
 
         } else {
             arayuzum=new CevapGeldi() {
@@ -246,6 +275,30 @@ public class MesajKisiFragment extends Fragment {
                 }
             };
             adapter.setListenercvp(arayuzum);
+            arayuzSilme=new MesajSilmeGuncellemeKisi() {
+                @Override
+                public void onSilmeislemi(Mesaj mesaj) {
+                    mViewModel.MesajSilme(sohbetIdAdptr,mesaj);
+                }
+                @Override
+                public void onSonMesajSilme(Mesaj oncekiMesaj) {
+                    if(oncekiMesaj!=null) {
+                        SonMesajadptr = oncekiMesaj.getMiktar() + " Tl borç isteği";
+                        SonMesajSaatadptr = oncekiMesaj.getZaman();
+                        mViewModel.sonMsjDbKaydi(sohbetIdAdptr, SonMesajadptr, SonMesajSaatadptr);
+                    }else{
+                        SonMesajadptr =" ";
+                        SonMesajSaatadptr =System.currentTimeMillis();
+                        mViewModel.sonMsjDbKaydi(sohbetIdAdptr, SonMesaj, SonMesajSaat);
+                    }
+                }
+
+                @Override
+                public void onMesajGuncelleme(Mesaj mesaj) {
+                    mViewModel.MesajGuncelleme(sohbetIdAdptr,mesaj);
+                }
+            };
+            adapter.setListenersil(arayuzSilme);
             mViewModel.SohbetIDsindenAliciya(sohbetIdAdptr);
             mViewModel.AliciID().observe(getViewLifecycleOwner(), id -> {
                 if (id != null) {
@@ -304,6 +357,11 @@ public class MesajKisiFragment extends Fragment {
             });
             mViewModel.guncellenen().observe(getViewLifecycleOwner(),mesaj->{
                 adapter.mesajGuncelle(mesaj);
+            });
+            mViewModel.silinen().observe(getViewLifecycleOwner(),mesaj->{
+                if (mesaj != null) {
+                    adapter.MesajSilme(mesaj);
+                }
             });
 
             istekEditTextViewLayout.setVisibility(View.VISIBLE);

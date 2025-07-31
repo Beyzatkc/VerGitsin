@@ -204,16 +204,26 @@ public class MesajGrupViewModel extends ViewModel {
     }
 
     public Mesaj documentToMesaj(DocumentSnapshot doc){
+        Map<String, Object> cevapVerenMap = (Map<String, Object>) doc.get("cevap_veren");
+
+        String cevapId = null;
+        String cevapAd = null;
+        String cevapicerik=null;
+
+        if (cevapVerenMap != null) {
+            cevapId = (String) cevapVerenMap.get("id");
+            cevapAd = (String) cevapVerenMap.get("ad");
+            cevapicerik = (String) cevapVerenMap.get("icerik");
+        }
         String id=doc.getId();
-        String cevap=doc.getString("cevap");
         String atanid = doc.getString("istekatanID");
         String atilanid = doc.getString("istekatılanID");
         String aciklama = doc.getString("aciklama");
         String miktar = doc.getString("miktar");
         Timestamp tarih = doc.getTimestamp("odenecektarih");
         Long mesajAtilmaZamani=doc.getLong("isteginAtildigiZaman");
-        Mesaj mesaj=new Mesaj(atanid, atilanid, aciklama, miktar, tarih, mesajAtilmaZamani,false,cevap,id);
-        if(cevap!=null){
+        Mesaj mesaj=new Mesaj(atanid, atilanid, aciklama, miktar, tarih, mesajAtilmaZamani,false,cevapId,id,cevapicerik,cevapAd);
+        if(cevapAd!=null){
             mesaj.setCevabiVarMi(true);
         }else{
             mesaj.setCevabiVarMi(false);
@@ -356,13 +366,18 @@ public class MesajGrupViewModel extends ViewModel {
                 });
     }
 
-    public void GelenCevabiKaydetme(String sohbetId,String borcIstekId,String cevap){
+    public void GelenCevabiKaydetme(String sohbetId, String borcIstekId, String cevapVerenId, String kullaniciAdi,String icerik) {
+        Map<String, Object> cevapVeri = new HashMap<>();
+        cevapVeri.put("id", cevapVerenId);
+        cevapVeri.put("ad", kullaniciAdi);
+        cevapVeri.put("icerik",icerik);
+
         FirebaseFirestore.getInstance()
                 .collection("sohbetler")
                 .document(sohbetId)
                 .collection("borc_istekleri")
                 .document(borcIstekId)
-                .update("cevap", cevap)
+                .update("cevap_veren", cevapVeri)
                 .addOnSuccessListener(aVoid -> {
                     Log.d("Firestore", "Cevap başarıyla güncellendi.");
                 })
@@ -370,6 +385,7 @@ public class MesajGrupViewModel extends ViewModel {
                     Log.e("Firestore", "Cevap güncellenirken hata oluştu: ", e);
                 });
     }
+
 
     public void BorcIstekleriDb(UyariMesaj uyariMesaj, String istekatan, String istekatilan, String miktar, String aciklama, Timestamp tarih, String ad, String sohbetId, Long zaman){
         uyariMesaj.YuklemeDurum("");
@@ -395,6 +411,35 @@ public class MesajGrupViewModel extends ViewModel {
                     uyariMesaj.BasarisizDurum("",1000);
                     Log.e("Firestore", "Borç isteği kaydedilirken hata: ", e);
                 });
+    }
+    public void MesajSilme(String sohbetid,Mesaj mesaj){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("sohbetler")
+                .document(sohbetid)
+                .collection("borc_istekleri")
+                .document(mesaj.getMsjID())
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                })
+                .addOnFailureListener(e -> {
+                });
+    }
+    public void MesajGuncelleme(String sohbetid,Mesaj mesaj){
+        Map<String, Object> guncellemeVerisi = new HashMap<>();
+        guncellemeVerisi.put("miktar", mesaj.getMiktar());
+        guncellemeVerisi.put("aciklama", mesaj.getAciklama());
+        guncellemeVerisi.put("odenecektarih", mesaj.getOdenecekTarih());
+
+        db.collection("sohbetler")
+                .document(sohbetid)
+                .collection("borc_istekleri")
+                .document(mesaj.getMsjID())
+                .update(guncellemeVerisi)
+                .addOnSuccessListener(aVoid -> {
+                })
+                .addOnFailureListener(e -> {
+                });
+
     }
 }
 

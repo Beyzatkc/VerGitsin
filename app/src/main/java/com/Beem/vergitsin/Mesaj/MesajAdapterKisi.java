@@ -7,9 +7,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,17 +21,19 @@ import com.Beem.vergitsin.MainActivity;
 import com.Beem.vergitsin.R;
 import com.google.firebase.Timestamp;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MesajAdapterKisi extends RecyclerView.Adapter<MesajAdapterKisi.ViewHolder>{
     private ArrayList<Mesaj> tumMesajlar;
     private Context context;
     private CevapGeldi listenercvp;
+    private MesajSilmeGuncellemeKisi listenersilme;
 
     public MesajAdapterKisi(ArrayList<Mesaj>tumMesajlar, Context context) {
         this.tumMesajlar=tumMesajlar;
@@ -42,6 +47,7 @@ public class MesajAdapterKisi extends RecyclerView.Adapter<MesajAdapterKisi.View
     public void mesajGuncelle(Mesaj mesaj){
         for (int i = 0; i < tumMesajlar.size(); i++) {
             if (tumMesajlar.get(i).getMsjID().equals(mesaj.getMsjID())) {
+                mesaj.setIstekAtanAdi(tumMesajlar.get(i).istekAtanAdi);
                 tumMesajlar.set(i, mesaj);
                 notifyDataSetChanged();
                 break;
@@ -57,11 +63,32 @@ public class MesajAdapterKisi extends RecyclerView.Adapter<MesajAdapterKisi.View
         this.listenercvp = listener;
     }
 
+    public void setListenersil(MesajSilmeGuncellemeKisi listener) {
+        this.listenersilme = listener;
+    }
+
     public void guncelleMesajListesi(ArrayList<Mesaj> yeniListe) {
             tumMesajlar.clear();
             tumMesajlar.addAll(yeniListe);
             notifyDataSetChanged();
     }
+    public void MesajSilme(Mesaj mesaj) {
+        for (int i = 0; i < tumMesajlar.size(); i++) {
+            if (tumMesajlar.get(i).getMsjID().equals(mesaj.getMsjID())) {
+                if (i == tumMesajlar.size() - 1) {
+                    if (tumMesajlar.size() > 1) {
+                        listenersilme.onSonMesajSilme(tumMesajlar.get(tumMesajlar.size() - 2));
+                    } else {
+                        listenersilme.onSonMesajSilme(null);
+                    }
+                }
+                tumMesajlar.remove(i);
+                notifyDataSetChanged();
+                break;
+            }
+        }
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -98,7 +125,6 @@ public class MesajAdapterKisi extends RecyclerView.Adapter<MesajAdapterKisi.View
            holder.gidenSaat.setText(zaman);
            if(mesaj.isCevabiVarMi()){
                holder.onaygiden.setVisibility(View.VISIBLE);
-               holder.onay_giden_gonderen_ad.setText(mesaj.getCevap());
                holder.onaygidenicerik.setText(mesaj.getCevapicerigi());
            }else{
                holder.onaygiden.setVisibility(View.GONE);
@@ -108,6 +134,90 @@ public class MesajAdapterKisi extends RecyclerView.Adapter<MesajAdapterKisi.View
            }else{
                holder.gorulduDurumu.setVisibility(View.GONE);
            }
+           holder.gidenlayoutsilme.setOnLongClickListener(view->{
+               PopupMenu popupMenu=new PopupMenu(view.getContext(),view);
+               popupMenu.getMenuInflater().inflate(R.menu.menu,popupMenu.getMenu());
+               if (mesaj.isCevabiVarMi()) {
+                   popupMenu.getMenu().findItem(R.id.menu_guncelle).setVisible(false);
+               }
+               popupMenu.setOnMenuItemClickListener(item->{
+                   if (item.getItemId() == R.id.menu_sil) {
+                      listenersilme.onSilmeislemi(mesaj);
+                       return true;
+                   }else if (item.getItemId() == R.id.menu_guncelle) {
+                       AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                       builder.setTitle("Mesajı Güncelle");
+
+                       LayoutInflater inflater = LayoutInflater.from(view.getContext());
+                       View dialogView = inflater.inflate(R.layout.dialog_mesaj_guncelle, null);
+
+                       EditText editMiktar = dialogView.findViewById(R.id.editMiktar);
+                       EditText editAciklama = dialogView.findViewById(R.id.editAciklama);
+                       EditText editTarih = dialogView.findViewById(R.id.editTarih);
+
+                       editMiktar.setText(mesaj.getMiktar());
+                       editAciklama.setText(mesaj.getAciklama());
+                       editTarih.setText(timestampToGunAyYil(mesaj.getOdenecekTarih())); // kendi fonksiyonunla
+
+                       builder.setView(dialogView);
+
+                       builder.setPositiveButton("Güncelle", (dialog, which) -> {
+                           String yeniMiktar = editMiktar.getText().toString().trim();
+                           String yeniAciklama = editAciklama.getText().toString().trim();
+                           String yeniTarihStr = editTarih.getText().toString().trim();
+
+                           Pattern tarihDeseni = Pattern.compile("^\\d{2}/\\d{2}/\\d{4}$");
+                           Matcher matcher = tarihDeseni.matcher(yeniTarihStr);
+
+                           if (!matcher.matches()) {
+                               Toast.makeText(view.getContext(), "Tarih formatı geçersiz! (gg/aa/yyyy)", Toast.LENGTH_SHORT).show();
+                               return;
+                           }
+
+                           try {
+                               SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                               sdf.setLenient(false); // 32/01/2025 gibi hatalı tarihleri de reddeder
+
+                               Date girilenTarih = sdf.parse(yeniTarihStr);
+                               Date bugun = new Date(); // şimdiki zaman
+
+                               if (girilenTarih.before(sdf.parse(sdf.format(bugun)))) {
+                                   Toast.makeText(view.getContext(), "Geçmiş bir tarih seçilemez!", Toast.LENGTH_SHORT).show();
+                                   return;
+                               }
+
+                               mesaj.setOdenecekTarih(new Timestamp(girilenTarih));
+
+                           } catch (ParseException e) {
+                               Toast.makeText(view.getContext(), "Tarih çözümleme hatası!", Toast.LENGTH_SHORT).show();
+                               e.printStackTrace();
+                               return;
+                           }
+                           if (!yeniMiktar.isEmpty() && !yeniTarihStr.isEmpty()) {
+                               mesaj.setMiktar(yeniMiktar);
+                               mesaj.setAciklama(yeniAciklama);
+                               try {
+                                   SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+                                   Date date = sdf.parse(yeniTarihStr);
+                                   mesaj.setOdenecekTarih(new Timestamp(date));
+                               } catch (ParseException e) {
+                                   e.printStackTrace();
+                               }
+                               listenersilme.onMesajGuncelleme(mesaj);
+                           }
+                       });
+
+                       builder.setNegativeButton("İptal", (dialog, which) -> dialog.dismiss());
+
+                       builder.show();
+                       return true;
+                   }
+
+                   return false;
+               });
+               popupMenu.show();
+               return true;
+           });
        }else {
            holder.gelenLayout.setVisibility(View.VISIBLE);
            holder.gidenLayout.setVisibility(View.GONE);
@@ -122,7 +232,6 @@ public class MesajAdapterKisi extends RecyclerView.Adapter<MesajAdapterKisi.View
            holder.gelenSaat.setText(zaman);
            if (mesaj.isCevabiVarMi()) {
                holder.onaygelen.setVisibility(View.VISIBLE);
-               holder.onay_gonderen_adgelen.setText(mesaj.getCevap());
                holder.onaygelenicerikgelen.setText(mesaj.getCevapicerigi());
                holder.EVETgelen.setVisibility(View.GONE);
                holder.HAYIRgelen.setVisibility(View.GONE);
@@ -180,15 +289,16 @@ public class MesajAdapterKisi extends RecyclerView.Adapter<MesajAdapterKisi.View
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        LinearLayout gidenLayout, gelenLayout;
+        LinearLayout gidenLayout, gelenLayout,gidenlayoutsilme;
         TextView txtMiktarGiden, txtTarihGiden, txtAciklamaGiden, gidenSaat, gorulduDurumu;
         TextView txtMiktarGelen, txtTarihGelen, txtAciklamaGelen, gelenSaat,onaylayicigelen;
-        TextView onaygiden,onaygelen,onay_gonderen_adgelen,onaygelenicerikgelen,onay_giden_gonderen_ad,onaygidenicerik;
+        TextView onaygelenicerikgelen,onaygidenicerik;
         Button EVETgelen,HAYIRgelen;
+        LinearLayout onaygiden,onaygelen;
 
         public ViewHolder(View itemView) {
             super(itemView);
-
+            gidenlayoutsilme=itemView.findViewById(R.id.gidenlayoutsilme);
             gidenLayout = itemView.findViewById(R.id.mesajGidenLayout);
             gelenLayout = itemView.findViewById(R.id.mesajGelenLayout);
 
@@ -208,11 +318,9 @@ public class MesajAdapterKisi extends RecyclerView.Adapter<MesajAdapterKisi.View
             HAYIRgelen=itemView.findViewById(R.id.HAYIRgelen);
 
             onaygiden=itemView.findViewById(R.id.onaygiden);
-            onay_giden_gonderen_ad=itemView.findViewById(R.id.onay_giden_gonderen_ad);
             onaygidenicerik=itemView.findViewById(R.id.onaygidenicerik);
 
             onaygelen=itemView.findViewById(R.id.onaygelen);
-            onay_gonderen_adgelen=itemView.findViewById(R.id.onay_gonderen_adgelen);
             onaygelenicerikgelen=itemView.findViewById(R.id.onaygelenicerikgelen);
         }
     }

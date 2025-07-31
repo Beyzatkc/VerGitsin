@@ -15,9 +15,10 @@
         android:layout_marginStart="0dp"
         android:gravity="end"
         android:orientation="vertical"
-        android:visibility="">
+        android:visibility="visible">
 
         <LinearLayout
+            android:id="@+id/gidenlayoutsilme"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/gelen_mesaj"
@@ -90,18 +91,7 @@
             android:orientation="vertical"
             android:layout_marginTop="4dp"
             android:background="@drawable/giden_mesaj"
-            android:layout_marginEnd="50dp"
-            android:translationX="-100dp">
-
-            <!-- Gönderenin adı -->
-            <TextView
-                android:id="@+id/onay_giden_gonderen_ad"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Sen"
-                android:textSize="12sp"
-                android:textColor="#666666"
-                android:layout_marginBottom="2dp" />
+            android:layout_gravity="start">
 
             <!-- Mesaj içeriği -->
             <TextView
@@ -113,6 +103,7 @@
                 android:textColor="#000000"
                 android:textSize="15sp"
                 android:textStyle="bold" />
+
         </LinearLayout>
 
     </LinearLayout>
@@ -238,17 +229,6 @@
             android:background="@drawable/gelen_mesaj"
             android:layout_gravity="end"
             android:layout_marginTop="4dp">
-
-            <!-- Gönderenin adı -->
-            <TextView
-                android:id="@+id/onay_gonderen_adgelen"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Gönderen: Beyza"
-                android:textSize="12sp"
-                android:textColor="#666666"
-                android:layout_marginBottom="2dp" />
-
             <!-- Mesaj içeriği -->
             <TextView
                 android:id="@+id/onaygelenicerikgelen"

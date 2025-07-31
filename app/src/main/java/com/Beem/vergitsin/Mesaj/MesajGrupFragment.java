@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-public class MesajGrupFragment extends Fragment implements CevapGeldiGrup{
+public class MesajGrupFragment extends Fragment{
     String kaynak;
     private String miktari;
     private String aciklamasi;
@@ -76,6 +76,8 @@ public class MesajGrupFragment extends Fragment implements CevapGeldiGrup{
     private Long ilkmsjSaati;
     private Long ilkmsjSaatiadptr;
     private boolean isLoading = false;
+    private CevapGeldiGrup arayuzum;
+    private MesajSilmeGuncellemeGrup arayuzSilme;
 
     public static MesajGrupFragment newInstance() {
         return new MesajGrupFragment();
@@ -163,6 +165,38 @@ public class MesajGrupFragment extends Fragment implements CevapGeldiGrup{
         });
 
         if ("mainactivity".equals(kaynak)) {
+            arayuzum=new CevapGeldiGrup() {
+                @Override
+                public void onCevapGeldiGrup(String cvpverenid, String mesajID,String cvpverenad,String icerik) {
+                    mViewModel.GelenCevabiKaydetme(sohbetID,mesajID,cvpverenid,cvpverenad,icerik);
+                }
+            };
+            adapter.setListenercvp(arayuzum);
+            arayuzSilme=new MesajSilmeGuncellemeGrup() {
+                @Override
+                public void onSilmeislemi(Mesaj mesaj) {
+                    mViewModel.MesajSilme(sohbetID,mesaj);
+                }
+
+                @Override
+                public void onSonMesajSilme(Mesaj oncekiMesaj) {
+                    if(oncekiMesaj!=null) {
+                        SonMesaj = oncekiMesaj.getMiktar() + " TL borç isteği";
+                        SonMesajSaat = oncekiMesaj.getZaman();
+                        mViewModel.sonMsjDbKaydi(sohbetID, SonMesaj, SonMesajSaat);
+                    }else{
+                        SonMesaj =" ";
+                        SonMesajSaat =System.currentTimeMillis();
+                        mViewModel.sonMsjDbKaydi(sohbetID, SonMesaj, SonMesajSaat);
+                    }
+                }
+
+                @Override
+                public void onMesajGuncelleme(Mesaj mesaj) {
+                    mViewModel.MesajGuncelleme(sohbetID,mesaj);
+                }
+            };
+            adapter.setListenersil(arayuzSilme);
             mViewModel.KacKisiCevrimiciGrup(sohbetID);
             mViewModel.kackisicevrimici().observe(getViewLifecycleOwner(),kisisayisi-> {
                 kackisicevrimici.setText(kisisayisi.toString());
@@ -206,7 +240,11 @@ public class MesajGrupFragment extends Fragment implements CevapGeldiGrup{
             Observe.observeOnce(mViewModel.tumMesajlar(), getViewLifecycleOwner(), mesajList -> {
                 mViewModel.IddenGonderenAdaUlasma(mesajList,"mesajlar");
             });
-
+            mViewModel.silinen().observe(getViewLifecycleOwner(),mesaj->{
+                if (mesaj != null) {
+                    adapter.MesajSilme(mesaj);
+                }
+            });
             mViewModel.tamamlandi().observe(getViewLifecycleOwner(), tamamlandiMi -> {
                 if (Boolean.TRUE.equals(tamamlandiMi)) {
                     ArrayList<Mesaj> mesajList = mViewModel.tumMesajlar().getValue();
@@ -243,6 +281,37 @@ public class MesajGrupFragment extends Fragment implements CevapGeldiGrup{
             });
 
         } else {
+            arayuzum=new CevapGeldiGrup(){
+                @Override
+                public void onCevapGeldiGrup(String cvpverenid, String mesajID,String cvpverenad,String icerik) {
+                    mViewModel.GelenCevabiKaydetme(sohbetIdAdptr,mesajID,cvpverenid,cvpverenad,icerik);
+                }
+            };
+            adapter.setListenercvp(arayuzum);
+            arayuzSilme=new MesajSilmeGuncellemeGrup() {
+                @Override
+                public void onSilmeislemi(Mesaj mesaj) {
+                    mViewModel.MesajSilme(sohbetIdAdptr,mesaj);
+                }
+                @Override
+                public void onSonMesajSilme(Mesaj oncekiMesaj) {
+                    if(oncekiMesaj!=null) {
+                        SonMesajadptr = oncekiMesaj.getMiktar() + " Tl borç isteği";
+                        SonMesajSaatadptr = oncekiMesaj.getZaman();
+                        mViewModel.sonMsjDbKaydi(sohbetIdAdptr, SonMesajadptr, SonMesajSaatadptr);
+                    }else{
+                        SonMesajadptr =" ";
+                        SonMesajSaatadptr =System.currentTimeMillis();
+                        mViewModel.sonMsjDbKaydi(sohbetIdAdptr, SonMesaj, SonMesajSaat);
+                    }
+                }
+
+                @Override
+                public void onMesajGuncelleme(Mesaj mesaj) {
+                    mViewModel.MesajGuncelleme(sohbetIdAdptr,mesaj);
+                }
+            };
+            adapter.setListenersil(arayuzSilme);
             mViewModel.KacKisiCevrimiciGrup(sohbetIdAdptr);
             mViewModel.kackisicevrimici().observe(getViewLifecycleOwner(),kisisayisi-> {
                 kackisicevrimici.setText(kisisayisi.toString());
@@ -279,6 +348,11 @@ public class MesajGrupFragment extends Fragment implements CevapGeldiGrup{
             });
             Observe.observeOnce(mViewModel.tumMesajlar(), getViewLifecycleOwner(), mesajList -> {
                 mViewModel.IddenGonderenAdaUlasma(mesajList,"mesajlar");
+            });
+            mViewModel.silinen().observe(getViewLifecycleOwner(),mesaj->{
+                if (mesaj != null) {
+                    adapter.MesajSilme(mesaj);
+                }
             });
             mViewModel.tamamlandi().observe(getViewLifecycleOwner(), tamamlandiMi -> {
                 if (Boolean.TRUE.equals(tamamlandiMi)) {
@@ -343,9 +417,5 @@ public class MesajGrupFragment extends Fragment implements CevapGeldiGrup{
             e.printStackTrace();
             return null;
         }
-    }
-    @Override
-    public void onCevapGeldiGrup(String cvp, String ID) {
-        mViewModel.GelenCevabiKaydetme(sohbetIdAdptr,ID,cvp);
     }
 }

@@ -18,6 +18,7 @@
         android:visibility="gone">
 
         <LinearLayout
+            android:id="@+id/gidenlayoutsilme"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/gelen_mesaj"
@@ -91,20 +92,36 @@
             android:textSize="12sp"
             android:translationX="-10dp" />
 
-        <TextView
+        <LinearLayout
             android:id="@+id/onaygiden"
             android:layout_width="wrap_content"
-            android:layout_height="45dp"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="50dp"
-            android:background="@drawable/giden_mesaj"
-            android:gravity="start"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:text="Borç isteğiniz onaylandı!💸💸💸"
-            android:textColor="#000000"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:translationX="-100dp" />
+            android:layout_marginTop="4dp"
+            android:background="@drawable/giden_mesaj"
+            android:layout_gravity="start">
+
+            <!-- Gönderenin adı -->
+            <TextView
+                android:id="@+id/onay_giden_gonderen_ad"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sen"
+                android:textSize="12sp"
+                android:textColor="#666666"
+                android:layout_marginBottom="2dp" />
+
+            <!-- Mesaj içeriği -->
+            <TextView
+                android:id="@+id/onaygidenicerik"
+                android:layout_width="wrap_content"
+                android:layout_height="45dp"
+                android:gravity="start"
+                android:text="Borç isteğiniz onaylandı!💸💸💸"
+                android:textColor="#000000"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
     </LinearLayout>
     <!-- Gelen Mesaj (solda) -->
     <LinearLayout
@@ -198,6 +215,16 @@
                     app:cornerRadius="8dp"
                     app:strokeColor="#FF6B6B"
                     app:strokeWidth="2dp" />
+                <TextView
+                    android:id="@+id/onaylayicigelen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:text="✅Borç istegine cevap verildi"
+                    android:textStyle="bold"
+                    android:textSize="15sp"
+                    android:textColor="#006400"
+                    android:layout_marginTop="2dp" />
             </LinearLayout>
             <TextView
                 android:id="@+id/mesajGelenSaat"
@@ -217,17 +244,37 @@
             android:textColor="#888888"
             android:textSize="12sp"
             android:translationX="-10dp" />
-        <TextView
+        <LinearLayout
             android:id="@+id/onaygelen"
             android:layout_width="wrap_content"
-            android:layout_height="45dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:visibility="gone"
             android:background="@drawable/gelen_mesaj"
-            android:text="Borç isteğiniz onaylandı!💸💸💸"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:textColor="#000000"
             android:layout_gravity="end"
-            android:layout_marginTop="2dp" />
+            android:layout_marginTop="4dp">
+
+            <!-- Gönderenin adı -->
+            <TextView
+                android:id="@+id/onay_gonderen_adgelen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gönderen: Beyza"
+                android:textSize="12sp"
+                android:textColor="#666666"
+                android:layout_marginBottom="2dp" />
+
+            <!-- Mesaj içeriği -->
+            <TextView
+                android:id="@+id/onaygelenicerikgelen"
+                android:layout_width="wrap_content"
+                android:layout_height="45dp"
+                android:visibility="visible"
+                android:text="Borç isteğiniz onaylandı!💸💸💸"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="#000000" />
+        </LinearLayout>
+
     </LinearLayout>
 </RelativeLayout>
