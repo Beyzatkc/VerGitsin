@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class SohbetViewModel extends ViewModel {
     private boolean ilkTetikleme = true;
+    private String bos;
     FirebaseFirestore db=FirebaseFirestore.getInstance();
     MutableLiveData<ArrayList<Sohbet>>_sohbetler=new MutableLiveData<>();
     LiveData<ArrayList<Sohbet>>sohbetler(){return _sohbetler;}
