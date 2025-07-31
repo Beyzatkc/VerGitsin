@@ -1,5 +1,7 @@
 package com.Beem.vergitsin.Sohbet;
 
+import static com.google.firebase.firestore.DocumentChange.Type.ADDED;
+
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -169,19 +171,12 @@ public class SohbetViewModel extends ViewModel {
                     }
                     if (snapshots != null) {
                         for (DocumentSnapshot doc : snapshots.getDocuments()) {
+                            System.out.println(doc.getId());
                             Map<String, Boolean> gorulmeler = (Map<String, Boolean>) doc.get("gorulmeler");
-                            if (gorulmeler == null) {
-                                gorulmeler = new HashMap<>();
-                            }
-
-                            String atanid = doc.getString("istekatanID");
-
-                            boolean gorulmedi = atanid != null
-                                    && !atanid.equals(kendiId)
-                                    && (!Boolean.TRUE.equals(gorulmeler.get(kendiId)));
-
+                            String atanid=doc.getString("istekatanID");
+                            boolean gorulmedi = (gorulmeler == null) &&!atanid.equals(kendiId) || (!Boolean.TRUE.equals(gorulmeler.get(kendiId)) && !atanid.equals(kendiId));
                             if (gorulmedi) {
-                                int sayi = sohbet.getGorulmemisMesajSayisi();
+                                int sayi=sohbet.getGorulmemisMesajSayisi();
                                 sayi++;
                                 sohbet.setGorulmemisMesajSayisi(sayi);
                             }
