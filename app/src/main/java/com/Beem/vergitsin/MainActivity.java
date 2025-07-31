@@ -842,9 +842,9 @@ public class MainActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 if (position != 1) {
-                    findViewById(R.id.menu).setVisibility(View.GONE);
+                    findViewById(R.id.icerikLayout).setVisibility(View.GONE);
                 } else {
-                    findViewById(R.id.menu).setVisibility(View.VISIBLE);
+                    findViewById(R.id.icerikLayout).setVisibility(View.VISIBLE);
                 }
             }
         });
