@@ -29,7 +29,7 @@ public class DigerKullaniciArkadasFragment extends Fragment {
     private ArrayList<Arkadas> arkadaslar;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private ArkadaslarYonetici yonetici;
-    private Arkadas arkadas;
+    private Kullanici arkadas;
 
     @Nullable
     @Override
@@ -38,7 +38,7 @@ public class DigerKullaniciArkadasFragment extends Fragment {
         View view = inflater.inflate(R.layout.kullanicilar_recycler, container, false);
 
         if (getArguments() != null) {
-            arkadas = (Arkadas) getArguments().getSerializable("kullanici");
+            arkadas = (Kullanici) getArguments().getSerializable("kullanici");
         }
 
         textViewDialogBaslik = view.findViewById(R.id.textViewDialogBaslik);

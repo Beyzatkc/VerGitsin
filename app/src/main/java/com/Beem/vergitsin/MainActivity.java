@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
         sozler.add("Birlikte güldüğümüz anlar, borçtan daha değerli. 😂❤️");
         sozler.add("Borç verirken gülümse, geri alınca da teşekkür et; dostluk böyle büyür. 🌟🤝");
         Random rnd = new Random();
-        int sayi = rnd.nextInt(41);
+        int sayi = rnd.nextInt(sozler.size());
         String cumle = sozler.get(sayi);
         return cumle;
     }

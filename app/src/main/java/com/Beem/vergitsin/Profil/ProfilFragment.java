@@ -96,16 +96,16 @@ public class ProfilFragment extends Fragment {
     }
 
     private void KullaniciDoldur(){
-            String arksayisi = "Arkadaşlar: "+ kullanici.getArkSayisi();
-            String grupssayisi = "Gruplar: "+ kullanici.getGrupSayisi();
-            String borcsayisi = "Verdiği Borç: "+ kullanici.getBorcSayisi();
-
-            userName.setText(kullanici.getKullaniciAdi());
-            bioText.setText(kullanici.getBio());
-            profilFoto.setImageResource(getResources().getIdentifier(kullanici.getProfilFoto(), "drawable", requireContext().getPackageName()));
-            arkSayisi.setText(arksayisi);
-            grupSayisi.setText(grupssayisi);
-            borcSayisiText.setText(borcsayisi);
+        if(!isAdded()) return;
+        String arksayisi = "Arkadaşlar: "+ kullanici.getArkSayisi();
+        String grupssayisi = "Gruplar: "+ kullanici.getGrupSayisi();
+        String borcsayisi = "Verdiği Borç: "+ kullanici.getBorcSayisi();
+        userName.setText(kullanici.getKullaniciAdi());
+        bioText.setText(kullanici.getBio());
+        profilFoto.setImageResource(getResources().getIdentifier(kullanici.getProfilFoto(), "drawable", requireContext().getPackageName()));
+        arkSayisi.setText(arksayisi);
+        grupSayisi.setText(grupssayisi);
+        borcSayisiText.setText(borcsayisi);
     }
     private void YerelKullanici(){
         kullanici.setProfilFoto(yerelKayit.getProfilFoto());
@@ -162,7 +162,7 @@ public class ProfilFragment extends Fragment {
         TextView iptal = menu.findViewById(R.id.btn_cancel);
         engelle.setVisibility(View.GONE);
 
-        cikis.setOnClickListener(v->{ yonetici.CikisYap(requireContext()); });
+        cikis.setOnClickListener(v->{ popupWindow.dismiss(); yonetici.CikisYap(requireContext()); });
         iptal.setOnClickListener(v->{ popupWindow.dismiss(); });
 
         popupWindow.showAsDropDown(vektor, -20, 10);

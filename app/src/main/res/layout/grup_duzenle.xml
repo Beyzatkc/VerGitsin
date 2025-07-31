@@ -3,33 +3,36 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="24dp"
     android:orientation="vertical"
-    android:background="@drawable/bottomsheet_bg"
-    android:gravity="center_horizontal">
+    android:padding="20dp"
+
+    android:background="@drawable/onizleme_bg">
 
     <!-- Başlık -->
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Profili Düzenle"
-        android:textStyle="bold"
+        android:text="Grubu Düzenle"
         android:textSize="18sp"
-        android:layout_marginBottom="16dp"
-        android:textColor="@color/text_primary1" />
+        android:textStyle="bold"
+        android:textColor="#3E2723"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
 
-    <!-- Profil Fotoğrafı (yuvarlak ve tıklanabilir) -->
+    <!-- Grup Profil Fotoğrafı -->
     <FrameLayout
+        android:id="@+id/profileContainer"
         android:layout_width="120dp"
         android:layout_height="120dp"
-        android:layout_marginBottom="24dp">
+        android:layout_gravity="center"
+        android:layout_marginBottom="10dp">
 
         <ImageView
             android:id="@+id/profileImageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:src="@drawable/profil_adam"
+            android:src="@drawable/user"
             android:background="@drawable/profil_bg"
             android:contentDescription="Profil Fotoğrafı"
             android:clipToOutline="true" />
@@ -48,39 +51,35 @@
             app:tint="@color/text_primary1" />
     </FrameLayout>
 
-    <!-- Kullanıcı Adı -->
-    <EditText
-        android:id="@+id/editUsername"
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Kullanıcı Adı"
-        android:background="@drawable/edittext_bg"
-        android:padding="12dp"
-        android:textColor="@color/text_primary1"
-        android:textColorHint="@color/text_secondary1"
-        android:layout_marginBottom="16dp" />
-
-    <!-- Açıklama -->
-    <EditText
-        android:id="@+id/editBio"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Açıklama"
-        android:background="@drawable/edittext_bg"
-        android:padding="12dp"
-        android:textColor="@color/text_primary1"
-        android:textColorHint="@color/text_secondary1"
+        android:text="Fotoğrafı Değiştir"
+        android:textColor="@color/accent_blue1"
+        android:gravity="center"
         android:layout_marginBottom="24dp" />
+
+    <!-- Grup Açıklaması -->
+    <EditText
+        android:id="@+id/editGrupAciklama"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Grup hakkında bilgi giriniz"
+        android:minHeight="100dp"
+        android:gravity="top|start"
+        android:background="@drawable/bg_textview_chip"
+        android:padding="12dp"
+        android:textColor="#3E2723"
+        android:textSize="14sp"
+        android:layout_marginBottom="20dp" />
 
     <!-- Kaydet Butonu -->
     <Button
-        android:id="@+id/saveButton"
+        android:id="@+id/buttonGrupKaydet"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Kaydet"
+        android:textColor="@color/text_primary1"
         android:backgroundTint="@color/accent_blue1"
-        android:textColor="@color/card_bg"
-        android:textStyle="bold"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp" />
+        android:padding="12dp" />
 </LinearLayout>

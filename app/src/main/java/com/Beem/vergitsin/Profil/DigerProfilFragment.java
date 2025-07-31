@@ -59,7 +59,7 @@ public class DigerProfilFragment extends Fragment {
     // Borç Rozeti
     private TextView borcSayisiText;
 
-    private Arkadas kullanici;
+    private Kullanici kullanici;
 
     private ProfilYonetici yonetici;
 
@@ -68,7 +68,7 @@ public class DigerProfilFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.profil, container, false);
         if (getArguments() != null) {
-            kullanici = (Arkadas) getArguments().getSerializable("kullanici");
+            kullanici = (Kullanici) getArguments().getSerializable("kullanici");
             yonetici = new ProfilYonetici(kullanici);
         }
         else{
@@ -114,6 +114,7 @@ public class DigerProfilFragment extends Fragment {
 
     private void TemelGorunumAyarlari(){
         editProfileButton.setVisibility(View.GONE);
+        grupSayisi.setVisibility(View.GONE);
         yonetici.KarsiTarafEngelKontrol(()->{
             TumEngellemeKarmasası();
         });
@@ -147,7 +148,7 @@ public class DigerProfilFragment extends Fragment {
         fragmentTransaction.commit();
     }
 
-    public void ArkadasEklemeDb(Arkadas kullanici){
+    public void ArkadasEklemeDb(Kullanici kullanici){
         DocumentReference kendiDocRef = db.collection("users").document(MainActivity.kullanicistatic.getKullaniciId());
         kendiDocRef.update("arkadaslar", FieldValue.arrayUnion(kullanici.getKullaniciId()))
                 .addOnSuccessListener(aVoid -> {
@@ -157,7 +158,7 @@ public class DigerProfilFragment extends Fragment {
                     Toast.makeText(requireContext(), "Ekleme başarısız: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
-    public void ArkadasCikarmaDb(Arkadas kullanici){
+    public void ArkadasCikarmaDb(Kullanici kullanici){
         DocumentReference kendiDocRef = db.collection("users").document(MainActivity.kullanicistatic.getKullaniciId());
         kendiDocRef.update("arkadaslar", FieldValue.arrayRemove(kullanici.getKullaniciId()))
                 .addOnSuccessListener(aVoid -> {
@@ -224,7 +225,6 @@ public class DigerProfilFragment extends Fragment {
             arkCikart.setVisibility(View.GONE);
             borcIsteButton.setVisibility(View.GONE);
             arkSayisi.setVisibility(View.GONE);
-            grupSayisi.setVisibility(View.GONE);
             editProfileButton.setVisibility(View.GONE);
             borcSayisiLinearLayout.setVisibility(View.GONE);
         },()->{
@@ -236,7 +236,6 @@ public class DigerProfilFragment extends Fragment {
             arkEkle.setVisibility(View.VISIBLE);
             borcIsteButton.setVisibility(View.GONE);
             arkSayisi.setVisibility(View.VISIBLE);
-            grupSayisi.setVisibility(View.VISIBLE);
             borcSayisiLinearLayout.setVisibility(View.VISIBLE);
         });
     }
@@ -279,7 +278,6 @@ public class DigerProfilFragment extends Fragment {
             arkCikart.setVisibility(View.GONE);
             borcIsteButton.setVisibility(View.GONE);
             arkSayisi.setVisibility(View.GONE);
-            grupSayisi.setVisibility(View.GONE);
             editProfileButton.setVisibility(View.GONE);
             borcSayisiLinearLayout.setVisibility(View.GONE);
             ustCubuk.setVisibility(View.VISIBLE);

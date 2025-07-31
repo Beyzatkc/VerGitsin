@@ -31,7 +31,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:clickable="true"
         android:focusable="true"
-        android:onClick="profilSayfasinaGit"
         android:orientation="vertical"
         app:layout_constraintEnd_toStartOf="@+id/grupolsuturlayout"
         app:layout_constraintStart_toStartOf="parent"

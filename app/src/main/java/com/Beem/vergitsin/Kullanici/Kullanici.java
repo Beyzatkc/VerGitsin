@@ -1,6 +1,9 @@
 package com.Beem.vergitsin.Kullanici;
 
-public class Kullanici {
+import java.io.Serializable;
+import java.util.Objects;
+
+public class Kullanici implements Serializable {
     private String KullaniciId;
     private String KullaniciAdi;
     private String Email;
@@ -123,4 +126,18 @@ public class Kullanici {
     public boolean isKarsiTarafEngellediMi() {
         return karsiTarafEngellediMi;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Kullanici kullanici = (Kullanici) o;
+        return Objects.equals(KullaniciId, kullanici.KullaniciId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(KullaniciId);
+    }
+
 }

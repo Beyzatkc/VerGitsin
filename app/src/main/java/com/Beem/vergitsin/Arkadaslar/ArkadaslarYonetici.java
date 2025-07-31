@@ -77,7 +77,7 @@ public class ArkadaslarYonetici {
     }
 
 
-    public void DigerKullanicininArkadaslari(Arkadas arkadas){
+    public void DigerKullanicininArkadaslari(Kullanici arkadas){
         db.collection("users")
                 .document(MainActivity.kullanicistatic.getKullaniciId())
                 .get()

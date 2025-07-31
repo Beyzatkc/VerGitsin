@@ -29,6 +29,7 @@ public class GruplarFragment extends Fragment {
     private GruplarYonetici yonetici;
     private SharedPreferencesK yerelKayit;
 
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -48,7 +49,9 @@ public class GruplarFragment extends Fragment {
         yonetici = new GruplarYonetici(adapter);
         yonetici.TumGruplariCek(MainActivity.kullanicistatic, ()->{
             GrupSayisiniYerelKayitaEkle();
+            yonetici.GrupSayisiKayit(gruplar.size());
         });
+
 
         return view;
     }
@@ -60,8 +63,15 @@ public class GruplarFragment extends Fragment {
     }
 
     private void GrupOnizlemeyeGec(Grup grup){
-        GrupOnizlemeBottomSheet bottomSheet = new GrupOnizlemeBottomSheet(grup);
+        GrupOnizlemeBottomSheet bottomSheet = new GrupOnizlemeBottomSheet(grup,()->{
+            adapter.getGrupList().remove(grup);
+            adapter.notifyDataSetChanged();
+        },()->{
+            adapter.notifyDataSetChanged();
+        });
         bottomSheet.show(getParentFragmentManager(), bottomSheet.getTag());
     }
+
+
 
 }

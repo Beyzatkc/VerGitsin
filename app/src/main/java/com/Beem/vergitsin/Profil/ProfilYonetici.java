@@ -59,20 +59,21 @@ public class ProfilYonetici {
 
         String profilFoto = dokuman.contains("ProfilFoto") ? dokuman.getString("ProfilFoto") : "user";
 
-       /* int grupSayisi = dokuman.contains("GrupSayisi") && dokuman.getLong("GrupSayisi") != null
-                ? dokuman.getLong("GrupSayisi").intValue() : 0;*/
+        int grupSayisi = dokuman.contains("GrupSayisi") && dokuman.getLong("GrupSayisi") != null
+                ? dokuman.getLong("GrupSayisi").intValue() : 0;
 
-        int arkSayisi = dokuman.contains("arkadaslar") && dokuman.get("arkadaslar") != null
-                ? ((ArrayList<String>) dokuman.get("arkadaslar")).size() : 0;
+         ArrayList<String> arkadaslar = dokuman.contains("arkadaslar") && dokuman.get("arkadaslar") != null
+                ? (ArrayList<String>) dokuman.get("arkadaslar") : new ArrayList<>();
 
         int borcSayisi = dokuman.contains("BorcSayisi") && dokuman.getLong("BorcSayisi") != null
                 ? dokuman.getLong("BorcSayisi").intValue() : 0;
+        int arkSayisi = arkadaslar.size();
 
         kullanici.setKullaniciAdi(name);
         kullanici.setEmail(email);
         kullanici.setBio(bio);
         kullanici.setProfilFoto(profilFoto);
-     //   kullanici.setGrupSayisi(grupSayisi);
+        kullanici.setGrupSayisi(grupSayisi);
         kullanici.setArkSayisi(arkSayisi);
         kullanici.setBorcSayisi(borcSayisi);
         profilTamamdir.run();
@@ -168,7 +169,7 @@ public class ProfilYonetici {
                    ArrayList<String> engelliler = dokuman.contains("engelliler") && dokuman.get("engelliler") != null ? (ArrayList<String>) dokuman.get("engelliler") : new ArrayList<>();
                    kullanici.setEngelliMi(engelliler.contains(kullanici.getKullaniciId()));
                    System.out.println(kullanici.isEngelliMi());
-                   islemTamamdir.run();
+                   ArkadasimizMi(islemTamamdir);
                });
     }
 
@@ -189,4 +190,15 @@ public class ProfilYonetici {
 
     }
 
+    private void ArkadasimizMi(Runnable islemTamamdir){
+       db.collection("users")
+               .document(MainActivity.kullanicistatic.getKullaniciId())
+               .get()
+               .addOnSuccessListener(dokuman->{
+                   ArrayList<String> arkadaslar = dokuman.contains("arkadaslar") && dokuman.get("arkadaslar") != null
+                           ? (ArrayList<String>) dokuman.get("arkadaslar") : new ArrayList<>();
+                   kullanici.setArkdasMi(arkadaslar.contains(kullanici.getKullaniciId()));
+                   islemTamamdir.run();
+               });
+    }
 }

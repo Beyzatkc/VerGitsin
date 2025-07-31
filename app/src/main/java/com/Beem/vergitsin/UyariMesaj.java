@@ -1,5 +1,6 @@
 package com.Beem.vergitsin;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
@@ -13,6 +14,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.fragment.app.Fragment;
 
 public class UyariMesaj {
     private Dialog dialog;
@@ -52,7 +55,16 @@ public class UyariMesaj {
     }
     private void uyariGizle() {
         if (dialog != null && dialog.isShowing()) {
-            dialog.dismiss();
+            Context context = dialog.getContext();
+            if (context instanceof Activity) {
+                Activity activity = (Activity) context;
+                if (!activity.isFinishing() && !activity.isDestroyed()) {
+                    dialog.dismiss();
+                }
+            }
+            else{
+                dialog.dismiss();
+            }
         }
     }
 

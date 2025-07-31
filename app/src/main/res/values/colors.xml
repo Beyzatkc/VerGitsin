@@ -27,6 +27,11 @@
     <color name="accent_blue1">#3B82F6</color> <!-- Soft mavi -->
     <color name="accent_green">#10B981</color> <!-- Opsiyonel yeşil vurgular -->
 
+    <color name="accent_red_soft">#F87171</color> <!-- Tailwind'den Red-400 -->
+
+    <color name="neutral_grey">#6B7280</color> <!-- text_secondary1 tonunda -->
+
+
     <!-- Butonlar -->
     <color name="button_bg">#E5E7EB</color> <!-- Açık gri buton arka planı -->
     <color name="button_text">#111827</color>

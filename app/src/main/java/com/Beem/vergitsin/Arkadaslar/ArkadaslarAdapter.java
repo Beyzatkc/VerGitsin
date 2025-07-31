@@ -14,7 +14,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.Beem.vergitsin.Kullanici.Kullanici;
+import com.Beem.vergitsin.MainActivity;
 import com.Beem.vergitsin.Profil.DigerProfilFragment;
+import com.Beem.vergitsin.Profil.ProfilFragment;
 import com.Beem.vergitsin.R;
 
 import java.io.Serializable;
@@ -52,7 +54,7 @@ public class ArkadaslarAdapter extends RecyclerView.Adapter<ArkadaslarAdapter.Vi
         holder.itemView.setOnClickListener(v->{
             TiklananArkadasProfileGec(arkadas);
         });
-        if(arkadas.isEngelliMi()){
+        if(arkadas.isEngelliMi() || arkadas.getKullaniciId().equals(MainActivity.kullanicistatic.getKullaniciId())){
             holder.ekle.setVisibility(View.GONE);
             holder.eklendi.setVisibility(View.GONE);
         }
@@ -109,10 +111,16 @@ public class ArkadaslarAdapter extends RecyclerView.Adapter<ArkadaslarAdapter.Vi
 
     private void TiklananArkadasProfileGec(Arkadas arkadas){
         if(arkadas!=null) {
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("kullanici", arkadas);
-            Fragment arkFragment = new DigerProfilFragment();
-            arkFragment.setArguments(bundle);
+            Fragment arkFragment;
+            if(arkadas.getKullaniciId().equals(MainActivity.kullanicistatic.getKullaniciId())){
+                arkFragment = new ProfilFragment();
+            }
+            else{
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("kullanici", arkadas);
+                arkFragment = new DigerProfilFragment();
+                arkFragment.setArguments(bundle);
+            }
 
             manager.beginTransaction()
                     .replace(R.id.konteynir, arkFragment)
