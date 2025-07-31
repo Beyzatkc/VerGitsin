@@ -56,13 +56,6 @@
             app:layout_constraintEnd_toStartOf="@id/arkadasEkleLayout"
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp">
-
-            <androidx.cardview.widget.CardView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                app:cardCornerRadius="100dp"
-                app:cardElevation="4dp"
-                app:cardPreventCornerOverlap="true" />
         <androidx.cardview.widget.CardView
             android:id="@+id/profilCardView"
             android:layout_width="30dp"
