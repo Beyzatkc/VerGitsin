@@ -56,70 +56,70 @@ public class SohbetViewModel extends ViewModel {
 
 
     public void SohbetleriCek() {
-            db.collection("sohbetler")
-                    .whereArrayContains("katilimcilar", MainActivity.kullanicistatic.getKullaniciId())
-                    .addSnapshotListener((queryDocumentSnapshots, error) -> {
-                        if (error != null) {
-                            Log.e("Firestore", "Mesajlar dinlenirken hata oluştu", error);
-                            return;
-                        }
-                        if (queryDocumentSnapshots != null) {
-                            if(ilkTetikleme) {
-                                ArrayList<Sohbet> tumSohbetler = new ArrayList<>();
-                                for (DocumentChange change : queryDocumentSnapshots.getDocumentChanges()) {
-                                    DocumentSnapshot doc = change.getDocument();
-                                    String tur = doc.getString("tur");
-                                    String sohbetId = doc.getString("sohbetId");
-                                    String kullaniciAdi = doc.getString("kullaniciAdi");
-                                    String ppfoto = doc.getString("ppfoto");
-                                    String sonMesaj = doc.getString("sonMesaj");
-                                    Long sonMsjSaati = doc.getLong("sonMsjSaati");
-                                    ArrayList<String> katilimcilar = (ArrayList<String>) doc.get("katilimcilar");
-                                    Sohbet sohbet = new Sohbet(sohbetId, kullaniciAdi, sonMsjSaati, ppfoto, sonMesaj, katilimcilar, tur);
-                                    if(tur.equals("kisi")) {
-                                        GorulmeyenMesajSayisi(sohbet);
-                                    }else{
-                                        GorulmeyenMesajSayisiGrup(sohbet);
-                                    }
-                                    tumSohbetler.add(sohbet);
+        db.collection("sohbetler")
+                .whereArrayContains("katilimcilar", MainActivity.kullanicistatic.getKullaniciId())
+                .addSnapshotListener((queryDocumentSnapshots, error) -> {
+                    if (error != null) {
+                        Log.e("Firestore", "Mesajlar dinlenirken hata oluştu", error);
+                        return;
+                    }
+                    if (queryDocumentSnapshots != null) {
+                        if(ilkTetikleme) {
+                            ArrayList<Sohbet> tumSohbetler = new ArrayList<>();
+                            for (DocumentChange change : queryDocumentSnapshots.getDocumentChanges()) {
+                                DocumentSnapshot doc = change.getDocument();
+                                String tur = doc.getString("tur");
+                                String sohbetId = doc.getString("sohbetId");
+                                String kullaniciAdi = doc.getString("kullaniciAdi");
+                                String ppfoto = doc.getString("ppfoto");
+                                String sonMesaj = doc.getString("sonMesaj");
+                                Long sonMsjSaati = doc.getLong("sonMsjSaati");
+                                ArrayList<String> katilimcilar = (ArrayList<String>) doc.get("katilimcilar");
+                                Sohbet sohbet = new Sohbet(sohbetId, kullaniciAdi, sonMsjSaati, ppfoto, sonMesaj, katilimcilar, tur);
+                                if(tur.equals("kisi")) {
+                                    GorulmeyenMesajSayisi(sohbet);
+                                }else{
+                                    GorulmeyenMesajSayisiGrup(sohbet);
                                 }
-                                Collections.sort(tumSohbetler, Comparator.comparingLong(Sohbet::getSonmsjsaati));
-                                _sohbetler.setValue(tumSohbetler);
-                                ilkTetikleme = false;
-                            } else {
-                                for (DocumentChange change : queryDocumentSnapshots.getDocumentChanges()) {
-                                    DocumentSnapshot doc = change.getDocument();
+                                tumSohbetler.add(sohbet);
+                            }
+                            Collections.sort(tumSohbetler, Comparator.comparingLong(Sohbet::getSonmsjsaati));
+                            _sohbetler.setValue(tumSohbetler);
+                            ilkTetikleme = false;
+                        } else {
+                            for (DocumentChange change : queryDocumentSnapshots.getDocumentChanges()) {
+                                DocumentSnapshot doc = change.getDocument();
 
-                                    String tur = doc.getString("tur");
-                                    String sohbetId = doc.getString("sohbetId");
-                                    String kullaniciAdi = doc.getString("kullaniciAdi");
-                                    String ppfoto = doc.getString("ppfoto");
-                                    String sonMesaj = doc.getString("sonMesaj");
-                                    Long sonMsjSaati = doc.getLong("sonMsjSaati");
-                                    ArrayList<String> katilimcilar = (ArrayList<String>) doc.get("katilimcilar");
+                                String tur = doc.getString("tur");
+                                String sohbetId = doc.getString("sohbetId");
+                                String kullaniciAdi = doc.getString("kullaniciAdi");
+                                String ppfoto = doc.getString("ppfoto");
+                                String sonMesaj = doc.getString("sonMesaj");
+                                Long sonMsjSaati = doc.getLong("sonMsjSaati");
+                                ArrayList<String> katilimcilar = (ArrayList<String>) doc.get("katilimcilar");
 
-                                    Sohbet yeniSohbet = new Sohbet(sohbetId, kullaniciAdi, sonMsjSaati, ppfoto, sonMesaj, katilimcilar, tur);
-                                    switch (change.getType()) {
-                                        case ADDED:
-                                            if(tur.equals("kisi")){
-                                                GorulmeyenMesajSayisi(yeniSohbet);
-                                            }else{
-                                                GorulmeyenMesajSayisiGrup(yeniSohbet);
-                                            }
-                                            _eklenenSohbet.setValue(yeniSohbet);
-                                            break;
-                                        case MODIFIED:
-                                            _guncellenenSohbet.setValue(yeniSohbet);
-                                            break;
-                                        case REMOVED:
-                                            _silinenSohbet.setValue(yeniSohbet);
-                                            break;
-                                    }
+                                Sohbet yeniSohbet = new Sohbet(sohbetId, kullaniciAdi, sonMsjSaati, ppfoto, sonMesaj, katilimcilar, tur);
+                                switch (change.getType()) {
+                                    case ADDED:
+                                        if(tur.equals("kisi")){
+                                            GorulmeyenMesajSayisi(yeniSohbet);
+                                        }else{
+                                            GorulmeyenMesajSayisiGrup(yeniSohbet);
+                                        }
+                                        _eklenenSohbet.setValue(yeniSohbet);
+                                        break;
+                                    case MODIFIED:
+                                        _guncellenenSohbet.setValue(yeniSohbet);
+                                        break;
+                                    case REMOVED:
+                                        _silinenSohbet.setValue(yeniSohbet);
+                                        break;
                                 }
                             }
                         }
-                    });
-        }
+                    }
+                });
+    }
 
     public void GorulmeyenMesajSayisi(Sohbet sohbet) {
         if(listenerMap.containsKey(sohbet.getSohbetID())){
@@ -128,7 +128,8 @@ public class SohbetViewModel extends ViewModel {
         ListenerRegistration listenerRegistration = db.collection("sohbetler")
                 .document(sohbet.getSohbetID())
                 .collection("borc_istekleri")
-                .whereEqualTo("GorulduMu", false)
+                .orderBy("isteginAtildigiZaman", Query.Direction.DESCENDING)
+                .limit(101)
                 .addSnapshotListener((snapshots, e) -> {
                     if (e != null) {
                         Log.e("Firestore", "Hata oluştu", e);
@@ -138,7 +139,12 @@ public class SohbetViewModel extends ViewModel {
                         return;
                     }
                     if (snapshots != null) {
-                        for (DocumentSnapshot doc : snapshots.getDocuments()) {
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            DocumentSnapshot doc = dc.getDocument();
+                            System.out.println(doc.getId());
+                            boolean gorulduMu = doc.contains("GorulduMu") ? (boolean) doc.get("GorulduMu") : false;
+                            if(gorulduMu) continue;
+                            if(dc.getType()!=DocumentChange.Type.ADDED) continue;
                             String atanId = doc.getString("istekatanID");
                             if (!atanId.equals(MainActivity.kullanicistatic.getKullaniciId())) {
                                 int sayi=sohbet.getGorulmemisMesajSayisi();
@@ -160,6 +166,8 @@ public class SohbetViewModel extends ViewModel {
         ListenerRegistration listenerRegistration = db.collection("sohbetler")
                 .document(sohbet.getSohbetID())
                 .collection("borc_istekleri")
+                .orderBy("isteginAtildigiZaman", Query.Direction.DESCENDING)
+                .limit(101)
                 .addSnapshotListener((snapshots, e) -> {
                     if (e != null) {
                         Log.e("Firestore", "Hata oluştu", e);
@@ -169,7 +177,9 @@ public class SohbetViewModel extends ViewModel {
                         return;
                     }
                     if (snapshots != null) {
-                        for (DocumentSnapshot doc : snapshots.getDocuments()) {
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            DocumentSnapshot doc = dc.getDocument();
+                            if(dc.getType()!=DocumentChange.Type.ADDED) continue;
                             Map<String, Boolean> gorulmeler = (Map<String, Boolean>) doc.get("gorulmeler");
                             if(gorulmeler==null){
                                 gorulmeler=new HashMap<>();

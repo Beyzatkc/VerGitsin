@@ -82,7 +82,12 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
         if(sohbet.getGorulmemisMesajSayisi()!=0){
             holder.gorulmeyen_sayi.setVisibility(View.VISIBLE);
             holder.yazi.setVisibility(View.VISIBLE);
-            holder.gorulmeyen_sayi.setText(String.valueOf(sohbet.getGorulmemisMesajSayisi()));
+            if(sohbet.getGorulmemisMesajSayisi()>99){
+                holder.gorulmeyen_sayi.setText("99+");
+            }
+            else{
+                holder.gorulmeyen_sayi.setText(String.valueOf(sohbet.getGorulmemisMesajSayisi()));
+            }
         }else{
             holder.gorulmeyen_sayi.setVisibility(View.GONE);
             holder.yazi.setVisibility(View.GONE);
