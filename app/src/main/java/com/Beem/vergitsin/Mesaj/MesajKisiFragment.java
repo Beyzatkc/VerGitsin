@@ -61,6 +61,8 @@ public class MesajKisiFragment extends Fragment {
     private String istekatilanAd;
     private String sohbetedilenAd;
     private String sohbetEdilenPP;
+    private Long AcilmaZamani;
+    private Long AcilmaZamaniadptr;
     private String PP;
     private String SonMesaj;
     private Long SonMesajSaat;
@@ -91,6 +93,7 @@ public class MesajKisiFragment extends Fragment {
                 sohbetIdAdptr= getArguments().getString("sohbetId");
                 sohbetedilenAd=getArguments().getString("sohbetedilenAd");
                 sohbetEdilenPP=getArguments().getString("sohbetEdilenPP");
+                AcilmaZamaniadptr=getArguments().getLong("acilmaZamani");
             } else if (kaynak.equals("mainactivity")) {
                 PP=getArguments().getString("pp");
                 istekatilanAd = getArguments().getString("istekatilanAdi");
@@ -98,6 +101,7 @@ public class MesajKisiFragment extends Fragment {
                 aciklamasi = getArguments().getString("aciklama").trim();
                 odemeTarihi = getArguments().getString("odemeTarihi").trim();
                 sohbetID=getArguments().getString("sohbetId");
+                AcilmaZamani=getArguments().getLong("acilmaZamani");
             }
         }
         // Geri tuşuna basıldığında fragmentten çık
@@ -148,9 +152,9 @@ public class MesajKisiFragment extends Fragment {
                 if (layoutManager.findFirstVisibleItemPosition() == 0 && !isLoading) {
                     isLoading = true; // yükleniyor flag'i
                     if ("mainactivity".equals(kaynak)) {
-                        mViewModel.EskiMesajlariYukle(sohbetID,ilkmsjSaati);
+                        mViewModel.EskiMesajlariYukle(sohbetID,ilkmsjSaati,AcilmaZamani);
                     }else{
-                        mViewModel.EskiMesajlariYukle(sohbetIdAdptr,ilkmsjSaatiadptr);
+                        mViewModel.EskiMesajlariYukle(sohbetIdAdptr,ilkmsjSaatiadptr,AcilmaZamaniadptr);
                     }
                 }
             }

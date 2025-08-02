@@ -72,6 +72,7 @@ public class SohbetFragment extends Fragment{
                     bundle.putString("sohbetId", sohbet.getSohbetID());
                     bundle.putString("sohbetedilenAd",sohbet.getKullaniciAdi());
                     bundle.putString("sohbetEdilenPP",sohbet.getPpfoto());
+                    bundle.putLong("acilmaZamani",sohbet.getAcilmazamani());
 
 
                     if(sohbet.getTur().equals("grup")) {
@@ -92,7 +93,12 @@ public class SohbetFragment extends Fragment{
                                 .commit();
                     }
                 }
-            });
+
+                 @Override
+                 public void onSohbetSilindi(Sohbet sohbet) {
+                     mViewModel.SohbetSilme(sohbet);
+                 }
+             });
             recyclerView.setAdapter(adapter);
         });
 

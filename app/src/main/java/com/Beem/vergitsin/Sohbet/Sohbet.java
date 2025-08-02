@@ -1,6 +1,8 @@
 package com.Beem.vergitsin.Sohbet;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Sohbet {
     private String sohbetID;
@@ -12,6 +14,8 @@ public class Sohbet {
     private String tur;
     private int gorulmemisMesajSayisi;
     private Boolean sohbeteGirildiMi=false;
+    private Long Acilmazamani;
+
 
     public Sohbet(String sohbetID, String kullaniciAdi, Long sonmsjsaati, String ppfoto, String sonMesaj, ArrayList<String> katilimcilar, String tur) {
         this.sohbetID = sohbetID;
@@ -21,6 +25,33 @@ public class Sohbet {
         this.sonMesaj = sonMesaj;
         this.katilimcilar=katilimcilar;
         this.tur=tur;
+    }
+    private ArrayList<Map<String, Object>> gizleyenler;
+
+    public void setGizleyenler(ArrayList<Map<String, Object>> gizleyenler) {
+        this.gizleyenler = gizleyenler;
+    }
+
+    public ArrayList<Map<String, Object>> getGizleyenler(){
+        return this.gizleyenler;
+    }
+
+    public Long getAcilmazamani() {
+        return Acilmazamani;
+    }
+
+    public void setAcilmazamani(Long acilmazamani) {
+        Acilmazamani = acilmazamani;
+    }
+
+    public boolean kullaniciTarafindanGizlenmis(String kendiId) {
+        if (gizleyenler == null) return false;
+        for (Map<String, Object> item : gizleyenler) {
+            if (kendiId.equals(item.get("id"))) {
+                return true;
+            }
+        }
+        return false;
     }
     public int getGorulmemisMesajSayisi() {
         return gorulmemisMesajSayisi;
