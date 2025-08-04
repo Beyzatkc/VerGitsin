@@ -15,6 +15,8 @@ public class Sohbet {
     private int gorulmemisMesajSayisi;
     private Boolean sohbeteGirildiMi=false;
     private Long Acilmazamani;
+    private Boolean gizlemeKaldirildiMi=false;
+    private Boolean gizlendiMi=false;
 
 
     public Sohbet(String sohbetID, String kullaniciAdi, Long sonmsjsaati, String ppfoto, String sonMesaj, ArrayList<String> katilimcilar, String tur) {
@@ -26,6 +28,23 @@ public class Sohbet {
         this.katilimcilar=katilimcilar;
         this.tur=tur;
     }
+
+    public Boolean getGizlendiMi() {
+        return gizlendiMi;
+    }
+
+    public void setGizlendiMi(Boolean gizlendiMi) {
+        this.gizlendiMi = gizlendiMi;
+    }
+
+    public Boolean getgizlemeKaldirildiMi() {
+        return gizlemeKaldirildiMi;
+    }
+
+    public void setgizlemeKaldirildiMi(Boolean gizlendiMi) {
+        this.gizlemeKaldirildiMi = gizlendiMi;
+    }
+
     private ArrayList<Map<String, Object>> gizleyenler;
 
     public void setGizleyenler(ArrayList<Map<String, Object>> gizleyenler) {

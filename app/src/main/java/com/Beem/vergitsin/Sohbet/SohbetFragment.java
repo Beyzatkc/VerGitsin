@@ -76,8 +76,6 @@ public class SohbetFragment extends Fragment{
                     if (acilmaZamaniObj != null) {
                         bundle.putLong("acilmaZamani", acilmaZamaniObj);
                     }
-
-
                     if(sohbet.getTur().equals("grup")) {
                         Fragment mesajGrupFragment = new MesajGrupFragment();
                         mesajGrupFragment.setArguments(bundle);

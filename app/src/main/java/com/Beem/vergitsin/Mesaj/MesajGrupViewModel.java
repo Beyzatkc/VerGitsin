@@ -64,7 +64,7 @@ public class MesajGrupViewModel extends ViewModel {
     }
 
 
-    public void MesajBorcistekleriDbCek(String aktifSohbetId){
+    public void MesajBorcistekleriDbCek(String aktifSohbetId,Long gizlemeZamani){
         Query query = db.collection("sohbetler")
                 .document(aktifSohbetId)
                 .collection("borc_istekleri")
@@ -81,9 +81,15 @@ public class MesajGrupViewModel extends ViewModel {
                     ArrayList<Mesaj> tumMesajlar = new ArrayList<>();
                     for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
                         Mesaj mesaj=documentToMesaj(doc);
-                        tumMesajlar.add(mesaj);
-                        GorulmeKontrolEtVeGuncelle(mesaj, aktifSohbetId,() -> {
-                        });
+                        if (gizlemeZamani!=null){
+                            if(mesaj.getZaman()> gizlemeZamani){
+                                tumMesajlar.add(mesaj);
+                            }
+                        }
+                        else{
+                            tumMesajlar.add(mesaj);
+                        }
+                        GorulmeKontrolEtVeGuncelle(mesaj, aktifSohbetId, () -> {});
                     }
                     Collections.sort(tumMesajlar, Comparator.comparingLong(Mesaj::getZaman));
 

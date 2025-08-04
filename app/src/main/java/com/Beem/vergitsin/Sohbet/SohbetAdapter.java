@@ -77,13 +77,8 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
     }
     public void sohbetGeldi(Sohbet sohbet){
         if (!sohbet.kullaniciTarafindanGizlenmis(MainActivity.kullanicistatic.getKullaniciId())) {
-            for (int i = 0; i < sohbetler.size(); i++) {
-                if (sohbetler.get(i).getSohbetID().equals(sohbet.getSohbetID())) {
-                    sohbetler.add(sohbet);
-                    notifyItemInserted(i);
-                    break;
-                }
-            }
+            sohbetler.add(0, sohbet);
+            notifyItemInserted(0);
         }
     }
 

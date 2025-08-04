@@ -174,7 +174,6 @@ public class SohbetViewModel extends ViewModel {
         if(listenerMap.containsKey(sohbet.getSohbetID())){
             return;
         }
-        final boolean[] gizlemeKaldirildiMi = {false};
         ListenerRegistration listenerRegistration = db.collection("sohbetler")
                 .document(sohbet.getSohbetID())
                 .collection("borc_istekleri")
@@ -218,8 +217,9 @@ public class SohbetViewModel extends ViewModel {
                                 int sayi=sohbet.getGorulmemisMesajSayisi();
                                 sayi++;
                                 sohbet.setGorulmemisMesajSayisi(sayi);
-                                if (!gizlemeKaldirildiMi[0]) {
-                                    gizlemeKaldirildiMi[0] = true;
+                                if (sohbet.getgizlemeKaldirildiMi()==false&&sohbet.getGizlendiMi()==true) {
+                                    sohbet.setgizlemeKaldirildiMi(true);
+                                    sohbet.setGizlendiMi(false);
                                     Map<String, Object> silinecekObj = new HashMap<>();
                                     silinecekObj.put("id", MainActivity.kullanicistatic.getKullaniciId());
                                     silinecekObj.put("gizlenmeZamani", gizlenmeZamani);
@@ -230,12 +230,14 @@ public class SohbetViewModel extends ViewModel {
                                             .addOnSuccessListener(aVoid ->{
                                                 Map<String, Object> yeniObj = new HashMap<>();
                                                 yeniObj.put("id", MainActivity.kullanicistatic.getKullaniciId());
-                                                yeniObj.put("acilmaZamani", System.currentTimeMillis());
+                                                long acilmaZamani = System.currentTimeMillis();
+                                                yeniObj.put("acilmaZamani", acilmaZamani);
 
                                                 db.collection("sohbetler")
                                                         .document(sohbet.getSohbetID())
                                                         .update("acilmaZamanlari", FieldValue.arrayUnion(yeniObj));
-                                                         _sohbetgeldi.setValue(sohbet);
+                                                sohbet.setAcilmazamani(acilmaZamani);
+                                                _sohbetgeldi.setValue(sohbet);
                                             })
                                             .addOnFailureListener(err -> Log.e("Gizleme", "Gizleme kaldırılamadı", err));
                                 }
@@ -250,7 +252,6 @@ public class SohbetViewModel extends ViewModel {
         if(listenerMapGrup.containsKey(sohbet.getSohbetID())){
             return;
         }
-        final boolean[] gizlemeKaldirildiMi = {false};
         String kendiId = MainActivity.kullanicistatic.getKullaniciId();
 
         ListenerRegistration listenerRegistration = db.collection("sohbetler")
@@ -298,8 +299,9 @@ public class SohbetViewModel extends ViewModel {
                                 int sayi=sohbet.getGorulmemisMesajSayisi();
                                 sayi++;
                                 sohbet.setGorulmemisMesajSayisi(sayi);
-                                if (!gizlemeKaldirildiMi[0]) {
-                                    gizlemeKaldirildiMi[0] = true;
+                                if (sohbet.getgizlemeKaldirildiMi()==false&&sohbet.getGizlendiMi()==true) {
+                                    sohbet.setgizlemeKaldirildiMi(true);
+                                    sohbet.setGizlendiMi(false);
                                     Map<String, Object> silinecekObj = new HashMap<>();
                                     silinecekObj.put("id", MainActivity.kullanicistatic.getKullaniciId());
                                     silinecekObj.put("gizlenmeZamani", gizlenmeZamani);
@@ -310,11 +312,13 @@ public class SohbetViewModel extends ViewModel {
                                             .addOnSuccessListener(aVoid ->{
                                                 Map<String, Object> yeniObj = new HashMap<>();
                                                 yeniObj.put("id", MainActivity.kullanicistatic.getKullaniciId());
-                                                yeniObj.put("acilmaZamani", System.currentTimeMillis());
+                                                long acilmaZamani = System.currentTimeMillis();
+                                                yeniObj.put("acilmaZamani", acilmaZamani);
 
                                                 db.collection("sohbetler")
                                                         .document(sohbet.getSohbetID())
                                                         .update("acilmaZamanlari", FieldValue.arrayUnion(yeniObj));
+                                                sohbet.setAcilmazamani(acilmaZamani);
                                                 _sohbetgeldi.setValue(sohbet);
                                             })
                                             .addOnFailureListener(err -> Log.e("Gizleme", "Gizleme kaldırılamadı", err));
@@ -339,6 +343,8 @@ public class SohbetViewModel extends ViewModel {
                         sohbet.setGizleyenler(new ArrayList<>());
                     }
                     sohbet.getGizleyenler().add(gizleyenObjesi);
+                    sohbet.setGizlendiMi(true);
+                    sohbet.setgizlemeKaldirildiMi(false);
                     _silindiSohbet.setValue(sohbet);
                 })
                 .addOnFailureListener(e -> Log.e("SohbetSilme", "Gizleme hatası: ", e));

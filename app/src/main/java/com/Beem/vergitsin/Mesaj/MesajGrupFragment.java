@@ -226,7 +226,7 @@ public class MesajGrupFragment extends Fragment{
                         "user", "drawable", requireContext().getPackageName());
                 grup_fotosu.setImageResource(resId);
             }
-            mViewModel.MesajBorcistekleriDbCek(sohbetID);
+            mViewModel.MesajBorcistekleriDbCek(sohbetID,AcilmaZamani);
 
             mViewModel.eklenen().observe(getViewLifecycleOwner(), mesaj -> {
                 if (mesaj != null) {
@@ -342,7 +342,7 @@ public class MesajGrupFragment extends Fragment{
                 grup_fotosu.setImageResource(resId);
             }
             gonderenadiview.setText(MainActivity.kullanicistatic.getKullaniciAdi());
-            mViewModel.MesajBorcistekleriDbCek(sohbetIdAdptr);
+            mViewModel.MesajBorcistekleriDbCek(sohbetIdAdptr,AcilmaZamaniadptr);
 
             mViewModel.eklenen().observe(getViewLifecycleOwner(), mesaj -> {
                 if (mesaj != null) {

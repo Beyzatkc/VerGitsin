@@ -232,7 +232,7 @@ public class MesajKisiFragment extends Fragment {
                        kisi_fotosu.setImageResource(resId);
                    }
 
-            mViewModel.MesajBorcistekleriDbCek(sohbetID);
+            mViewModel.MesajBorcistekleriDbCek(sohbetID,AcilmaZamani);
 
             mViewModel.tumMesajlar().observe(getViewLifecycleOwner(), mesajList -> {
                 if (adapter == null) {
@@ -343,7 +343,7 @@ public class MesajKisiFragment extends Fragment {
                         "user", "drawable", requireContext().getPackageName());
                 kisi_fotosu.setImageResource(resId);
             }
-            mViewModel.MesajBorcistekleriDbCek(sohbetIdAdptr);
+            mViewModel.MesajBorcistekleriDbCek(sohbetIdAdptr,AcilmaZamaniadptr);
 
             mViewModel.tumMesajlar().observe(getViewLifecycleOwner(), mesajList -> {
                 if(!ilkMesajAlindiadptr){
