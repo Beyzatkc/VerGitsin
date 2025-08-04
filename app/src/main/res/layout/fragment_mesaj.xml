@@ -116,24 +116,24 @@
                 android:inputType="textCapSentences"
                 android:layout_marginBottom="8dp" />
 
-            <!-- Açıklama + Gönder Butonu -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="8dp"
                 android:gravity="center_vertical">
 
+                <!-- Ödeme Tarihi alanı -->
                 <EditText
-                    android:id="@+id/aciklamaedit"
+                    android:id="@+id/odemeTarihiedit"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:hint="Açıklama"
+                    android:layout_weight="1"
+                    android:hint="Ödeme tarihi (gg.aa.yyyy)"
                     android:padding="8dp"
                     android:textColor="#000"
                     android:textColorHint="#888"
-                    android:inputType="textCapSentences" />
+                    android:clickable="true"
+                    android:layout_marginBottom="8dp" />
 
                 <ImageButton
                     android:id="@+id/gonderButton2edit"
@@ -146,17 +146,17 @@
                     android:layout_marginStart="8dp"/>
             </LinearLayout>
 
-            <!-- Ödeme Tarihi alanı -->
+            <!-- Açıklama alanı -->
             <EditText
-                android:id="@+id/odemeTarihiedit"
-                android:layout_width="300dp"
+                android:id="@+id/aciklamaedit"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Ödeme tarihi (gg.aa.yyyy)"
+                android:hint="Açıklama"
                 android:padding="8dp"
                 android:textColor="#000"
                 android:textColorHint="#888"
-                android:clickable="true"
-                android:layout_marginBottom="8dp" />
+                android:inputType="textCapSentences" />
+
         </LinearLayout>
 
         <LinearLayout

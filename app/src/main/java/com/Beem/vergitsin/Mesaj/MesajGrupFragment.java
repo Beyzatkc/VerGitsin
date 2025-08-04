@@ -53,7 +53,6 @@ public class MesajGrupFragment extends Fragment{
     private MesajAdapterGrup adapter;
 
     private LinearLayout istekEditTextViewLayout;
-    private TextView gonderenadi;
     private EditText miktaredit;
     private EditText aciklamaedit;
     private ImageButton gonderButton2edit;
@@ -78,6 +77,8 @@ public class MesajGrupFragment extends Fragment{
     private boolean isLoading = false;
     private CevapGeldiGrup arayuzum;
     private MesajSilmeGuncellemeGrup arayuzSilme;
+    private Long AcilmaZamani;
+    private Long AcilmaZamaniadptr;
 
     public static MesajGrupFragment newInstance() {
         return new MesajGrupFragment();
@@ -94,6 +95,7 @@ public class MesajGrupFragment extends Fragment{
                 sohbetIdAdptr= getArguments().getString("sohbetId");
                 sohbetedilenAd=getArguments().getString("sohbetedilenAd");
                 sohbetEdilenPP=getArguments().getString("sohbetEdilenPP");
+                AcilmaZamaniadptr=getArguments().getLong("acilmaZamani");
             } else if (kaynak.equals("mainactivity")) {
                 PP=getArguments().getString("pp");
                 istekatilanAd = getArguments().getString("istekatilanAdi");
@@ -101,6 +103,7 @@ public class MesajGrupFragment extends Fragment{
                 aciklamasi = getArguments().getString("aciklama").trim();
                 odemeTarihi = getArguments().getString("odemeTarihi").trim();
                 sohbetID=getArguments().getString("sohbetId");
+                AcilmaZamani=getArguments().getLong("acilmaZamani");
             }
         }
         // Geri tuşuna basıldığında fragmentten çık
@@ -128,7 +131,6 @@ public class MesajGrupFragment extends Fragment{
         kackisicevrimici=view.findViewById(R.id.kackisicevrimici);
 
         istekEditTextViewLayout=view.findViewById(R.id.istekEditTextViewLayout);
-        gonderenadi=view.findViewById(R.id.gonderenadi);
         miktaredit=view.findViewById(R.id.miktaredit);
         aciklamaedit=view.findViewById(R.id.aciklamaedit);
         gonderButton2edit=view.findViewById(R.id.gonderButton2edit);
@@ -155,9 +157,9 @@ public class MesajGrupFragment extends Fragment{
                 if (layoutManager.findFirstVisibleItemPosition() == 0 && !isLoading) {
                     isLoading = true; // yükleniyor flag'i
                     if ("mainactivity".equals(kaynak)) {
-                        mViewModel.EskiMesajlariYukle(sohbetID,ilkmsjSaati);
+                        mViewModel.EskiMesajlariYukle(sohbetID,ilkmsjSaati,AcilmaZamani);
                     }else{
-                        mViewModel.EskiMesajlariYukle(sohbetIdAdptr,ilkmsjSaatiadptr);
+                        mViewModel.EskiMesajlariYukle(sohbetIdAdptr,ilkmsjSaatiadptr,AcilmaZamaniadptr);
                     }
 
                 }
@@ -224,7 +226,6 @@ public class MesajGrupFragment extends Fragment{
                         "user", "drawable", requireContext().getPackageName());
                 grup_fotosu.setImageResource(resId);
             }
-            gonderenadi.setText(MainActivity.kullanicistatic.getKullaniciAdi());
             mViewModel.MesajBorcistekleriDbCek(sohbetID);
 
             mViewModel.eklenen().observe(getViewLifecycleOwner(), mesaj -> {

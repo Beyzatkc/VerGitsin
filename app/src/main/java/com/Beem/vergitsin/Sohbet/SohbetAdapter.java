@@ -47,16 +47,6 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
     }
 
     public void SohbetGuncelle(Sohbet guncelSohbet) {
-        if (guncelSohbet.kullaniciTarafindanGizlenmis(MainActivity.kullanicistatic.getKullaniciId())) {
-            for (int i = 0; i < sohbetler.size(); i++) {
-                if (sohbetler.get(i).getSohbetID().equals(guncelSohbet.getSohbetID())) {
-                    sohbetler.remove(i);
-                    notifyItemRemoved(i);
-                    break;
-                }
-            }
-            return;
-        }
         for (int i = 0; i < sohbetler.size(); i++) {
             if (sohbetler.get(i).getSohbetID().equals(guncelSohbet.getSohbetID())) {
                 sohbetler.get(i).setSonMesaj(guncelSohbet.getSonMesaj());
@@ -74,6 +64,29 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
             }
         }
     }
+    public void sohbetiSil(Sohbet sohbet) {
+        if (sohbet.kullaniciTarafindanGizlenmis(MainActivity.kullanicistatic.getKullaniciId())) {
+            for (int i = 0; i < sohbetler.size(); i++) {
+                if (sohbetler.get(i).getSohbetID().equals(sohbet.getSohbetID())) {
+                    sohbetler.remove(i);
+                    notifyItemRemoved(i);
+                    break;
+                }
+            }
+        }
+    }
+    public void sohbetGeldi(Sohbet sohbet){
+        if (!sohbet.kullaniciTarafindanGizlenmis(MainActivity.kullanicistatic.getKullaniciId())) {
+            for (int i = 0; i < sohbetler.size(); i++) {
+                if (sohbetler.get(i).getSohbetID().equals(sohbet.getSohbetID())) {
+                    sohbetler.add(sohbet);
+                    notifyItemInserted(i);
+                    break;
+                }
+            }
+        }
+    }
+
     @NonNull
     @Override
     public SohbetAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

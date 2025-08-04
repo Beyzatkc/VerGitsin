@@ -10,6 +10,7 @@ import android.Manifest;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -525,12 +526,15 @@ public class MainActivity extends AppCompatActivity {
             if (secilen == null) {
                 Toast.makeText(this, "Lütfen bir arkadaş seçin", Toast.LENGTH_SHORT).show();
             } else {
-                dialog.setContentView(R.layout.borc_detay);
-                EditText edtMiktar = dialog.findViewById(R.id.edtMiktar);
-                EditText edtAciklama = dialog.findViewById(R.id.edtAciklama);
-                EditText edtTarih = dialog.findViewById(R.id.edtTarih);
+                dialog.dismiss();
+                Dialog detayDialog = new Dialog(this);
+                detayDialog.setContentView(R.layout.borc_detay);
+
+                EditText edtMiktar = detayDialog.findViewById(R.id.edtMiktar);
+                EditText edtAciklama = detayDialog.findViewById(R.id.edtAciklama);
+                EditText edtTarih = detayDialog.findViewById(R.id.edtTarih);
                 String regex = "^\\d{2}/\\d{2}/\\d{4}$";
-                Button btnGonder = dialog.findViewById(R.id.btnGonder);
+                Button btnGonder = detayDialog.findViewById(R.id.btnGonder);
 
                 btnGonder.setOnClickListener(v2 -> {
                     String miktar = edtMiktar.getText().toString().trim();
@@ -547,51 +551,58 @@ public class MainActivity extends AppCompatActivity {
                         return;
                     }else{
                         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-                        Date date = null;
+                        sdf.setLenient(false);
                         try {
-                            date = sdf.parse(tarih);
+                            Date girilenTarih = sdf.parse(tarih);
+                            Date bugun = new Date();
+                            if (girilenTarih.before(bugun)) {
+                                Toast.makeText(this, "Geçmiş bir tarih giremezsiniz!", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            Timestamp timestamp = new Timestamp(girilenTarih);
+                            SohbetOlusturDbArkadas(MainActivity.kullanicistatic.getKullaniciId(),secilen.getKullaniciId(),secilen.getKullaniciAdi(), System.currentTimeMillis(), secilen.getProfilFoto(), String.format("%s TL borç isteği",miktar), sohbetId -> {
+                                        BorcIstekleriDb(
+                                                MainActivity.kullanicistatic.getKullaniciId(),
+                                                secilen.getKullaniciId(),
+                                                miktar,
+                                                aciklama,
+                                                timestamp,
+                                                MainActivity.kullanicistatic.getKullaniciAdi(),
+                                                sohbetId,
+                                                System.currentTimeMillis(),
+                                                () -> {
+                                                    Bundle bundle = new Bundle();
+                                                    bundle.putString("kaynak", "mainactivity");
+                                                    bundle.putString("pp",secilen.getProfilFoto());
+                                                    bundle.putString("istekatilanAdi",secilen.getKullaniciAdi());
+                                                    bundle.putString("miktar", miktar);
+                                                    bundle.putString("aciklama", aciklama);
+                                                    bundle.putString("odemeTarihi", tarih);
+                                                    bundle.putString("sohbetId", sohbetId);
+
+                                                    MesajKisiFragment fragment = new MesajKisiFragment();
+                                                    fragment.setArguments(bundle);
+                                                    getSupportFragmentManager()
+                                                            .beginTransaction()
+                                                            .replace(R.id.konteynir, fragment)
+                                                            .addToBackStack(null)
+                                                            .commit();
+
+                                                    detayDialog.dismiss();
+                                                }
+                                        );
+                                    }
+                            );
                         } catch (ParseException e) {
                             throw new RuntimeException(e);
                         }
-                        Timestamp timestamp = new Timestamp(date);
-                        SohbetOlusturDbArkadas(MainActivity.kullanicistatic.getKullaniciId(),secilen.getKullaniciId(),secilen.getKullaniciAdi(), System.currentTimeMillis(), secilen.getProfilFoto(), String.format("%s TL borç isteği",miktar), sohbetId -> {
-                                    BorcIstekleriDb(
-                                            MainActivity.kullanicistatic.getKullaniciId(),
-                                            secilen.getKullaniciId(),
-                                            miktar,
-                                            aciklama,
-                                            timestamp,
-                                            MainActivity.kullanicistatic.getKullaniciAdi(),
-                                            sohbetId,
-                                            System.currentTimeMillis(),
-                                            () -> {
-                                                Bundle bundle = new Bundle();
-                                                bundle.putString("kaynak", "mainactivity");
-                                                bundle.putString("pp",secilen.getProfilFoto());
-                                                bundle.putString("istekatilanAdi",secilen.getKullaniciAdi());
-                                                bundle.putString("miktar", miktar);
-                                                bundle.putString("aciklama", aciklama);
-                                                bundle.putString("odemeTarihi", tarih);
-                                                bundle.putString("sohbetId", sohbetId);
-
-                                                MesajKisiFragment fragment = new MesajKisiFragment();
-                                                fragment.setArguments(bundle);
-                                                getSupportFragmentManager()
-                                                        .beginTransaction()
-                                                        .replace(R.id.konteynir, fragment)
-                                                        .addToBackStack(null)
-                                                        .commit();
-
-                                                dialog.dismiss();
-                                            }
-                                    );
-                                }
-                         );
                     }
                 });
+                detayDialog.show();
             }
         });
         dialog.show();
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
     }
     public void SohbetOlusturDbArkadas(String gonderenId, String aliciId,String kullaniciAdi, Long sonMsjSaati, String ppfoto, String sonMesaj, Consumer<String> onSohbetOlusturuldu) {
         String sohbetId = gonderenId.compareTo(aliciId) < 0 ?
@@ -740,11 +751,14 @@ public class MainActivity extends AppCompatActivity {
             if (secilen == null) {
                 Toast.makeText(this, "Lütfen bir grup seçin", Toast.LENGTH_SHORT).show();
             } else {
-                dialog.setContentView(R.layout.borc_detay);
-                EditText edtMiktar = dialog.findViewById(R.id.edtMiktar);
-                EditText edtAciklama = dialog.findViewById(R.id.edtAciklama);
-                EditText edtTarih = dialog.findViewById(R.id.edtTarih);
-                Button btnGonder = dialog.findViewById(R.id.btnGonder);
+                dialog.dismiss(); // eski dialogu kapat
+                Dialog detayDialog = new Dialog(this);
+                detayDialog.setContentView(R.layout.borc_detay);
+
+                EditText edtMiktar = detayDialog.findViewById(R.id.edtMiktar);
+                EditText edtAciklama = detayDialog.findViewById(R.id.edtAciklama);
+                EditText edtTarih = detayDialog.findViewById(R.id.edtTarih);
+                Button btnGonder = detayDialog.findViewById(R.id.btnGonder);
 
                 btnGonder.setOnClickListener(v2 -> {
                     String miktar = edtMiktar.getText().toString().trim();
@@ -763,50 +777,59 @@ public class MainActivity extends AppCompatActivity {
                             return;
                     }else{
                         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-                        Date date = null;
+                        sdf.setLenient(false);
                         try {
-                            date = sdf.parse(tarih);
+                            Date girilenTarih = sdf.parse(tarih);
+                            Date bugun = new Date();
+
+                            if (girilenTarih.before(bugun)) {
+                                Toast.makeText(this, "Geçmiş bir tarih giremezsiniz!", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            Timestamp timestamp = new Timestamp(girilenTarih);
+                            sohbetOlusturDbGrup(secilen.getGrupId(),secilen.getGrupAdi(), System.currentTimeMillis(), null,String.format("%s TL borç isteği",miktar), sohbetId -> {
+                                        BorcIstekleriDb(
+                                                MainActivity.kullanicistatic.getKullaniciId(),
+                                                secilen.getGrupId(),
+                                                miktar,
+                                                aciklama,
+                                                timestamp,
+                                                MainActivity.kullanicistatic.getKullaniciAdi(),
+                                                sohbetId,
+                                                System.currentTimeMillis(),
+                                                () -> {
+                                                    Bundle bundle = new Bundle();
+                                                    bundle.putString("kaynak", "mainactivity");
+                                                    bundle.putString("istekatilanAdi", secilen.getGrupAdi());
+                                                    bundle.putString("pp",null);
+                                                    bundle.putString("miktar", miktar);
+                                                    bundle.putString("aciklama", aciklama);
+                                                    bundle.putString("odemeTarihi", tarih);
+                                                    bundle.putString("sohbetId", sohbetId);
+
+                                                    MesajGrupFragment fragment = new MesajGrupFragment();
+                                                    fragment.setArguments(bundle);
+                                                    getSupportFragmentManager()
+                                                            .beginTransaction()
+                                                            .replace(R.id.konteynir, fragment)
+                                                            .addToBackStack(null)
+                                                            .commit();
+                                                    detayDialog.dismiss();
+                                                }
+                                        );
+                                    }
+                            );
                         } catch (ParseException e) {
                             throw new RuntimeException(e);
                         }
-                        Timestamp timestamp = new Timestamp(date);
-                        sohbetOlusturDbGrup(secilen.getGrupId(),secilen.getGrupAdi(), System.currentTimeMillis(), null,String.format("%s TL borç isteği",miktar), sohbetId -> {
-                            BorcIstekleriDb(
-                                    MainActivity.kullanicistatic.getKullaniciId(),
-                                    secilen.getGrupId(),
-                                    miktar,
-                                    aciklama,
-                                    timestamp,
-                                    MainActivity.kullanicistatic.getKullaniciAdi(),
-                                    sohbetId,
-                                    System.currentTimeMillis(),
-                                    () -> {
-                                        Bundle bundle = new Bundle();
-                                        bundle.putString("kaynak", "mainactivity");
-                                        bundle.putString("istekatilanAdi", secilen.getGrupAdi());
-                                        bundle.putString("pp",null);
-                                        bundle.putString("miktar", miktar);
-                                        bundle.putString("aciklama", aciklama);
-                                        bundle.putString("odemeTarihi", tarih);
-                                        bundle.putString("sohbetId", sohbetId);
-
-                                        MesajGrupFragment fragment = new MesajGrupFragment();
-                                        fragment.setArguments(bundle);
-                                        getSupportFragmentManager()
-                                                .beginTransaction()
-                                                .replace(R.id.konteynir, fragment)
-                                                .addToBackStack(null)
-                                                .commit();
-                                        dialog.dismiss();
-                                    }
-                                  );
-                             }
-                        );
                     }
                 });
+                detayDialog.show();
             }
         });
         dialog.show();
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
     }
     private void ProfilSayfasinaGec(){
         getSupportFragmentManager().beginTransaction()

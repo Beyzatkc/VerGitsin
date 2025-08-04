@@ -72,7 +72,10 @@ public class SohbetFragment extends Fragment{
                     bundle.putString("sohbetId", sohbet.getSohbetID());
                     bundle.putString("sohbetedilenAd",sohbet.getKullaniciAdi());
                     bundle.putString("sohbetEdilenPP",sohbet.getPpfoto());
-                    bundle.putLong("acilmaZamani",sohbet.getAcilmazamani());
+                    Long acilmaZamaniObj = sohbet.getAcilmazamani();
+                    if (acilmaZamaniObj != null) {
+                        bundle.putLong("acilmaZamani", acilmaZamaniObj);
+                    }
 
 
                     if(sohbet.getTur().equals("grup")) {
@@ -120,6 +123,14 @@ public class SohbetFragment extends Fragment{
             if (sohbet != null) {
                 adapter.SohbetGuncelle(sohbet);
             }
+        });
+        mViewModel.silindiSohbet().observe(getViewLifecycleOwner(),sohbet->{
+            if (sohbet != null) {
+                adapter.sohbetiSil(sohbet);
+            }
+        });
+        mViewModel.sohbetgeldi().observe(getViewLifecycleOwner(),sohbet->{
+            adapter.sohbetGeldi(sohbet);
         });
         return view;
     }

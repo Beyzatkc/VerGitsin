@@ -56,6 +56,12 @@ public class SohbetViewModel extends ViewModel {
     public LiveData<Sohbet> getGorulmeyenMesajSayilariGrup() {
         return _gorulmeyenMesajSayilariGrup;
     }
+    MutableLiveData<Sohbet>_silindiSohbet=new MutableLiveData<>();
+    LiveData<Sohbet>silindiSohbet(){return _silindiSohbet;}
+
+    MutableLiveData<Sohbet>_sohbetgeldi=new MutableLiveData<>();
+    LiveData<Sohbet>sohbetgeldi(){return _sohbetgeldi;}
+
 
 
     public void SohbetleriCek() {
@@ -229,6 +235,7 @@ public class SohbetViewModel extends ViewModel {
                                                 db.collection("sohbetler")
                                                         .document(sohbet.getSohbetID())
                                                         .update("acilmaZamanlari", FieldValue.arrayUnion(yeniObj));
+                                                         _sohbetgeldi.setValue(sohbet);
                                             })
                                             .addOnFailureListener(err -> Log.e("Gizleme", "Gizleme kaldırılamadı", err));
                                 }
@@ -264,7 +271,7 @@ public class SohbetViewModel extends ViewModel {
                         ArrayList<Map<String, Object>> gizleyenler = sohbet.getGizleyenler();
                         if (gizleyenler != null) {
                             for (Map<String, Object> obj : gizleyenler) {
-                                if (kendiId.equals(obj.get("id"))) {
+                                if (MainActivity.kullanicistatic.getKullaniciId().equals(obj.get("id"))) {
                                     Object zamanObj = obj.get("gizlenmeZamani");
                                     if (zamanObj instanceof Number) {
                                         gizlenmeZamani = ((Number) zamanObj).longValue();
@@ -273,7 +280,6 @@ public class SohbetViewModel extends ViewModel {
                                 }
                             }
                         }
-
                         for (DocumentChange dc : snapshots.getDocumentChanges()) {
                             DocumentSnapshot doc = dc.getDocument();
                             if(dc.getType()!=DocumentChange.Type.ADDED) continue;
@@ -301,7 +307,16 @@ public class SohbetViewModel extends ViewModel {
                                     db.collection("sohbetler")
                                             .document(sohbet.getSohbetID())
                                             .update("gizleyenler", FieldValue.arrayRemove(silinecekObj))
-                                            .addOnSuccessListener(aVoid -> Log.d("Gizleme", "Gizleme kaldırıldı"))
+                                            .addOnSuccessListener(aVoid ->{
+                                                Map<String, Object> yeniObj = new HashMap<>();
+                                                yeniObj.put("id", MainActivity.kullanicistatic.getKullaniciId());
+                                                yeniObj.put("acilmaZamani", System.currentTimeMillis());
+
+                                                db.collection("sohbetler")
+                                                        .document(sohbet.getSohbetID())
+                                                        .update("acilmaZamanlari", FieldValue.arrayUnion(yeniObj));
+                                                _sohbetgeldi.setValue(sohbet);
+                                            })
                                             .addOnFailureListener(err -> Log.e("Gizleme", "Gizleme kaldırılamadı", err));
                                 }
                             }
@@ -324,6 +339,7 @@ public class SohbetViewModel extends ViewModel {
                         sohbet.setGizleyenler(new ArrayList<>());
                     }
                     sohbet.getGizleyenler().add(gizleyenObjesi);
+                    _silindiSohbet.setValue(sohbet);
                 })
                 .addOnFailureListener(e -> Log.e("SohbetSilme", "Gizleme hatası: ", e));
     }

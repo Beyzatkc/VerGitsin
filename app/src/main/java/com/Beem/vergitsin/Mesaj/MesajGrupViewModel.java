@@ -179,7 +179,7 @@ public class MesajGrupViewModel extends ViewModel {
     }
 
 
-    public void EskiMesajlariYukle(String aktifSohbetId,Long zaman){
+    public void EskiMesajlariYukle(String aktifSohbetId,Long zaman, Long gizlemeZamani){
         Query query = db.collection("sohbetler")
                 .document(aktifSohbetId)
                 .collection("borc_istekleri")
@@ -189,6 +189,10 @@ public class MesajGrupViewModel extends ViewModel {
         if (zaman != null) {
             query = query.whereLessThan("isteginAtildigiZaman", zaman);
         }
+        if (gizlemeZamani != null) {
+            query = query.whereGreaterThan("isteginAtildigiZaman", gizlemeZamani);
+        }
+
         query.get().addOnSuccessListener(queryDocumentSnapshots -> {
             ArrayList<Mesaj> eskiMesajlar = new ArrayList<>();
             for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
