@@ -26,17 +26,16 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SohbetViewModel extends ViewModel {
     private boolean ilkTetikleme = true;
-    private String bos;
     FirebaseFirestore db=FirebaseFirestore.getInstance();
     MutableLiveData<ArrayList<Sohbet>>_sohbetler=new MutableLiveData<>();
     LiveData<ArrayList<Sohbet>>sohbetler(){return _sohbetler;}
-
 
     MutableLiveData<Sohbet>_eklenenSohbet=new MutableLiveData<>();
     LiveData<Sohbet>eklenenSohbet(){return _eklenenSohbet;}
@@ -59,10 +58,6 @@ public class SohbetViewModel extends ViewModel {
     MutableLiveData<Sohbet>_silindiSohbet=new MutableLiveData<>();
     LiveData<Sohbet>silindiSohbet(){return _silindiSohbet;}
 
-    MutableLiveData<Sohbet>_sohbetgeldi=new MutableLiveData<>();
-    LiveData<Sohbet>sohbetgeldi(){return _sohbetgeldi;}
-
-
 
     public void SohbetleriCek() {
         db.collection("sohbetler")
@@ -77,19 +72,7 @@ public class SohbetViewModel extends ViewModel {
                             ArrayList<Sohbet> tumSohbetler = new ArrayList<>();
                             for (DocumentChange change : queryDocumentSnapshots.getDocumentChanges()) {
                                 DocumentSnapshot doc = change.getDocument();
-                                ArrayList<Map<String, Object>> gizleyenler = (ArrayList<Map<String, Object>>) doc.get("gizleyenler");
-                                if (gizleyenler != null) {
-                                    boolean gizleniyor = false;
-                                    for (Map<String, Object> obj : gizleyenler) {
-                                        if (MainActivity.kullanicistatic.getKullaniciId().equals(obj.get("id"))) {
-                                            gizleniyor = true;
-                                            break;
-                                        }
-                                    }
-                                    if (gizleniyor) {
-                                        continue;
-                                    }
-                                }
+
                                 String tur = doc.getString("tur");
                                 String sohbetId = doc.getString("sohbetId");
                                 String kullaniciAdi = doc.getString("kullaniciAdi");
@@ -112,6 +95,30 @@ public class SohbetViewModel extends ViewModel {
                                         }
                                     }
                                 }
+
+                                ArrayList<Map<String, Object>> gizleyenler = (ArrayList<Map<String, Object>>) doc.get("gizleyenler");
+                                if (gizleyenler != null) {
+                                    boolean gizleniyor = false;
+                                    for (Map<String, Object> obj : gizleyenler) {
+                                        if (MainActivity.kullanicistatic.getKullaniciId().equals(obj.get("id"))) {
+                                            gizleniyor = true;
+                                            break;
+                                        }
+                                    }
+                                    if (gizleniyor) {
+                                        sohbet.setGizleyenler(gizleyenler);
+                                        sohbet.setgizlemeKaldirildiMi(false);
+                                        sohbet.setGizlendiMi(true);
+                                        System.out.println("Gizlenmişşş");
+                                        if(tur.equals("kisi")) {
+                                            GorulmeyenMesajSayisi(sohbet);
+                                        }else{
+                                            GorulmeyenMesajSayisiGrup(sohbet);
+                                        }
+                                        continue;
+                                    }
+                                }
+
                                 if(tur.equals("kisi")) {
                                     GorulmeyenMesajSayisi(sohbet);
                                 }else{
@@ -138,7 +145,6 @@ public class SohbetViewModel extends ViewModel {
                                         continue;
                                     }
                                 }
-
                                 String tur = doc.getString("tur");
                                 String sohbetId = doc.getString("sohbetId");
                                 String kullaniciAdi = doc.getString("kullaniciAdi");
@@ -169,7 +175,6 @@ public class SohbetViewModel extends ViewModel {
                     }
                 });
     }
-
     public void GorulmeyenMesajSayisi(Sohbet sohbet) {
         if(listenerMap.containsKey(sohbet.getSohbetID())){
             return;
@@ -196,48 +201,63 @@ public class SohbetViewModel extends ViewModel {
                                     Object zamanObj = obj.get("gizlenmeZamani");
                                     if (zamanObj instanceof Number) {
                                         gizlenmeZamani = ((Number) zamanObj).longValue();
+                                        System.out.println(""+((Number) zamanObj).longValue());
+                                        sohbet.setSohbetGizlenmeZaman(gizlenmeZamani);
                                     }
-                                    break;
                                 }
                             }
                         }
+                        System.out.println(gizlenmeZamani);
                         for (DocumentChange dc : snapshots.getDocumentChanges()) {
                             DocumentSnapshot doc = dc.getDocument();
                             System.out.println(doc.getId());
                             boolean gorulduMu = doc.contains("GorulduMu") ? (boolean) doc.get("GorulduMu") : false;
+                            System.out.println("tt");
                             if(gorulduMu) continue;
+                            System.out.println("gg");
                             if(dc.getType()!=DocumentChange.Type.ADDED) continue;
+                            System.out.println("aa");
                             String atanId = doc.getString("istekatanID");
                             Long mesajZamani = doc.getLong("isteginAtildigiZaman");
 
                             if (gizlenmeZamani != null && mesajZamani <= gizlenmeZamani) {
+                                System.out.println("");
                                 continue;
                             }
+                            System.out.println("??");
                             if (!atanId.equals(MainActivity.kullanicistatic.getKullaniciId())) {
                                 int sayi=sohbet.getGorulmemisMesajSayisi();
                                 sayi++;
                                 sohbet.setGorulmemisMesajSayisi(sayi);
                                 if (sohbet.getgizlemeKaldirildiMi()==false&&sohbet.getGizlendiMi()==true) {
+                                    System.out.println("gizleme kaldirildi");
                                     sohbet.setgizlemeKaldirildiMi(true);
                                     sohbet.setGizlendiMi(false);
                                     Map<String, Object> silinecekObj = new HashMap<>();
                                     silinecekObj.put("id", MainActivity.kullanicistatic.getKullaniciId());
                                     silinecekObj.put("gizlenmeZamani", gizlenmeZamani);
-
+                                    sohbet.setSohbetGizlenmeZaman(gizlenmeZamani);
                                     db.collection("sohbetler")
                                             .document(sohbet.getSohbetID())
                                             .update("gizleyenler", FieldValue.arrayRemove(silinecekObj))
                                             .addOnSuccessListener(aVoid ->{
                                                 Map<String, Object> yeniObj = new HashMap<>();
                                                 yeniObj.put("id", MainActivity.kullanicistatic.getKullaniciId());
-                                                long acilmaZamani = System.currentTimeMillis();
-                                                yeniObj.put("acilmaZamani", acilmaZamani);
+                                                yeniObj.put("acilmaZamani", sohbet.getSohbetGizlenmeZaman());
+                                                System.out.println("*"+sohbet.getSohbetGizlenmeZaman());
 
                                                 db.collection("sohbetler")
                                                         .document(sohbet.getSohbetID())
                                                         .update("acilmaZamanlari", FieldValue.arrayUnion(yeniObj));
-                                                sohbet.setAcilmazamani(acilmaZamani);
-                                                _sohbetgeldi.setValue(sohbet);
+                                                sohbet.setAcilmazamani(sohbet.getSohbetGizlenmeZaman());
+
+                                                ArrayList<Map<String, Object>> gizleyenler2 = sohbet.getGizleyenler();
+                                                if (gizleyenler2 != null) {
+                                                    gizleyenler2.removeIf(obj ->
+                                                            MainActivity.kullanicistatic.getKullaniciId().equals(obj.get("id"))
+                                                    );
+                                                }
+                                                _eklenenSohbet.setValue(sohbet);
                                             })
                                             .addOnFailureListener(err -> Log.e("Gizleme", "Gizleme kaldırılamadı", err));
                                 }
@@ -276,8 +296,9 @@ public class SohbetViewModel extends ViewModel {
                                     Object zamanObj = obj.get("gizlenmeZamani");
                                     if (zamanObj instanceof Number) {
                                         gizlenmeZamani = ((Number) zamanObj).longValue();
+                                        System.out.println(""+((Number) zamanObj).longValue());
+                                        sohbet.setSohbetGizlenmeZaman(gizlenmeZamani);
                                     }
-                                    break;
                                 }
                             }
                         }
@@ -300,26 +321,34 @@ public class SohbetViewModel extends ViewModel {
                                 sayi++;
                                 sohbet.setGorulmemisMesajSayisi(sayi);
                                 if (sohbet.getgizlemeKaldirildiMi()==false&&sohbet.getGizlendiMi()==true) {
+                                    System.out.println("gizleme kaldirildi");
                                     sohbet.setgizlemeKaldirildiMi(true);
                                     sohbet.setGizlendiMi(false);
                                     Map<String, Object> silinecekObj = new HashMap<>();
                                     silinecekObj.put("id", MainActivity.kullanicistatic.getKullaniciId());
                                     silinecekObj.put("gizlenmeZamani", gizlenmeZamani);
-
+                                    sohbet.setSohbetGizlenmeZaman(gizlenmeZamani);
                                     db.collection("sohbetler")
                                             .document(sohbet.getSohbetID())
                                             .update("gizleyenler", FieldValue.arrayRemove(silinecekObj))
                                             .addOnSuccessListener(aVoid ->{
                                                 Map<String, Object> yeniObj = new HashMap<>();
                                                 yeniObj.put("id", MainActivity.kullanicistatic.getKullaniciId());
-                                                long acilmaZamani = System.currentTimeMillis();
-                                                yeniObj.put("acilmaZamani", acilmaZamani);
+                                                yeniObj.put("acilmaZamani", sohbet.getSohbetGizlenmeZaman());
+                                                System.out.println("*"+sohbet.getSohbetGizlenmeZaman());
 
                                                 db.collection("sohbetler")
                                                         .document(sohbet.getSohbetID())
                                                         .update("acilmaZamanlari", FieldValue.arrayUnion(yeniObj));
-                                                sohbet.setAcilmazamani(acilmaZamani);
-                                                _sohbetgeldi.setValue(sohbet);
+                                                sohbet.setAcilmazamani(sohbet.getSohbetGizlenmeZaman());
+
+                                                ArrayList<Map<String, Object>> gizleyenler2 = sohbet.getGizleyenler();
+                                                if (gizleyenler2 != null) {
+                                                    gizleyenler2.removeIf(obj ->
+                                                            MainActivity.kullanicistatic.getKullaniciId().equals(obj.get("id"))
+                                                    );
+                                                }
+                                                _eklenenSohbet.setValue(sohbet);
                                             })
                                             .addOnFailureListener(err -> Log.e("Gizleme", "Gizleme kaldırılamadı", err));
                                 }
@@ -336,6 +365,20 @@ public class SohbetViewModel extends ViewModel {
         Map<String, Object> gizleyenObjesi = new HashMap<>();
         gizleyenObjesi.put("id", MainActivity.kullanicistatic.getKullaniciId());
         gizleyenObjesi.put("gizlenmeZamani", System.currentTimeMillis());
+
+        sohbetRef.get().addOnSuccessListener(documentSnapshot -> {
+            List<Map<String, Object>> acilmaZamanlari = (List<Map<String, Object>>) documentSnapshot.get("acilmaZamanlari");
+            if (acilmaZamanlari != null) {
+                List<Map<String, Object>> yeniListe = new ArrayList<>();
+                for (Map<String, Object> item : acilmaZamanlari) {
+                    String id = (String) item.get("id");
+                    if (!id.equals(MainActivity.kullanicistatic.getKullaniciId())) {
+                        yeniListe.add(item);
+                    }
+                }
+                sohbetRef.update("acilmaZamanlari", yeniListe);
+            }
+        });
 
         sohbetRef.update("gizleyenler", FieldValue.arrayUnion(gizleyenObjesi))
                 .addOnSuccessListener(aVoid ->{

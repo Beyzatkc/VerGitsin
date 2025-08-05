@@ -65,7 +65,6 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
         }
     }
     public void sohbetiSil(Sohbet sohbet) {
-        if (sohbet.kullaniciTarafindanGizlenmis(MainActivity.kullanicistatic.getKullaniciId())) {
             for (int i = 0; i < sohbetler.size(); i++) {
                 if (sohbetler.get(i).getSohbetID().equals(sohbet.getSohbetID())) {
                     sohbetler.remove(i);
@@ -73,13 +72,6 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
                     break;
                 }
             }
-        }
-    }
-    public void sohbetGeldi(Sohbet sohbet){
-        if (!sohbet.kullaniciTarafindanGizlenmis(MainActivity.kullanicistatic.getKullaniciId())) {
-            sohbetler.add(0, sohbet);
-            notifyItemInserted(0);
-        }
     }
 
     @NonNull

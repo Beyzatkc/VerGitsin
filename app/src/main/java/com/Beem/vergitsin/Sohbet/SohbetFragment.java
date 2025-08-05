@@ -97,7 +97,8 @@ public class SohbetFragment extends Fragment{
 
                  @Override
                  public void onSohbetSilindi(Sohbet sohbet) {
-                     mViewModel.SohbetSilme(sohbet);
+
+                    mViewModel.SohbetSilme(sohbet);
                  }
              });
             recyclerView.setAdapter(adapter);
@@ -126,9 +127,6 @@ public class SohbetFragment extends Fragment{
             if (sohbet != null) {
                 adapter.sohbetiSil(sohbet);
             }
-        });
-        mViewModel.sohbetgeldi().observe(getViewLifecycleOwner(),sohbet->{
-            adapter.sohbetGeldi(sohbet);
         });
         return view;
     }

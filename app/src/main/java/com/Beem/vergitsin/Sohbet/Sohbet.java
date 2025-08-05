@@ -17,7 +17,7 @@ public class Sohbet {
     private Long Acilmazamani;
     private Boolean gizlemeKaldirildiMi=false;
     private Boolean gizlendiMi=false;
-
+    private Long sohbetGizlenmeZaman=0L;
 
     public Sohbet(String sohbetID, String kullaniciAdi, Long sonmsjsaati, String ppfoto, String sonMesaj, ArrayList<String> katilimcilar, String tur) {
         this.sohbetID = sohbetID;
@@ -27,6 +27,14 @@ public class Sohbet {
         this.sonMesaj = sonMesaj;
         this.katilimcilar=katilimcilar;
         this.tur=tur;
+    }
+
+    public Long getSohbetGizlenmeZaman() {
+        return sohbetGizlenmeZaman;
+    }
+
+    public void setSohbetGizlenmeZaman(Long sohbetGizlenmeZaman) {
+        this.sohbetGizlenmeZaman = sohbetGizlenmeZaman;
     }
 
     public Boolean getGizlendiMi() {
@@ -63,15 +71,6 @@ public class Sohbet {
         Acilmazamani = acilmazamani;
     }
 
-    public boolean kullaniciTarafindanGizlenmis(String kendiId) {
-        if (gizleyenler == null) return false;
-        for (Map<String, Object> item : gizleyenler) {
-            if (kendiId.equals(item.get("id"))) {
-                return true;
-            }
-        }
-        return false;
-    }
     public int getGorulmemisMesajSayisi() {
         return gorulmemisMesajSayisi;
     }
