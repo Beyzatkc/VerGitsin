@@ -232,7 +232,8 @@ public class MesajGrupViewModel extends ViewModel {
         String miktar = doc.getString("miktar");
         Timestamp tarih = doc.getTimestamp("odenecektarih");
         Long mesajAtilmaZamani=doc.getLong("isteginAtildigiZaman");
-        Mesaj mesaj=new Mesaj(atanid, atilanid, aciklama, miktar, tarih, mesajAtilmaZamani,false,cevapId,id,cevapicerik,cevapAd);
+        String iban=doc.getString("iban");
+        Mesaj mesaj=new Mesaj(atanid, atilanid, aciklama, miktar, tarih, mesajAtilmaZamani,iban,false,cevapId,id,cevapicerik,cevapAd);
         if(cevapAd!=null){
             mesaj.setCevabiVarMi(true);
         }else{
@@ -397,7 +398,7 @@ public class MesajGrupViewModel extends ViewModel {
     }
 
 
-    public void BorcIstekleriDb(UyariMesaj uyariMesaj, String istekatan, String istekatilan, String miktar, String aciklama, Timestamp tarih, String ad, String sohbetId, Long zaman){
+    public void BorcIstekleriDb(UyariMesaj uyariMesaj, String istekatan, String istekatilan, String miktar, String aciklama, Timestamp tarih,String iban, String ad, String sohbetId, Long zaman){
         uyariMesaj.YuklemeDurum("");
         Map<String, Object> borcData = new HashMap<>();
         borcData.put("istekatanAdi",ad);
@@ -407,6 +408,7 @@ public class MesajGrupViewModel extends ViewModel {
         borcData.put("miktar", miktar);
         borcData.put("odenecektarih", tarih);
         borcData.put("isteginAtildigiZaman",zaman);
+        borcData.put("iban",iban);
         borcData.put("GorulduMu",false);
 
         db.collection("sohbetler")
@@ -439,6 +441,7 @@ public class MesajGrupViewModel extends ViewModel {
         guncellemeVerisi.put("miktar", mesaj.getMiktar());
         guncellemeVerisi.put("aciklama", mesaj.getAciklama());
         guncellemeVerisi.put("odenecektarih", mesaj.getOdenecekTarih());
+        guncellemeVerisi.put("iban",mesaj.getIban());
 
         db.collection("sohbetler")
                 .document(sohbetid)

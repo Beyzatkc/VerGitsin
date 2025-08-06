@@ -1,6 +1,7 @@
 package com.Beem.vergitsin;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -59,6 +60,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -533,33 +535,61 @@ public class MainActivity extends AppCompatActivity {
                 EditText edtMiktar = detayDialog.findViewById(R.id.edtMiktar);
                 EditText edtAciklama = detayDialog.findViewById(R.id.edtAciklama);
                 EditText edtTarih = detayDialog.findViewById(R.id.edtTarih);
-                String regex = "^\\d{2}/\\d{2}/\\d{4}$";
+                EditText edtiban=detayDialog.findViewById(R.id.ibanEditt);
                 Button btnGonder = detayDialog.findViewById(R.id.btnGonder);
+
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                Calendar calendar = Calendar.getInstance();
+
+                edtTarih.setInputType(InputType.TYPE_NULL);
+                edtTarih.setFocusable(false);
+
+                edtTarih.setOnClickListener(b-> {
+                    int yil = calendar.get(Calendar.YEAR);
+                    int ay = calendar.get(Calendar.MONTH);
+                    int gun = calendar.get(Calendar.DAY_OF_MONTH);
+
+                    DatePickerDialog datePickerDialog = new DatePickerDialog(
+                            this,
+                            (view, year, month, dayOfMonth) -> {
+                                String secilenTarih = String.format(Locale.getDefault(), "%02d/%02d/%04d",
+                                        dayOfMonth, month + 1, year);
+
+                                try {
+                                    Date girilenTarih = sdf.parse(secilenTarih);
+                                    Date bugun = sdf.parse(sdf.format(new Date()));
+
+                                    if (girilenTarih.before(bugun)) {
+                                        Toast.makeText(this, "Geçmiş bir tarih seçemezsiniz!", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        edtTarih.setText(secilenTarih);
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            },
+                            yil, ay, gun
+                    );
+
+                    datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+                    datePickerDialog.show();
+                });
 
                 btnGonder.setOnClickListener(v2 -> {
                     String miktar = edtMiktar.getText().toString().trim();
                     String aciklama = edtAciklama.getText().toString().trim();
                     String tarih = edtTarih.getText().toString().trim();
+                    String iban=edtiban.getText().toString().trim();
                     if (miktar.isEmpty()) {
                         Toast.makeText(this, "Miktar boş olamaz", Toast.LENGTH_SHORT).show();
                         return;
                     }else if(tarih.isEmpty()){
                         Toast.makeText(this, "Tarih boş olamaz", Toast.LENGTH_SHORT).show();
                         return;
-                    }else if(!tarih.matches(regex)){
-                        Toast.makeText(this, "Lütfen tarihi gün/ay/yıl formatında girin (örn: 22/07/2025)", Toast.LENGTH_SHORT).show();
-                        return;
-                    }else{
-                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-                        sdf.setLenient(false);
-                        try {
-                            Date girilenTarih = sdf.parse(tarih);
-                            Date bugun = new Date();
-                            if (girilenTarih.before(bugun)) {
-                                Toast.makeText(this, "Geçmiş bir tarih giremezsiniz!", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                            Timestamp timestamp = new Timestamp(girilenTarih);
+                    }
+                    try {
+                        Date girilenTarih = sdf.parse(tarih);
+                        Timestamp timestamp = new Timestamp(girilenTarih);
                             SohbetOlusturDbArkadas(MainActivity.kullanicistatic.getKullaniciId(),secilen.getKullaniciId(),secilen.getKullaniciAdi(), System.currentTimeMillis(), secilen.getProfilFoto(), String.format("%s TL borç isteği",miktar), sohbetId -> {
                                         BorcIstekleriDb(
                                                 MainActivity.kullanicistatic.getKullaniciId(),
@@ -570,6 +600,7 @@ public class MainActivity extends AppCompatActivity {
                                                 MainActivity.kullanicistatic.getKullaniciAdi(),
                                                 sohbetId,
                                                 System.currentTimeMillis(),
+                                                iban,
                                                 () -> {
                                                     Bundle bundle = new Bundle();
                                                     bundle.putString("kaynak", "mainactivity");
@@ -579,6 +610,7 @@ public class MainActivity extends AppCompatActivity {
                                                     bundle.putString("aciklama", aciklama);
                                                     bundle.putString("odemeTarihi", tarih);
                                                     bundle.putString("sohbetId", sohbetId);
+                                                    bundle.putString("iban",iban);
 
                                                     MesajKisiFragment fragment = new MesajKisiFragment();
                                                     fragment.setArguments(bundle);
@@ -596,7 +628,6 @@ public class MainActivity extends AppCompatActivity {
                         } catch (ParseException e) {
                             throw new RuntimeException(e);
                         }
-                    }
                 });
                 detayDialog.show();
             }
@@ -674,7 +705,7 @@ public class MainActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> Log.e("Firestore", "Grup çekilirken hata oluştu", e));
     }
 
-    public void BorcIstekleriDb(String istekatan,String istekatilan,String miktar,String aciklama,Timestamp tarih,String ad,String sohbetId,Long zaman,Runnable onSuccessCallback){
+    public void BorcIstekleriDb(String istekatan,String istekatilan,String miktar,String aciklama,Timestamp tarih,String ad,String sohbetId,Long zaman,String iban,Runnable onSuccessCallback){
         uyariMesaj.YuklemeDurum("");
         Map<String, Object> borcData = new HashMap<>();
         borcData.put("istekatanAdi",ad);
@@ -685,6 +716,7 @@ public class MainActivity extends AppCompatActivity {
         borcData.put("odenecektarih", tarih);
         borcData.put("isteginAtildigiZaman",zaman);
         borcData.put("GorulduMu",false);
+        borcData.put("iban",iban);
 
         db.collection("sohbetler")
                 .document(sohbetId)
@@ -758,13 +790,50 @@ public class MainActivity extends AppCompatActivity {
                 EditText edtMiktar = detayDialog.findViewById(R.id.edtMiktar);
                 EditText edtAciklama = detayDialog.findViewById(R.id.edtAciklama);
                 EditText edtTarih = detayDialog.findViewById(R.id.edtTarih);
+                EditText edtiban=detayDialog.findViewById(R.id.ibanEditt);
                 Button btnGonder = detayDialog.findViewById(R.id.btnGonder);
+
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                Calendar calendar = Calendar.getInstance();
+                edtTarih.setInputType(InputType.TYPE_NULL);
+                edtTarih.setFocusable(false);
+
+                edtTarih.setOnClickListener(b -> {
+                    int yil = calendar.get(Calendar.YEAR);
+                    int ay = calendar.get(Calendar.MONTH);
+                    int gun = calendar.get(Calendar.DAY_OF_MONTH);
+
+                    DatePickerDialog datePickerDialog = new DatePickerDialog(
+                            this,
+                            (view, year, month, dayOfMonth) -> {
+                                String secilenTarih = String.format(Locale.getDefault(), "%02d/%02d/%04d",
+                                        dayOfMonth, month + 1, year);
+
+                                try {
+                                    Date girilenTarih = sdf.parse(secilenTarih);
+                                    Date bugun = sdf.parse(sdf.format(new Date()));
+
+                                    if (girilenTarih.before(bugun)) {
+                                        Toast.makeText(this, "Geçmiş bir tarih seçemezsiniz!", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        edtTarih.setText(secilenTarih);
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            },
+                            yil, ay, gun
+                    );
+
+                    datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+                    datePickerDialog.show();
+                });
 
                 btnGonder.setOnClickListener(v2 -> {
                     String miktar = edtMiktar.getText().toString().trim();
                     String aciklama = edtAciklama.getText().toString().trim();
                     String tarih = edtTarih.getText().toString().trim();
-                    String regex = "^\\d{2}/\\d{2}/\\d{4}$";
+                    String iban=edtiban.getText().toString().trim();
 
                     if (miktar.isEmpty()) {
                         Toast.makeText(this, "Miktar boş olamaz", Toast.LENGTH_SHORT).show();
@@ -772,22 +841,11 @@ public class MainActivity extends AppCompatActivity {
                     }else if(tarih.isEmpty()){
                         Toast.makeText(this, "Tarih boş olamaz", Toast.LENGTH_SHORT).show();
                         return;
-                    }else if(!tarih.matches(regex)){
-                            Toast.makeText(this, "Lütfen tarihi gün/ay/yıl formatında girin (örn: 22/07/2025)", Toast.LENGTH_SHORT).show();
-                            return;
-                    }else{
-                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-                        sdf.setLenient(false);
-                        try {
-                            Date girilenTarih = sdf.parse(tarih);
-                            Date bugun = new Date();
-
-                            if (girilenTarih.before(bugun)) {
-                                Toast.makeText(this, "Geçmiş bir tarih giremezsiniz!", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                            Timestamp timestamp = new Timestamp(girilenTarih);
-                            sohbetOlusturDbGrup(secilen.getGrupId(),secilen.getGrupAdi(), System.currentTimeMillis(), null,String.format("%s TL borç isteği",miktar), sohbetId -> {
+                    }
+                    try {
+                        Date girilenTarih = sdf.parse(tarih);
+                        Timestamp timestamp = new Timestamp(girilenTarih);
+                        sohbetOlusturDbGrup(secilen.getGrupId(),secilen.getGrupAdi(), System.currentTimeMillis(), null,String.format("%s TL borç isteği",miktar), sohbetId -> {
                                         BorcIstekleriDb(
                                                 MainActivity.kullanicistatic.getKullaniciId(),
                                                 secilen.getGrupId(),
@@ -797,6 +855,7 @@ public class MainActivity extends AppCompatActivity {
                                                 MainActivity.kullanicistatic.getKullaniciAdi(),
                                                 sohbetId,
                                                 System.currentTimeMillis(),
+                                                iban,
                                                 () -> {
                                                     Bundle bundle = new Bundle();
                                                     bundle.putString("kaynak", "mainactivity");
@@ -806,6 +865,7 @@ public class MainActivity extends AppCompatActivity {
                                                     bundle.putString("aciklama", aciklama);
                                                     bundle.putString("odemeTarihi", tarih);
                                                     bundle.putString("sohbetId", sohbetId);
+                                                    bundle.putString("iban",iban);
 
                                                     MesajGrupFragment fragment = new MesajGrupFragment();
                                                     fragment.setArguments(bundle);
@@ -822,7 +882,7 @@ public class MainActivity extends AppCompatActivity {
                         } catch (ParseException e) {
                             throw new RuntimeException(e);
                         }
-                    }
+
                 });
                 detayDialog.show();
             }

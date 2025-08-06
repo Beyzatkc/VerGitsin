@@ -188,12 +188,13 @@ public class MesajViewModel extends ViewModel {
             String aciklama = doc.getString("aciklama");
             String miktar = doc.getString("miktar");
             Timestamp tarih = doc.getTimestamp("odenecektarih");
+            String iban=doc.getString("iban");
             Long mesajAtilmaZamani=doc.getLong("isteginAtildigiZaman");
             Boolean gorulduMu=doc.getBoolean("GorulduMu");
              if (gorulduMu == null) {
                  gorulduMu = false;
             }
-            Mesaj mesaj=new Mesaj(atanid, atilanid, aciklama, miktar, tarih, mesajAtilmaZamani,gorulduMu,cevapId,id,cevapicerik,cevapAd);
+            Mesaj mesaj=new Mesaj(atanid, atilanid, aciklama, miktar, tarih, mesajAtilmaZamani,iban,gorulduMu,cevapId,id,cevapicerik,cevapAd);
             if(cevapAd!=null){
                 mesaj.setCevabiVarMi(true);
             }else{
@@ -201,7 +202,7 @@ public class MesajViewModel extends ViewModel {
             }
             return mesaj;
     }
-    public void BorcIstekleriDb(UyariMesaj uyariMesaj,String istekatan, String istekatilan, String miktar, String aciklama, Timestamp tarih, String ad, String sohbetId, Long zaman){
+    public void BorcIstekleriDb(UyariMesaj uyariMesaj,String istekatan, String istekatilan, String miktar, String aciklama, Timestamp tarih,String iban, String ad, String sohbetId, Long zaman){
         uyariMesaj.YuklemeDurum("");
         Map<String, Object> borcData = new HashMap<>();
         borcData.put("istekatanAdi",ad);
@@ -210,6 +211,7 @@ public class MesajViewModel extends ViewModel {
         borcData.put("aciklama", aciklama);
         borcData.put("miktar", miktar);
         borcData.put("odenecektarih", tarih);
+        borcData.put("iban",iban);
         borcData.put("isteginAtildigiZaman",zaman);
         borcData.put("GorulduMu",false);
         db.collection("sohbetler")
@@ -332,6 +334,7 @@ public class MesajViewModel extends ViewModel {
         guncellemeVerisi.put("miktar", mesaj.getMiktar());
         guncellemeVerisi.put("aciklama", mesaj.getAciklama());
         guncellemeVerisi.put("odenecektarih", mesaj.getOdenecekTarih());
+        guncellemeVerisi.put("iban",mesaj.getIban());
 
         db.collection("sohbetler")
                 .document(sohbetid)

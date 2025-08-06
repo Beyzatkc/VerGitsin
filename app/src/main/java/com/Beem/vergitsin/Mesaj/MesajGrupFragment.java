@@ -3,6 +3,8 @@ package com.Beem.vergitsin.Mesaj;
 import androidx.activity.OnBackPressedCallback;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.annotation.SuppressLint;
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -11,9 +13,12 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.InputType;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -30,6 +35,7 @@ import com.google.firebase.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -57,6 +63,7 @@ public class MesajGrupFragment extends Fragment{
     private EditText aciklamaedit;
     private ImageButton gonderButton2edit;
     private EditText odemeTarihiedit;
+    private EditText ibanEdit;
 
     private LinearLayout istekTextViewLayout;
     private TextView gonderenadiview;
@@ -64,6 +71,7 @@ public class MesajGrupFragment extends Fragment{
     private TextView aciklamatext;
     private ImageButton gonderButtontext;
     private TextView odemeTarihitext;
+    private TextView ibantext;
 
     private String SonMesaj;
     private Long SonMesajSaat;
@@ -79,6 +87,8 @@ public class MesajGrupFragment extends Fragment{
     private MesajSilmeGuncellemeGrup arayuzSilme;
     private Long AcilmaZamani;
     private Long AcilmaZamaniadptr;
+    private String ibani;
+    private LinearLayout borcIstegiYollaBtn;
 
     public static MesajGrupFragment newInstance() {
         return new MesajGrupFragment();
@@ -102,6 +112,7 @@ public class MesajGrupFragment extends Fragment{
                 miktari = getArguments().getString("miktar").trim();
                 aciklamasi = getArguments().getString("aciklama").trim();
                 odemeTarihi = getArguments().getString("odemeTarihi").trim();
+                ibani=getArguments().getString("iban").trim();
                 sohbetID=getArguments().getString("sohbetId");
                 AcilmaZamani=getArguments().getLong("acilmaZamani");
             }
@@ -129,12 +140,14 @@ public class MesajGrupFragment extends Fragment{
         grupAdi=view.findViewById(R.id.grupAdi);
         grup_fotosu=view.findViewById(R.id.grup_fotosu);
         kackisicevrimici=view.findViewById(R.id.kackisicevrimici);
+        borcIstegiYollaBtn=view.findViewById(R.id.borcIstegiYollaBtn);
 
         istekEditTextViewLayout=view.findViewById(R.id.istekEditTextViewLayout);
         miktaredit=view.findViewById(R.id.miktaredit);
         aciklamaedit=view.findViewById(R.id.aciklamaedit);
         gonderButton2edit=view.findViewById(R.id.gonderButton2edit);
         odemeTarihiedit=view.findViewById(R.id.odemeTarihiedit);
+        ibanEdit=view.findViewById(R.id.ibanEdit);
 
         istekTextViewLayout=view.findViewById(R.id.istekTextViewLayout);
         gonderenadiview=view.findViewById(R.id.gonderenadiview);
@@ -142,6 +155,7 @@ public class MesajGrupFragment extends Fragment{
         aciklamatext=view.findViewById(R.id.aciklama);
         gonderButtontext=view.findViewById(R.id.gonderButton2);
         odemeTarihitext=view.findViewById(R.id.odemeTarihi);
+        ibantext=view.findViewById(R.id.ibantext);
 
         ArrayList<Mesaj> bosListe = new ArrayList<>();
 
@@ -210,11 +224,15 @@ public class MesajGrupFragment extends Fragment{
             mViewModel.kackisicevrimici().observe(getViewLifecycleOwner(),kisisayisi-> {
                 kackisicevrimici.setText(kisisayisi.toString());
             });
+
+            borcIstegiYollaBtn.setVisibility(View.GONE);
             istekEditTextViewLayout.setVisibility(View.GONE);
             istekTextViewLayout.setVisibility(View.VISIBLE);
+
             miktartext.setText(miktari);
             aciklamatext.setText(aciklamasi);
             odemeTarihitext.setText(odemeTarihi);
+            ibantext.setText(ibani);
 
             grupAdi.setText(istekatilanAd);
             if (PP != null) {
@@ -262,8 +280,8 @@ public class MesajGrupFragment extends Fragment{
                             ilkMesajAlindi=true;
                         }
                         adapter.guncelleMesajListesi(mesajList);
-                        istekEditTextViewLayout.setVisibility(View.VISIBLE);
-                        istekTextViewLayout.setVisibility(View.GONE);
+                        borcIstegiYollaBtn.setVisibility(View.VISIBLE);
+                        Kaydirma();
                         SonMesaj=mesajList.get(mesajList.size()-1).getIstekAtanAdi()+" "+mesajList.get(mesajList.size()-1).getMiktar()+" Tl borç isteği";
                         SonMesajSaat=mesajList.get(mesajList.size()-1).getZaman();
                         mViewModel.sonMsjDbKaydi(sohbetID,SonMesaj,SonMesajSaat);
@@ -400,25 +418,72 @@ public class MesajGrupFragment extends Fragment{
                     }
                 }
             });
-
-            istekEditTextViewLayout.setVisibility(View.VISIBLE);
+            borcIstegiYollaBtn.setVisibility(View.VISIBLE);
+            istekEditTextViewLayout.setVisibility(View.GONE);
             istekTextViewLayout.setVisibility(View.GONE);
+
+            Kaydirma();
+
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+
+            odemeTarihiedit.setInputType(InputType.TYPE_NULL);
+            odemeTarihiedit.setFocusable(false);
+
+            odemeTarihiedit.setOnClickListener(v -> {
+                Calendar calendar = Calendar.getInstance();
+                int yil = calendar.get(Calendar.YEAR);
+                int ay = calendar.get(Calendar.MONTH);
+                int gun = calendar.get(Calendar.DAY_OF_MONTH);
+
+                DatePickerDialog datePickerDialog = new DatePickerDialog(
+                        getContext(),
+                        (view2, year, month, dayOfMonth) -> {
+                            String secilenTarih = String.format(Locale.getDefault(), "%02d/%02d/%04d",
+                                    dayOfMonth, month + 1, year);
+                            try {
+                                Date girilenTarih = sdf.parse(secilenTarih);
+                                Date bugun = sdf.parse(sdf.format(new Date()));
+
+                                if (girilenTarih.before(bugun)) {
+                                    Toast.makeText(getContext(), "Geçmiş bir tarih seçemezsiniz!", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    odemeTarihiedit.setText(secilenTarih);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        },
+                        yil, ay, gun
+                );
+                datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+                datePickerDialog.show();
+            });
+
             gonderButton2edit.setOnClickListener(b->{
                 String miktar=miktaredit.getText().toString().trim();
                 String aciklama=aciklamaedit.getText().toString().trim();
                 String odemetarihi=odemeTarihiedit.getText().toString().trim();
+                String iban=ibanEdit.getText().toString().trim();
                 Long mesajZamani=System.currentTimeMillis();
-                String regex = "^\\d{2}/\\d{2}/\\d{4}$";
-                if (!odemetarihi.matches(regex)) {
-                    Toast.makeText(getContext(), "Lütfen tarihi gün/ay/yıl formatında girin (örn: 22/07/2025)", Toast.LENGTH_SHORT).show();
+
+                if (miktar.isEmpty()) {
+                    Toast.makeText(getContext(), "Miktar boş olamaz", Toast.LENGTH_SHORT).show();
                     return;
-                }else{
+                }
+                if (odemetarihi.isEmpty()) {
+                    Toast.makeText(getContext(), "Tarih boş olamaz", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                     Timestamp tarih=stringToTimestamp(odemetarihi);
-                        mViewModel.BorcIstekleriDb(uyarimesaji,MainActivity.kullanicistatic.getKullaniciId(),sohbetIdAdptr,miktar,aciklama,tarih,MainActivity.kullanicistatic.getKullaniciAdi(),sohbetIdAdptr,mesajZamani);
+                        mViewModel.BorcIstekleriDb(uyarimesaji,MainActivity.kullanicistatic.getKullaniciId(),sohbetIdAdptr,miktar,aciklama,tarih,iban,MainActivity.kullanicistatic.getKullaniciAdi(),sohbetIdAdptr,mesajZamani);
                         miktaredit.setText("");
                         aciklamaedit.setText("");
                         odemeTarihiedit.setText("");
-                }
+                        ibanEdit.setText("");
+
+                borcIstegiYollaBtn.setVisibility(View.VISIBLE);
+                istekEditTextViewLayout.setVisibility(View.GONE);
+                istekTextViewLayout.setVisibility(View.GONE);
             });
         }
         return view;
@@ -432,5 +497,59 @@ public class MesajGrupFragment extends Fragment{
             e.printStackTrace();
             return null;
         }
+    }
+    public void Kaydirma(){
+        borcIstegiYollaBtn.setOnTouchListener(new View.OnTouchListener() {
+            float dY;
+
+            @SuppressLint("ClickableViewAccessibility")
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        dY = event.getRawY();
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        float deltaY = dY - event.getRawY();
+                        if (deltaY > 100) { // Yukarı sürükleme -> form aç
+                            istekEditTextViewLayout.setVisibility(View.VISIBLE);
+                            istekEditTextViewLayout.setAlpha(0f);
+                            istekEditTextViewLayout.setTranslationY(-50);
+                            istekEditTextViewLayout.animate()
+                                    .translationY(0)
+                                    .alpha(1f)
+                                    .setDuration(500)
+                                    .start();
+
+                            borcIstegiYollaBtn.setVisibility(View.GONE);
+                        }
+                        return true;
+                }
+                return false;
+            }
+        });
+
+        istekEditTextViewLayout.setOnTouchListener(new View.OnTouchListener() {
+            float dY;
+
+            @SuppressLint("ClickableViewAccessibility")
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        dY = event.getRawY();
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        float deltaY = event.getRawY() - dY;
+                        if (deltaY > 100) { // Aşağı sürükleme -> form kapat
+                            istekEditTextViewLayout.setVisibility(View.GONE);
+                            borcIstegiYollaBtn.setVisibility(View.VISIBLE);
+                        }
+                        return true;
+                }
+                return false;
+            }
+        });
+
     }
 }

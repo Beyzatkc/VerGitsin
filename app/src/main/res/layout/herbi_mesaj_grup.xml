@@ -15,7 +15,7 @@
         android:layout_marginStart="0dp"
         android:gravity="end"
         android:orientation="vertical"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <LinearLayout
             android:id="@+id/gidenlayoutsilme"
@@ -30,36 +30,111 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:hint="Gonderen kisi Adi"
-                android:textColor="#000"
-                android:textColorHint="#888"
+                android:textColor="#0D47A1"
                 android:inputType="textCapSentences" />
 
-            <TextView
-                android:id="@+id/txtBorcMiktariGiden"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Miktar: 250 TL"
-                android:textColor="#000000"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/txtOdenecekTarihGiden"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Miktar: "
+                    android:textColor="#000000"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/txtBorcMiktariGiden"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="250 TL"
+                    android:textColor="#000000"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Ödeme Tarihi: 25.07.2025"
-                android:textColor="#000000"
-                android:textSize="14sp" />
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/txtAciklamaGiden"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ödeme Tarihi: "
+                    android:textColor="#000000"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/txtOdenecekTarihGiden"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="25.07.2025"
+                    android:textColor="#000000"
+                    android:textSize="14sp" />
+            </LinearLayout>
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Açıklama: Akşam yemeği parası"
-                android:textColor="#000000"
-                android:textSize="14sp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="IBAN: "
+                    android:textColor="#000000"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/ibantextgiden"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TR 23345612236789567"
+                    android:inputType="textCapCharacters"
+                    android:maxLength="26"
+                    android:textColor="#000000"
+                    android:textSize="14sp" />
+
+
+                <ImageView
+                    android:id="@+id/ibanCopyIcongiden"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_marginStart="60dp"
+                    android:src="@drawable/baseline_content_copy_24"
+                    android:contentDescription="Kopyala"
+                    android:clickable="true"
+                    android:focusable="true" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Açıklama: "
+                    android:textColor="#000000"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/txtAciklamaGiden"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Açıklama: Akşam yemeği parası"
+                    android:textColor="#000000"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -108,7 +183,7 @@
                 android:layout_height="wrap_content"
                 android:text="Sen"
                 android:textSize="12sp"
-                android:textColor="#666666"
+                android:textColor="#E65100"
                 android:layout_marginBottom="2dp" />
 
             <!-- Mesaj içeriği -->
@@ -131,7 +206,7 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="0dp"
-        android:visibility="visible"
+        android:visibility="gone"
         android:orientation="vertical"
         android:gravity="start">
 
@@ -147,37 +222,111 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:hint="Gonderen kisi Adi"
-                android:textColor="#000"
-                android:textColorHint="#888"
+                android:textColor="#E65100"
                 android:inputType="textCapSentences" />
 
-            <TextView
-                android:id="@+id/txtBorcMiktariGelen"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Miktar: 250 TL"
-                android:textStyle="bold"
-                android:textColor="#000000"
-                android:textSize="16sp" />
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/txtOdenecekTarihGelen"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Miktar: "
+                    android:textColor="#000000"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/txtBorcMiktariGelen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Miktar: 250 TL"
+                    android:textStyle="bold"
+                    android:textColor="#000000"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Ödeme Tarihi: 25.07.2025"
-                android:textColor="#000000"
-                android:textSize="14sp"
-                android:layout_marginTop="4dp" />
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/txtAciklamaGelen"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ödeme Tarihi: "
+                    android:textColor="#000000"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/txtOdenecekTarihGelen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ödeme Tarihi: 25.07.2025"
+                    android:textColor="#000000"
+                    android:textSize="14sp"
+                   />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Açıklama: Akşam yemeği parası"
-                android:textColor="#000000"
-                android:textSize="14sp"
-                android:layout_marginTop="4dp" />
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="IBAN: "
+                    android:textColor="#000000"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/ibantextgelen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TR 23345612236789567"
+                    android:inputType="textCapCharacters"
+                    android:maxLength="26"
+                    android:textColor="#000000"
+                    android:textSize="14sp" />
+
+                <ImageView
+                    android:id="@+id/ibanCopyIcongelen"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_marginStart="60dp"
+                    android:src="@drawable/baseline_content_copy_24turuncu"
+                    android:contentDescription="Kopyala"
+                    android:clickable="true"
+                    android:focusable="true" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Açıklama: "
+                    android:textColor="#000000"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/txtAciklamaGelen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Açıklama: Akşam yemeği parası"
+                    android:textColor="#000000"
+                    android:textSize="14sp"
+                    />
+            </LinearLayout>
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -261,7 +410,7 @@
                 android:layout_height="wrap_content"
                 android:text="Gönderen: Beyza"
                 android:textSize="12sp"
-                android:textColor="#666666"
+                android:textColor="#0D47A1"
                 android:layout_marginBottom="2dp" />
 
             <!-- Mesaj içeriği -->

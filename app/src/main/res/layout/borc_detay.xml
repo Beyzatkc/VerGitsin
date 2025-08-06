@@ -28,6 +28,16 @@
             android:layout_marginStart="10dp"
             android:hint="Borç Miktarı (₺)"
             android:inputType="numberDecimal"/>
+        <EditText
+            android:id="@+id/ibanEditt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:hint="IBAN (TR...)"
+            android:inputType="textCapCharacters"
+            android:maxLength="26"
+            android:padding="8dp"
+            />
 
         <EditText
             android:id="@+id/edtAciklama"

@@ -20,21 +20,32 @@ public class Mesaj {
     private Map<String, Boolean> adlar;
     public String cevapicerigi;
     public String cevapvrnAdi;
+    public String iban;
 
     public Mesaj() {}
 
-    public Mesaj(String istegiAtanId, String istekatilanID, String aciklama, String miktar, Timestamp odenecekTarih, long zaman, boolean goruldu,String cevap,String msjID,String cevapicerigi,String cevapvrnAdi) {
+    public Mesaj(String istegiAtanId, String istekatilanID, String aciklama, String miktar, Timestamp odenecekTarih, long zaman,String iban, boolean goruldu,String cevap,String msjID,String cevapicerigi,String cevapvrnAdi) {
         this.istegiAtanId = istegiAtanId;
         this.istekatilanID = istekatilanID;
         this.aciklama = aciklama;
         this.miktar = miktar;
         this.odenecekTarih = odenecekTarih;
         this.zaman = zaman;
+        this.iban=iban;
         this.goruldu = goruldu;
         this.cevap=cevap;
         this.msjID=msjID;
         this.cevapicerigi=cevapicerigi;
         this.cevapvrnAdi=cevapvrnAdi;
+    }
+
+    public String getIban() {
+        return iban;
+    }
+
+    public void setIban(String iban) {
+
+        this.iban = iban;
     }
 
     public Map<String, Boolean> getGorulmeler() {
@@ -118,7 +129,8 @@ public class Mesaj {
         this.aciklama = aciklama;
     }
 
-    public String getMiktar() {
+    public String getMiktar()
+    {
         return miktar;
     }
 
@@ -127,6 +139,7 @@ public class Mesaj {
     }
 
     public Timestamp getOdenecekTarih() {
+
         return odenecekTarih;
     }
 
