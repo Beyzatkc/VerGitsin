@@ -20,10 +20,12 @@ public class ArkadasAdapter extends RecyclerView.Adapter<ArkadasAdapter.ViewHold
     private int secilenPozisyon = -1;
 
     private ArrayList<Kullanici>arkadaslar;
+    private ArrayList<Kullanici> gosterilecekArkadaslar;
     private Context context;
 
-    public ArkadasAdapter(ArrayList<Kullanici> arkadaslar, Context contex) {
+    public ArkadasAdapter(ArrayList<Kullanici> arkadaslar,ArrayList<Kullanici> gosterilecekArkadaslar, Context contex) {
         this.arkadaslar = arkadaslar;
+        this.gosterilecekArkadaslar=gosterilecekArkadaslar;
         this.context=contex;
     }
     public Kullanici getSecilenKullanici() {
@@ -31,6 +33,19 @@ public class ArkadasAdapter extends RecyclerView.Adapter<ArkadasAdapter.ViewHold
             return arkadaslar.get(secilenPozisyon);
         }
         return null;
+    }
+    public void filtrele(String metin) {
+        gosterilecekArkadaslar.clear();
+        if (metin.isEmpty()) {
+            gosterilecekArkadaslar.addAll(arkadaslar);
+        } else {
+            for (Kullanici k : arkadaslar) {
+                if (k.getKullaniciAdi().toLowerCase().contains(metin.toLowerCase())) {
+                    gosterilecekArkadaslar.add(k);
+                }
+            }
+        }
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -42,22 +57,31 @@ public class ArkadasAdapter extends RecyclerView.Adapter<ArkadasAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull ArkadasAdapter.ViewHolder holder, int position) {
-        Kullanici kullanici=arkadaslar.get(position);
+        //Kullanici kullanici=arkadaslar.get(position);
+        Kullanici kullanici = gosterilecekArkadaslar.get(position);
 
         holder.KullaniciAdiark.setText(kullanici.getKullaniciAdi());
         int resId = context.getResources().getIdentifier(
                 kullanici.getProfilFoto(), "drawable", context.getPackageName());
         holder.Profilark.setImageResource(resId);
 
-        holder.radioButton.setOnCheckedChangeListener(null);
-        holder.radioButton.setChecked(position == secilenPozisyon);
+        boolean seciliMi = position == secilenPozisyon;
 
-        holder.radioButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                int oncekiPozisyon = secilenPozisyon;
-                secilenPozisyon = holder.getAdapterPosition();
+        holder.secimIkonu.setImageResource(
+                seciliMi ? R.drawable.baseline_radio_button_checked_24 : R.drawable.baseline_radio_button_unchecked_24
+        );
+
+        holder.secimIkonu.setOnClickListener(v -> {
+            int oncekiPozisyon = secilenPozisyon;
+
+            // Seçiliyse, kaldır. Değilse, seç.
+            if (position == secilenPozisyon) {
+                secilenPozisyon = -1; // seçim kaldırıldı
                 notifyItemChanged(oncekiPozisyon);
-                notifyItemChanged(secilenPozisyon);
+            } else {
+                secilenPozisyon = position;
+                notifyItemChanged(oncekiPozisyon); // önceki seçimi kaldır
+                notifyItemChanged(secilenPozisyon); // yeni seçimi göster
             }
         });
 
@@ -65,19 +89,19 @@ public class ArkadasAdapter extends RecyclerView.Adapter<ArkadasAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        return arkadaslar.size();
+        return gosterilecekArkadaslar.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private TextView KullaniciAdiark;
         private ImageView Profilark;
-        private RadioButton radioButton;
+        private ImageView secimIkonu;
 
         public ViewHolder(View itemView) {
             super(itemView);
             KullaniciAdiark=itemView.findViewById(R.id.KullaniciAdiark);
             Profilark=itemView.findViewById(R.id.Profilark);
-            radioButton=itemView.findViewById(R.id.radioButton);
+            secimIkonu=itemView.findViewById(R.id.secimIkonu);
         }
     }
 }

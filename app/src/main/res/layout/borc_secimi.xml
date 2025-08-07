@@ -23,15 +23,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
-        android:backgroundTint="#FBFBFA"
+        android:backgroundTint="#6A0DAD"
         android:text="Arkadaşlar"
-        android:textColor="@android:color/black" />
+        android:textColor="@android:color/white" />
 
     <Button
         android:id="@+id/btnGrup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Gruplar"
-        android:backgroundTint="#FBFBFA"
-        android:textColor="@android:color/black" />
+        android:backgroundTint="#6A0DAD"
+        android:textColor="@android:color/white" />
 </LinearLayout>

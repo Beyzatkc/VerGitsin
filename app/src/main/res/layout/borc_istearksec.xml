@@ -15,6 +15,16 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_marginBottom="12dp" />
+    <EditText
+        android:id="@+id/aramaEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Arkadaş ara..."
+        android:drawableStart="@drawable/baseline_search_24"
+        android:padding="10dp"
+        android:background="@android:drawable/edit_text"
+        android:layout_marginBottom="12dp"
+        android:inputType="text"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerArkadas"

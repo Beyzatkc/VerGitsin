@@ -27,17 +27,32 @@ public class KullanicilarAdapter extends RecyclerView.Adapter<KullanicilarAdapte
     }
 
     private ArrayList<Kullanici> kullanicilar;
+    private ArrayList<Kullanici> gosterilecekKullanicilar;
     private Context context;
     private OnArkadasEkleListener listener;
     private FragmentManager manager;
     private Runnable DialogKapat;
 
-    public KullanicilarAdapter(ArrayList<Kullanici> kullanicilar,Context contex,OnArkadasEkleListener listener,FragmentManager manager, Runnable DialogKapat) {
+    public KullanicilarAdapter(ArrayList<Kullanici> kullanicilar,ArrayList<Kullanici> gosterilecekKullanicilar,Context contex,OnArkadasEkleListener listener,FragmentManager manager, Runnable DialogKapat) {
         this.kullanicilar = kullanicilar;
+        this.gosterilecekKullanicilar=gosterilecekKullanicilar;
         this.context=contex;
         this.listener=listener;
         this.manager=manager;
         this.DialogKapat=DialogKapat;
+    }
+    public void filtrele(String metin) {
+        gosterilecekKullanicilar.clear();
+        if (metin.isEmpty()) {
+            gosterilecekKullanicilar.addAll(kullanicilar);
+        } else {
+            for (Kullanici k : kullanicilar) {
+                if (k.getKullaniciAdi().toLowerCase().contains(metin.toLowerCase())) {
+                    gosterilecekKullanicilar.add(k);
+                }
+            }
+        }
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -49,7 +64,9 @@ public class KullanicilarAdapter extends RecyclerView.Adapter<KullanicilarAdapte
 
     @Override
     public void onBindViewHolder(@NonNull KullanicilarAdapter.ViewHolder holder, int position) {
-        Kullanici kullanici = kullanicilar.get(position);
+       // Kullanici kullanici = kullanicilar.get(position);
+        Kullanici kullanici = gosterilecekKullanicilar.get(position);
+
         holder.textViewKullaniciAdi.setText(kullanici.getKullaniciAdi());
         int resId = context.getResources().getIdentifier(
                 kullanici.getProfilFoto(), "drawable", context.getPackageName());
@@ -73,9 +90,10 @@ public class KullanicilarAdapter extends RecyclerView.Adapter<KullanicilarAdapte
             TiklananArkadasProfileGec(kullanici);
         });
     }
+
     @Override
     public int getItemCount() {
-        return kullanicilar.size();
+        return gosterilecekKullanicilar.size();
     }
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView textViewKullaniciAdi;

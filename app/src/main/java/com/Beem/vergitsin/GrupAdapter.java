@@ -45,21 +45,26 @@ public class GrupAdapter extends RecyclerView.Adapter<GrupAdapter.ViewHolder> {
         Grup grup=gruplar.get(position);
 
         holder.grupAdi.setText(grup.getGrupAdi());
-        holder.radioButtongrup.setOnCheckedChangeListener(null);
-        holder.radioButtongrup.setChecked(position == secilenPozisyon);
 
-        holder.radioButtongrup.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
+        boolean seciliMi = position == secilenPozisyon;
+
+        holder.secimIkonu.setImageResource(
+                seciliMi ? R.drawable.baseline_radio_button_checked_24 : R.drawable.baseline_radio_button_unchecked_24
+        );
+
+        holder.secimIkonu.setOnClickListener(v -> {
+            int oncekiPozisyon = secilenPozisyon;
+
+            // Seçiliyse, kaldır. Değilse, seç.
+            if (position == secilenPozisyon) {
+                secilenPozisyon = -1; // seçim kaldırıldı
+                notifyItemChanged(oncekiPozisyon);
+            } else {
                 secilenPozisyon = position;
-                notifyDataSetChanged();
+                notifyItemChanged(oncekiPozisyon); // önceki seçimi kaldır
+                notifyItemChanged(secilenPozisyon); // yeni seçimi göster
             }
         });
-
-        holder.itemView.setOnClickListener(v -> {
-            secilenPozisyon = position;
-            notifyDataSetChanged();
-        });
-
     }
 
     @Override
@@ -70,13 +75,13 @@ public class GrupAdapter extends RecyclerView.Adapter<GrupAdapter.ViewHolder> {
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private TextView grupAdi;
         private ImageView Profilgrupfoto;
-        private RadioButton radioButtongrup;
+        private ImageView secimIkonu;
 
         public ViewHolder(View itemView) {
             super(itemView);
             grupAdi=itemView.findViewById(R.id.grupAdi);
             Profilgrupfoto=itemView.findViewById(R.id.Profilgrupfoto);
-            radioButtongrup=itemView.findViewById(R.id.radioButtongrup);
+            secimIkonu=itemView.findViewById(R.id.secimIkonu);
         }
     }
 }

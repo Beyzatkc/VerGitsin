@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="10dp"
     android:layout_margin="10dp"
     android:background="@drawable/herbi_kullanici_back">
@@ -12,12 +12,11 @@
         android:id="@+id/cardProfilgrup"
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
         app:cardCornerRadius="100dp"
         app:cardElevation="0dp"
-        app:cardBackgroundColor="@android:color/white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:cardBackgroundColor="@android:color/white">
 
         <ImageView
             android:id="@+id/Profilgrupfoto"
@@ -27,28 +26,30 @@
             android:src="@drawable/user" />
     </androidx.cardview.widget.CardView>
 
-    <!-- Kullanıcı Adı -->
+    <!-- Seçim İkonu -->
+    <ImageView
+        android:id="@+id/secimIkonu"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="8dp"
+        android:contentDescription="Seçim İkonu"
+        android:src="@drawable/baseline_radio_button_unchecked_24" />
+
+    <!-- Grup Adı (Kullanıcı Adı) -->
     <TextView
         android:id="@+id/grupAdi"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:translationX="10dp"
+        android:layout_toEndOf="@id/cardProfilgrup"
+        android:layout_toStartOf="@id/secimIkonu"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
         android:ellipsize="end"
         android:maxLines="1"
         android:text="Kullanıcı Adı"
         android:textColor="#000000"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="@id/cardProfilgrup"
-        app:layout_constraintEnd_toStartOf="@+id/radioButtongrup"
-        app:layout_constraintStart_toEndOf="@+id/cardProfilgrup"
-        app:layout_constraintTop_toTopOf="@id/cardProfilgrup" />
-
-    <RadioButton
-        android:id="@+id/radioButtongrup"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/cardProfilgrup"
-        app:layout_constraintBottom_toBottomOf="@id/cardProfilgrup"
-        />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:textSize="16sp" />
+</RelativeLayout>

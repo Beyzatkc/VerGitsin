@@ -6,12 +6,16 @@ import android.app.Dialog;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.InputType;
 import android.Manifest;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -270,7 +274,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void ArkadasEkle(){
         arkadasEkleLayout.setOnClickListener(b->{
-            KullanicilarDb();
+            new Thread(() -> {
+                KullanicilarDb();
+            }).start();
         });
     }
     private void KullanicilarDb(){
@@ -317,11 +323,13 @@ public class MainActivity extends AppCompatActivity {
         dialog.setContentView(R.layout.kullanicilar_recycler);
 
         RecyclerView recycler = dialog.findViewById(R.id.recyclerViewKullanicilar);
+        EditText aramaEditText = dialog.findViewById(R.id.aramaEditText);
         recycler.setLayoutManager(new LinearLayoutManager(this));
-        KullanicilarAdapter adapter = new KullanicilarAdapter(kullanicilar, this,  new KullanicilarAdapter.OnArkadasEkleListener() {
+        ArrayList<Kullanici> gosterilecekKullanicilar = new ArrayList<>(kullanicilar);
+
+        KullanicilarAdapter adapter = new KullanicilarAdapter(kullanicilar,gosterilecekKullanicilar, this,  new KullanicilarAdapter.OnArkadasEkleListener() {
             @Override
             public void onArkadasEkleTiklandi(Kullanici kullanici) {
-                //ArkadasEklemeDb(kullanici);
                 ArkadasEkle.getEkle().ArkadasEklemeDb(kullanici);
             }
 
@@ -334,6 +342,21 @@ public class MainActivity extends AppCompatActivity {
             dialog.dismiss();
         });
         recycler.setAdapter(adapter);
+        aramaEditText.setText(""); // Arama çubuğunu sıfırla
+        adapter.filtrele("");
+        aramaEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                adapter.filtrele(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
         dialog.show();
     }
 
@@ -360,7 +383,9 @@ public class MainActivity extends AppCompatActivity {
     } */
     public void GrupOlustur(){
         grupolsuturlayout.setOnClickListener(b->{
-            ArkadaslariGetir(true);
+            new Thread(() -> {
+                ArkadaslariGetir(true);
+            }).start();
         });
     }
     public void ArkadaslariGetir(Boolean tetikle) {
@@ -501,13 +526,26 @@ public class MainActivity extends AppCompatActivity {
             Button btnGrup = view.findViewById(R.id.btnGrup);
 
             AlertDialog dialog = builder.setView(view).create();
+            dialog.setOnShowListener(dialogInterface -> {
+                Window window = dialog.getWindow();
+                if (window != null) {
+                    int heightInPx = (int) TypedValue.applyDimension(
+                            TypedValue.COMPLEX_UNIT_DIP, 340, getResources().getDisplayMetrics());
+
+                    window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, heightInPx);
+                }
+            });
             btnArkadas.setOnClickListener(v -> {
                 dialog.dismiss();
-                ArkadaslariGetir(false);
+                new Thread(() -> {
+                    ArkadaslariGetir(false);
+                }).start();
             });
             btnGrup.setOnClickListener(v -> {
                 dialog.dismiss();
-                GrupDbCek();
+                new Thread(() -> {
+                    GrupDbCek();
+                }).start();
             });
             dialog.show();
         });
@@ -518,10 +556,26 @@ public class MainActivity extends AppCompatActivity {
 
         RecyclerView recycler = dialog.findViewById(R.id.recyclerArkadas);
         Button btnDevamEt = dialog.findViewById(R.id.btnDevamEt);
+        EditText aramaEditText=dialog.findViewById(R.id.aramaEditText);
         recycler.setLayoutManager(new LinearLayoutManager(this));
-
-        ArkadasAdapter adapter = new ArkadasAdapter(arkadasListesi,this);
+        ArrayList<Kullanici> gosterilcekarkadaslar = new ArrayList<>(arkadasListesi);
+        ArkadasAdapter adapter = new ArkadasAdapter(arkadasListesi,gosterilcekarkadaslar,this);
         recycler.setAdapter(adapter);
+        aramaEditText.setText("");
+        adapter.filtrele("");
+
+        aramaEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                adapter.filtrele(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
 
         btnDevamEt.setOnClickListener(v -> {
             Kullanici secilen = adapter.getSecilenKullanici();
