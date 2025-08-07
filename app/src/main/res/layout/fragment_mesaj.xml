@@ -80,6 +80,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+
     <LinearLayout
         android:id="@+id/mesaj_gonder_layout"
         android:layout_width="0dp"
@@ -94,6 +95,45 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
+        <LinearLayout
+            android:id="@+id/borcIstegiYollaBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_margin="8dp">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/yukari"
+                android:layout_gravity="center_vertical" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/borcIstegiYollaBtnuu"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:text="Borç İsteği Yolla"
+                android:textColor="#FFFFFF"
+                android:clickable="false"
+                android:backgroundTint="#000080"
+                android:textStyle="bold" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/asagi"
+                android:layout_gravity="center_vertical" />
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/istekEditTextViewLayout"
@@ -101,7 +141,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/gelen_mesaj"
             android:orientation="vertical"
-            android:visibility="visible"
+            android:visibility="gone"
             android:padding="10dp">
 
             <!-- Miktar alanı -->
@@ -110,17 +150,19 @@
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:hint="Miktar"
+                android:inputType="numberDecimal"
                 android:padding="8dp"
                 android:textColor="#000"
                 android:textColorHint="#888"
-                android:inputType="textCapSentences"
                 android:layout_marginBottom="8dp" />
+
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
+
 
                 <!-- Ödeme Tarihi alanı -->
                 <EditText
@@ -147,6 +189,18 @@
             </LinearLayout>
 
             <!-- Açıklama alanı -->
+            <EditText
+                android:id="@+id/ibanEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:hint="IBAN (TR...)"
+                android:inputType="textCapCharacters"
+                android:maxLength="26"
+                android:padding="8dp"
+                android:textColor="#000"
+                android:textColorHint="#888" />
+
             <EditText
                 android:id="@+id/aciklamaedit"
                 android:layout_width="match_parent"
@@ -179,6 +233,17 @@
                 android:textColorHint="#888"
                 android:inputType="textCapSentences"
                 android:layout_marginBottom="8dp" />
+            <TextView
+                android:id="@+id/ibantext"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:hint="IBAN (TR...)"
+                android:inputType="textCapCharacters"
+                android:maxLength="26"
+                android:padding="8dp"
+                android:textColor="#000"
+                android:textColorHint="#888" />
 
             <!-- Açıklama + Gönder Butonu -->
             <LinearLayout

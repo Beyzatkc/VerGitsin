@@ -58,7 +58,7 @@
                 android:layout_centerVertical="true"
                 android:src="@drawable/kapali_goz"
                 android:contentDescription="Şifreyi Göster"
-                app:tint="#BF6A33" />
+                app:tint="#2196F3" />
         </RelativeLayout>
 
         <Button

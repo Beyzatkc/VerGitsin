@@ -1,13 +1,18 @@
 package com.Beem.vergitsin.Mesaj;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupMenu;
@@ -24,6 +29,7 @@ import com.google.firebase.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
@@ -117,7 +123,8 @@ public class MesajAdapterGrup extends RecyclerView.Adapter<MesajAdapterGrup.View
         if(mesaj.getIstegiAtanId().equals(benim)){
             holder.gelenLayout.setVisibility(View.GONE);
             holder.gidenLayout.setVisibility(View.VISIBLE);
-            holder.txtMiktarGiden.setText(mesaj.getMiktar());
+            holder.txtMiktarGiden.setText(mesaj.getMiktar()+" TL");
+            holder.ibantextgiden.setText(mesaj.getIban());
             holder.gonderenadigiden.setText(MainActivity.kullanicistatic.getKullaniciAdi());
             holder.txtAciklamaGiden.setText(mesaj.getAciklama());
             Timestamp odemeTarihi = mesaj.getOdenecekTarih();
@@ -161,6 +168,16 @@ public class MesajAdapterGrup extends RecyclerView.Adapter<MesajAdapterGrup.View
             }else{
                 holder.gorulduDurumu.setVisibility(View.GONE);
             }
+            holder.ibanCopyIcongiden.setOnClickListener(b -> {
+                String iban = mesaj.getIban();
+                ClipboardManager clipboardManager = (ClipboardManager) holder.itemView.getContext()
+                        .getSystemService(Context.CLIPBOARD_SERVICE);
+
+                ClipData clip = ClipData.newPlainText("IBAN", iban);
+                clipboardManager.setPrimaryClip(clip);
+
+                Toast.makeText(holder.itemView.getContext(), "IBAN kopyalandı!", Toast.LENGTH_SHORT).show();
+            });
             holder.gidenlayoutsilme.setOnLongClickListener(view->{
                 PopupMenu popupMenu=new PopupMenu(view.getContext(),view);
                 popupMenu.getMenuInflater().inflate(R.menu.menu,popupMenu.getMenu());
@@ -181,61 +198,68 @@ public class MesajAdapterGrup extends RecyclerView.Adapter<MesajAdapterGrup.View
                         EditText editMiktar = dialogView.findViewById(R.id.editMiktar);
                         EditText editAciklama = dialogView.findViewById(R.id.editAciklama);
                         EditText editTarih = dialogView.findViewById(R.id.editTarih);
+                        EditText ibanedit=dialogView.findViewById(R.id.ibanEdit);
+
+                        editTarih.setInputType(InputType.TYPE_NULL);
+                        editTarih.setFocusable(false);
 
                         editMiktar.setText(mesaj.getMiktar());
                         editAciklama.setText(mesaj.getAciklama());
-                        editTarih.setText(timestampToGunAyYil(mesaj.getOdenecekTarih())); // kendi fonksiyonunla
+                        ibanedit.setText(mesaj.getIban());
+                        editTarih.setText(timestampToGunAyYil(mesaj.getOdenecekTarih()));
+
+                        editTarih.setOnClickListener(v -> {
+                            final Calendar calendar = Calendar.getInstance();
+                            int yil = calendar.get(Calendar.YEAR);
+                            int ay = calendar.get(Calendar.MONTH);
+                            int gun = calendar.get(Calendar.DAY_OF_MONTH);
+
+                            DatePickerDialog datePickerDialog = new DatePickerDialog(
+                                    view.getContext(),
+                                    (datePicker, secilenYil, secilenAy, secilenGun) -> {
+                                        String tarihStr2 = String.format(Locale.getDefault(),
+                                                "%02d/%02d/%04d", secilenGun, secilenAy + 1, secilenYil);
+                                        editTarih.setText(tarihStr2);
+                                    },
+                                    yil, ay, gun
+                            );
+
+                            // Geçmiş tarihleri engelle
+                            datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+                            datePickerDialog.show();
+                        });
 
                         builder.setView(dialogView);
 
                         builder.setPositiveButton("Güncelle", (dialog, which) -> {
                             String yeniMiktar = editMiktar.getText().toString().trim();
                             String yeniAciklama = editAciklama.getText().toString().trim();
+                            String yeniiban=ibanedit.getText().toString().trim();
                             String yeniTarihStr = editTarih.getText().toString().trim();
 
-                            Pattern tarihDeseni = Pattern.compile("^\\d{2}/\\d{2}/\\d{4}$");
-                            Matcher matcher = tarihDeseni.matcher(yeniTarihStr);
-
-                            if (!matcher.matches()) {
-                                Toast.makeText(view.getContext(), "Tarih formatı geçersiz! (gg/aa/yyyy)", Toast.LENGTH_SHORT).show();
+                            if (yeniMiktar.isEmpty() || yeniTarihStr.isEmpty()) {
+                                Toast.makeText(view.getContext(), "Miktar ve tarih boş olamaz!", Toast.LENGTH_SHORT).show();
                                 return;
                             }
 
                             try {
                                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-                                sdf.setLenient(false); // 32/01/2025 gibi hatalı tarihleri de reddeder
-
+                                sdf.setLenient(false);
                                 Date girilenTarih = sdf.parse(yeniTarihStr);
-                                Date bugun = new Date(); // şimdiki zaman
-
-                                if (girilenTarih.before(sdf.parse(sdf.format(bugun)))) {
-                                    Toast.makeText(view.getContext(), "Geçmiş bir tarih seçilemez!", Toast.LENGTH_SHORT).show();
-                                    return;
-                                }
 
                                 mesaj.setOdenecekTarih(new Timestamp(girilenTarih));
-
-                            } catch (ParseException e) {
-                                Toast.makeText(view.getContext(), "Tarih çözümleme hatası!", Toast.LENGTH_SHORT).show();
-                                e.printStackTrace();
-                                return;
-                            }
-                            if (!yeniMiktar.isEmpty() && !yeniTarihStr.isEmpty()) {
                                 mesaj.setMiktar(yeniMiktar);
                                 mesaj.setAciklama(yeniAciklama);
-                                try {
-                                    SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
-                                    Date date = sdf.parse(yeniTarihStr);
-                                    mesaj.setOdenecekTarih(new Timestamp(date));
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
-                                }
+                                mesaj.setIban(yeniiban);
+                                mesaj.setOdenecekTarih(new Timestamp(girilenTarih));
+
                                 listenersilme.onMesajGuncelleme(mesaj);
+                            } catch (ParseException e) {
+                                Toast.makeText(view.getContext(), "Tarih formatı hatalı!", Toast.LENGTH_SHORT).show();
                             }
                         });
 
                         builder.setNegativeButton("İptal", (dialog, which) -> dialog.dismiss());
-
                         builder.show();
                         return true;
                     }
@@ -248,7 +272,8 @@ public class MesajAdapterGrup extends RecyclerView.Adapter<MesajAdapterGrup.View
             holder.gelenLayout.setVisibility(View.VISIBLE);
             holder.gidenLayout.setVisibility(View.GONE);
             holder.gonderenadigelen.setText(mesaj.getIstekAtanAdi());
-            holder.txtMiktarGelen.setText(mesaj.getMiktar());
+            holder.txtMiktarGelen.setText(mesaj.getMiktar()+" TL");
+            holder.ibantextgelen.setText(mesaj.getIban());
             holder.txtAciklamaGelen.setText(mesaj.getAciklama());
             Timestamp odemeTarihi = mesaj.getOdenecekTarih();
             String tarihStr = timestampToGunAyYil(odemeTarihi);
@@ -270,9 +295,18 @@ public class MesajAdapterGrup extends RecyclerView.Adapter<MesajAdapterGrup.View
                 holder.HAYIRgelen.setVisibility(View.VISIBLE);
                 holder.onaylayicigelen.setVisibility(View.GONE);
             }
+            holder.ibanCopyIcongelen.setOnClickListener(b->{
+                String iban=mesaj.getIban();
+                ClipboardManager clipboardManager=(ClipboardManager) holder.itemView.getContext()
+                        .getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clipData=ClipData.newPlainText("IBAN",iban);
+                clipboardManager.setPrimaryClip(clipData);
+                Toast.makeText(holder.itemView.getContext(), "IBAN kopyalandı!", Toast.LENGTH_SHORT).show();
+            });
             holder.EVETgelen.setOnClickListener(b->{
                 if (listenercvp != null) {
                     listenercvp.onCevapGeldiGrup(MainActivity.kullanicistatic.getKullaniciId(), mesaj.getMsjID(), MainActivity.kullanicistatic.getKullaniciAdi(),"Borç isteği onaylandı");
+                    listenercvp.onEveteBastiGrup(MainActivity.kullanicistatic.getKullaniciId(),mesaj);
                 }
                 mesaj.setCevabiVarMi(true);
             });
@@ -318,11 +352,12 @@ public class MesajAdapterGrup extends RecyclerView.Adapter<MesajAdapterGrup.View
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         LinearLayout gidenLayout, gelenLayout;
-        TextView txtMiktarGiden, txtTarihGiden, txtAciklamaGiden, gidenSaat, gorulduDurumu,gonderenadigiden;
-        TextView txtMiktarGelen, txtTarihGelen, txtAciklamaGelen, gelenSaat,gonderenadigelen,onaylayicigelen;
+        TextView txtMiktarGiden, txtTarihGiden, txtAciklamaGiden, gidenSaat, gorulduDurumu,gonderenadigiden,ibantextgiden;
+        TextView txtMiktarGelen, txtTarihGelen, txtAciklamaGelen, gelenSaat,gonderenadigelen,onaylayicigelen,ibantextgelen;
         TextView onay_gonderen_adgelen,onaygelenicerikgelen,onay_giden_gonderen_ad,onaygidenicerik;
         Button EVETgelen,HAYIRgelen;
         LinearLayout onaygiden,onaygelen,gidenlayoutsilme;
+        ImageView ibanCopyIcongiden,ibanCopyIcongelen;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -334,6 +369,8 @@ public class MesajAdapterGrup extends RecyclerView.Adapter<MesajAdapterGrup.View
             txtMiktarGiden = itemView.findViewById(R.id.txtBorcMiktariGiden);
             gonderenadigiden=itemView.findViewById(R.id.gonderenadigiden);
             txtTarihGiden = itemView.findViewById(R.id.txtOdenecekTarihGiden);
+            ibantextgiden=itemView.findViewById(R.id.ibantextgiden);
+            ibanCopyIcongiden=itemView.findViewById(R.id.ibanCopyIcongiden);
             txtAciklamaGiden = itemView.findViewById(R.id.txtAciklamaGiden);
             gidenSaat = itemView.findViewById(R.id.mesajGidenSaat);
             gorulduDurumu = itemView.findViewById(R.id.gorulduDurumu);
@@ -342,6 +379,8 @@ public class MesajAdapterGrup extends RecyclerView.Adapter<MesajAdapterGrup.View
             gonderenadigelen=itemView.findViewById(R.id.gonderenadigelen);
             txtTarihGelen = itemView.findViewById(R.id.txtOdenecekTarihGelen);
             txtAciklamaGelen = itemView.findViewById(R.id.txtAciklamaGelen);
+            ibantextgelen=itemView.findViewById(R.id.ibantextgelen);
+            ibanCopyIcongelen=itemView.findViewById(R.id.ibanCopyIcongelen);
             gelenSaat = itemView.findViewById(R.id.mesajGelenSaat);
             onaylayicigelen=itemView.findViewById(R.id.onaylayicigelen);
 

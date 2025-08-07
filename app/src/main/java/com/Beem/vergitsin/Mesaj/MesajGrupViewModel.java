@@ -13,9 +13,11 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -232,7 +234,8 @@ public class MesajGrupViewModel extends ViewModel {
         String miktar = doc.getString("miktar");
         Timestamp tarih = doc.getTimestamp("odenecektarih");
         Long mesajAtilmaZamani=doc.getLong("isteginAtildigiZaman");
-        Mesaj mesaj=new Mesaj(atanid, atilanid, aciklama, miktar, tarih, mesajAtilmaZamani,false,cevapId,id,cevapicerik,cevapAd);
+        String iban=doc.getString("iban");
+        Mesaj mesaj=new Mesaj(atanid, atilanid, aciklama, miktar, tarih, mesajAtilmaZamani,iban,false,cevapId,id,cevapicerik,cevapAd);
         if(cevapAd!=null){
             mesaj.setCevabiVarMi(true);
         }else{
@@ -397,7 +400,7 @@ public class MesajGrupViewModel extends ViewModel {
     }
 
 
-    public void BorcIstekleriDb(UyariMesaj uyariMesaj, String istekatan, String istekatilan, String miktar, String aciklama, Timestamp tarih, String ad, String sohbetId, Long zaman){
+    public void BorcIstekleriDb(UyariMesaj uyariMesaj, String istekatan, String istekatilan, String miktar, String aciklama, Timestamp tarih,String iban, String ad, String sohbetId, Long zaman){
         uyariMesaj.YuklemeDurum("");
         Map<String, Object> borcData = new HashMap<>();
         borcData.put("istekatanAdi",ad);
@@ -407,6 +410,7 @@ public class MesajGrupViewModel extends ViewModel {
         borcData.put("miktar", miktar);
         borcData.put("odenecektarih", tarih);
         borcData.put("isteginAtildigiZaman",zaman);
+        borcData.put("iban",iban);
         borcData.put("GorulduMu",false);
 
         db.collection("sohbetler")
@@ -439,6 +443,7 @@ public class MesajGrupViewModel extends ViewModel {
         guncellemeVerisi.put("miktar", mesaj.getMiktar());
         guncellemeVerisi.put("aciklama", mesaj.getAciklama());
         guncellemeVerisi.put("odenecektarih", mesaj.getOdenecekTarih());
+        guncellemeVerisi.put("iban",mesaj.getIban());
 
         db.collection("sohbetler")
                 .document(sohbetid)
@@ -451,9 +456,41 @@ public class MesajGrupViewModel extends ViewModel {
                 });
 
     }
+    public void AlinanlarVerilenlerKayit(String eveteBasanId,String istekGonderenId,String aciklama,String miktar,Timestamp odenecekTarih){
+        DocumentReference verilenRef=db.collection("users")
+                .document(eveteBasanId)
+                .collection("verilenler")
+                .document(istekGonderenId);
+        Map<String,Object>verilenverisi=new HashMap<>();
+        verilenverisi.put("kullaniciId",istekGonderenId);
+        verilenverisi.put("aciklama",aciklama);
+        verilenverisi.put("miktar",miktar);
+        verilenverisi.put("odemeTarihi",odenecekTarih);
+        verilenverisi.put("tarih", FieldValue.serverTimestamp());
 
+        DocumentReference alinanRef=db.collection("users")
+                .document(istekGonderenId)
+                .collection("alinanlar")
+                .document(eveteBasanId);
+        Map<String,Object>alinanverisi=new HashMap<>();
 
+        alinanverisi.put("kullaniciId",eveteBasanId);
+        alinanverisi.put("aciklama",aciklama);
+        alinanverisi.put("miktar",miktar);
+        alinanverisi.put("odemeTarihi",odenecekTarih);
+        alinanverisi.put("tarih", FieldValue.serverTimestamp());
 
+        WriteBatch batch=db.batch();
+        batch.set(verilenRef,verilenverisi);
+        batch.set(alinanRef,alinanverisi);
+
+        batch.commit().addOnSuccessListener(aVoid -> {
+            Log.d("Firestore", "Verilen ve alınan başarılı şekilde eklendi.");
+        }).addOnFailureListener(e -> {
+            Log.e("Firestore", "Hata oluştu: " + e.getMessage());
+        });
+
+    }
 }
 
 

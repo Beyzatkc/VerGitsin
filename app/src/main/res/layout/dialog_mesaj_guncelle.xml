@@ -12,15 +12,6 @@
         android:inputType="numberDecimal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
-
-    <EditText
-        android:id="@+id/editAciklama"
-        android:hint="Açıklama"
-        android:layout_marginTop="10dp"
-        android:inputType="text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
     <EditText
         android:id="@+id/editTarih"
         android:hint="Tarih (gg.aa.yyyy)"
@@ -28,6 +19,24 @@
         android:clickable="true"
         android:layout_marginTop="10dp"
         android:inputType="date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <EditText
+        android:id="@+id/ibanEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="IBAN (TR...)"
+        android:layout_marginTop="10dp"
+        android:inputType="textCapCharacters"
+        android:maxLength="26"
+        android:textColor="#000"
+        android:textColorHint="#888" />
+
+    <EditText
+        android:id="@+id/editAciklama"
+        android:hint="Açıklama"
+        android:layout_marginTop="10dp"
+        android:inputType="text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 </LinearLayout>

@@ -24,20 +24,42 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <ImageButton
-            android:id="@+id/Sohbetler"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+        <LinearLayout
+            android:id="@+id/sohbetlerLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
-            android:background="@drawable/pencil"
-            android:contentDescription="Sohbetler"
-            android:onClick="geriGit"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:translationY="-6dp"
+            android:padding="8dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/profilAlani"
             android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            />
+            android:layout_marginEnd="16dp">
+
+            <ImageButton
+                android:id="@+id/Sohbetler"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/sohbeticin"
+                android:contentDescription="Sohbetler"
+                android:onClick="geriGit" />
+
+            <TextView
+                android:id="@+id/sohbetlerText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Sohbetler"
+                android:textColor="#2196F3"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:translationY="-5dp" />
+
+        </LinearLayout>
+
 
         <!-- Profil Alanı -->
         <LinearLayout
@@ -51,7 +73,7 @@
             android:focusable="true"
             android:orientation="vertical"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toEndOf="@id/Sohbetler"
+            app:layout_constraintStart_toEndOf="@id/sohbetlerLayout"
             app:layout_constraintEnd_toStartOf="@id/arkadasEkleLayout"
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp">
