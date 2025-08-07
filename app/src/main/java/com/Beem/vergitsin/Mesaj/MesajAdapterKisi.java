@@ -280,7 +280,8 @@ public class MesajAdapterKisi extends RecyclerView.Adapter<MesajAdapterKisi.View
            });
            holder.EVETgelen.setOnClickListener(b -> {
                if (listenercvp != null) {
-                   listenercvp.onCevapGeldi(MainActivity.kullanicistatic.getKullaniciId(), mesaj.getMsjID(), MainActivity.kullanicistatic.getKullaniciAdi(),"Borç isteği onaylandı");
+                   listenercvp.onCevapGeldi(MainActivity.kullanicistatic.getKullaniciId(),mesaj.getMsjID(), MainActivity.kullanicistatic.getKullaniciAdi(),"Borç isteği onaylandı");
+                   listenercvp.onEveteBasti(MainActivity.kullanicistatic.getKullaniciId(),mesaj);
                }
                mesaj.setCevabiVarMi(true);
            });

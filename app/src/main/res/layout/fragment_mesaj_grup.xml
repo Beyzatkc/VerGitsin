@@ -118,6 +118,7 @@
                 android:layout_height="wrap_content"
                 android:text="Borç İsteği Yolla"
                 android:textColor="#FFFFFF"
+                android:clickable="false"
                 android:backgroundTint="#000080"
                 android:textStyle="bold" />
 

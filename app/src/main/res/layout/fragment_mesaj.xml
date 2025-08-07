@@ -95,18 +95,45 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
-        <Button
+        <LinearLayout
             android:id="@+id/borcIstegiYollaBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Borç İsteği Yolla"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#000080"
-            android:layout_marginBottom="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginTop="8dp"
-            android:textStyle="bold" />
+            android:orientation="horizontal"
+            android:layout_margin="8dp">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/yukari"
+                android:layout_gravity="center_vertical" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/borcIstegiYollaBtnuu"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:text="Borç İsteği Yolla"
+                android:textColor="#FFFFFF"
+                android:clickable="false"
+                android:backgroundTint="#000080"
+                android:textStyle="bold" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/asagi"
+                android:layout_gravity="center_vertical" />
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/istekEditTextViewLayout"

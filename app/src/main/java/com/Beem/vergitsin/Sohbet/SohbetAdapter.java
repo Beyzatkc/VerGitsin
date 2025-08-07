@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -129,7 +130,16 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
             }
         });
         holder.sohbet_kutu.setOnLongClickListener(b->{
-            listener.onSohbetSilindi(sohbet);
+            PopupMenu popupMenu=new PopupMenu(b.getContext(),b);
+            popupMenu.getMenu().add("Sil");
+            popupMenu.setOnMenuItemClickListener(item->{
+                if(item.getTitle().equals("Sil")){
+                    listener.onSohbetSilindi(sohbet);
+                    return true;
+                }
+                return false;
+            });
+            popupMenu.show();
             return true;
         });
 

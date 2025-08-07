@@ -13,9 +13,11 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -452,6 +454,41 @@ public class MesajGrupViewModel extends ViewModel {
                 })
                 .addOnFailureListener(e -> {
                 });
+
+    }
+    public void AlinanlarVerilenlerKayit(String eveteBasanId,String istekGonderenId,String aciklama,String miktar,Timestamp odenecekTarih){
+        DocumentReference verilenRef=db.collection("users")
+                .document(eveteBasanId)
+                .collection("verilenler")
+                .document(istekGonderenId);
+        Map<String,Object>verilenverisi=new HashMap<>();
+        verilenverisi.put("kullaniciId",istekGonderenId);
+        verilenverisi.put("aciklama",aciklama);
+        verilenverisi.put("miktar",miktar);
+        verilenverisi.put("odemeTarihi",odenecekTarih);
+        verilenverisi.put("tarih", FieldValue.serverTimestamp());
+
+        DocumentReference alinanRef=db.collection("users")
+                .document(istekGonderenId)
+                .collection("alinanlar")
+                .document(eveteBasanId);
+        Map<String,Object>alinanverisi=new HashMap<>();
+
+        alinanverisi.put("kullaniciId",eveteBasanId);
+        alinanverisi.put("aciklama",aciklama);
+        alinanverisi.put("miktar",miktar);
+        alinanverisi.put("odemeTarihi",odenecekTarih);
+        alinanverisi.put("tarih", FieldValue.serverTimestamp());
+
+        WriteBatch batch=db.batch();
+        batch.set(verilenRef,verilenverisi);
+        batch.set(alinanRef,alinanverisi);
+
+        batch.commit().addOnSuccessListener(aVoid -> {
+            Log.d("Firestore", "Verilen ve alınan başarılı şekilde eklendi.");
+        }).addOnFailureListener(e -> {
+            Log.e("Firestore", "Hata oluştu: " + e.getMessage());
+        });
 
     }
 }

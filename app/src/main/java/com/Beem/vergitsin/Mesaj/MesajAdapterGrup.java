@@ -306,6 +306,7 @@ public class MesajAdapterGrup extends RecyclerView.Adapter<MesajAdapterGrup.View
             holder.EVETgelen.setOnClickListener(b->{
                 if (listenercvp != null) {
                     listenercvp.onCevapGeldiGrup(MainActivity.kullanicistatic.getKullaniciId(), mesaj.getMsjID(), MainActivity.kullanicistatic.getKullaniciAdi(),"Borç isteği onaylandı");
+                    listenercvp.onEveteBastiGrup(MainActivity.kullanicistatic.getKullaniciId(),mesaj);
                 }
                 mesaj.setCevabiVarMi(true);
             });

@@ -86,6 +86,7 @@ public class MesajKisiFragment extends Fragment {
     private CevapGeldi arayuzum;
     private MesajSilmeGuncellemeKisi arayuzSilme;
     private LinearLayout borcIstegiYollaBtn;
+    private LinearLayout mesaj_gonder_layout;
 
 
     public static MesajKisiFragment newInstance() {
@@ -154,7 +155,7 @@ public class MesajKisiFragment extends Fragment {
         odemeTarihitext=view.findViewById(R.id.odemeTarihi);
         ibantext=view.findViewById(R.id.ibantext);
 
-
+        mesaj_gonder_layout=view.findViewById(R.id.mesaj_gonder_layout);
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext());
         recyclerView.setLayoutManager(layoutManager);
         adapter = new MesajAdapterKisi(new ArrayList<>(), requireContext());
@@ -177,6 +178,11 @@ public class MesajKisiFragment extends Fragment {
 
         if ("mainactivity".equals(kaynak)) {
             arayuzum=new CevapGeldi() {
+                @Override
+                public void onEveteBasti(String cvpverenid, Mesaj mesaj) {
+                    mViewModel.AlinanlarVerilenlerKayit(cvpverenid,mesaj.getIstegiAtanId(),mesaj.getAciklama(),mesaj.getMiktar(),mesaj.getOdenecekTarih());
+                }
+
                 @Override
                 public void onCevapGeldi(String cvpverenid, String mesajID,String cvpverenad,String icerik) {
                     mViewModel.GelenCevabiKaydetme(sohbetID,mesajID,cvpverenid,cvpverenad,icerik);
@@ -300,6 +306,12 @@ public class MesajKisiFragment extends Fragment {
                 @Override
                 public void onCevapGeldi(String cvpverenid, String mesajID,String cvpverenad,String icerik) {
                     mViewModel.GelenCevabiKaydetme(sohbetIdAdptr,mesajID,cvpverenid,cvpverenad,icerik);
+
+                }
+
+                @Override
+                public void onEveteBasti(String cvpverenid, Mesaj mesaj) {
+                    mViewModel.AlinanlarVerilenlerKayit(cvpverenid,mesaj.getIstegiAtanId(),mesaj.getAciklama(),mesaj.getMiktar(),mesaj.getOdenecekTarih());
                 }
             };
             adapter.setListenercvp(arayuzum);
@@ -478,20 +490,24 @@ public class MesajKisiFragment extends Fragment {
             return null;
         }
     }
-    public void Kaydirma(){
-        borcIstegiYollaBtn.setOnTouchListener(new View.OnTouchListener() {
-            float dY;
+    public void Kaydirma() {
+        mesaj_gonder_layout.setOnTouchListener(new View.OnTouchListener() {
+            float startY;
 
             @SuppressLint("ClickableViewAccessibility")
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        dY = event.getRawY();
+                        startY = event.getRawY();
                         return true;
+
                     case MotionEvent.ACTION_UP:
-                        float deltaY = dY - event.getRawY();
-                        if (deltaY > 100) { // Yukarı sürükleme -> form aç
+                        float endY = event.getRawY();
+                        float deltaY = startY - endY;
+
+                        if (deltaY > 30) {
+                            // Yukarı kaydırma → formu aç
                             istekEditTextViewLayout.setVisibility(View.VISIBLE);
                             istekEditTextViewLayout.setAlpha(0f);
                             istekEditTextViewLayout.setTranslationY(-50);
@@ -500,28 +516,10 @@ public class MesajKisiFragment extends Fragment {
                                     .alpha(1f)
                                     .setDuration(500)
                                     .start();
-
                             borcIstegiYollaBtn.setVisibility(View.GONE);
-                        }
-                        return true;
-                }
-                return false;
-            }
-        });
 
-        istekEditTextViewLayout.setOnTouchListener(new View.OnTouchListener() {
-            float dY;
-
-            @SuppressLint("ClickableViewAccessibility")
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        dY = event.getRawY();
-                        return true;
-                    case MotionEvent.ACTION_UP:
-                        float deltaY = event.getRawY() - dY;
-                        if (deltaY > 100) { // Aşağı sürükleme -> form kapat
+                        } else if (deltaY < -30) {
+                            // Aşağı kaydırma → formu kapat
                             istekEditTextViewLayout.setVisibility(View.GONE);
                             borcIstegiYollaBtn.setVisibility(View.VISIBLE);
                         }
@@ -530,8 +528,8 @@ public class MesajKisiFragment extends Fragment {
                 return false;
             }
         });
-
     }
+
 }
 
 
