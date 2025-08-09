@@ -3,7 +3,9 @@ package com.Beem.vergitsin.Gruplar;
 import com.Beem.vergitsin.Grup;
 import com.Beem.vergitsin.Kullanici.Kullanici;
 import com.Beem.vergitsin.MainActivity;
+import com.Beem.vergitsin.R;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -29,14 +31,16 @@ public class GruplarYonetici {
                 .get()
                 .addOnSuccessListener(dokumanlar->{
                     for(QueryDocumentSnapshot dokuman : dokumanlar){
-                        GrupNesneleriniOlustur(dokuman);
+                        Grup grup = GrupNesneleriniOlustur(dokuman);
+                        adapter.getGrupList().add(grup);
+                        adapter.notifyDataSetChanged();
                     }
                     islemTamam.run();
                 });
     }
 
 
-    private void GrupNesneleriniOlustur(DocumentSnapshot dokuman){
+    private Grup GrupNesneleriniOlustur(DocumentSnapshot dokuman){
         String name = dokuman.contains("grupAdi") ? dokuman.getString("grupAdi") : "İsim yok";
 
         Timestamp tarih = dokuman.contains("olusturmaTarihi") ? dokuman.getTimestamp("olusturmaTarihi") : null;
@@ -56,8 +60,29 @@ public class GruplarYonetici {
         grup.setGrupFoto(grupFoto);
         grup.setOlusturan(dokuman.getString("olusturan"));
         grup.setGrupHakkinda(gruphakkinda);
-        adapter.getGrupList().add(grup);
-        adapter.notifyDataSetChanged();
+        return grup;
+    }
+    private Grup GrupNesneleriniOlustur(DocumentSnapshot dokuman,Grup grup){
+        String name = dokuman.contains("grupAdi") ? dokuman.getString("grupAdi") : "İsim yok";
+
+        Timestamp tarih = dokuman.contains("olusturmaTarihi") ? dokuman.getTimestamp("olusturmaTarihi") : null;
+
+        String grupFoto = dokuman.contains("ppfoto") ? dokuman.getString("ppfoto") : "user";
+
+        ArrayList<String> uyeler = dokuman.contains("uyeler") ? (ArrayList<String>) dokuman.get("uyeler") : new ArrayList<>();
+
+        String gruphakkinda = dokuman.contains("hakkinda") ? dokuman.getString("hakkinda") : "Açık grup";
+
+        if(grup == null) new Grup();
+        grup.setGrupAdi(name);
+        grup.setOlusturmaTarihi(tarih);
+        grup.setGrupFoto(grupFoto);
+        grup.setUyeler(uyeler);
+        grup.setGrupId(dokuman.getId());
+        grup.setGrupFoto(grupFoto);
+        grup.setOlusturan(dokuman.getString("olusturan"));
+        grup.setGrupHakkinda(gruphakkinda);
+        return grup;
     }
 
     public void GrupGuncelle(Grup grup,Runnable Guncellendi, Runnable GuncelleneMedi){
@@ -134,45 +159,103 @@ public class GruplarYonetici {
     }
 
     public void GrupArkEkle(Grup grup, ArrayList<String> yeniUyeler, Runnable uyeAdapterGuncelle){
-        for(String uye : yeniUyeler) {
-            System.out.println(uye);
-            db.collection("gruplar")
-                    .document(grup.getGrupId())
-                    .update("uyeler", FieldValue.arrayUnion(uye))
-                    .addOnSuccessListener(dok -> {
-                        db.collection("sohbetler")
-                                .document(grup.getGrupId())
-                                .update("katilimcilar", FieldValue.arrayUnion(uye))
-                                .addOnSuccessListener(dokuman -> {
-                                });
-                        grup.getUyeler().add(uye);
-                        uyeAdapterGuncelle.run();
-                    });
+        Map<String, Long> girisZamanlari = new HashMap<>();
+        for(String uye: yeniUyeler){
+            girisZamanlari.put(uye, System.currentTimeMillis());
         }
+
+        int toplam = yeniUyeler.size();
+        final int[] tamamlanan = {0};
+
+        DocumentReference grupRef = db.collection("gruplar").document(grup.getGrupId());
+        DocumentReference sohbetRef = db.collection("sohbetler").document(grup.getGrupId());
+
+        final Map<String, Long>[] yeniKatilimcilarRef = new Map[]{new HashMap<>()};
+        final Map<String, Long>[] eskiKatilimcilarRef = new Map[]{new HashMap<>()};
+
+        grupRef.get().addOnSuccessListener(dokuman -> {
+            Map<String, Long> eskiKatilimcilar = (Map<String, Long>) dokuman.get("eskikatilimcilar");
+            Map<String, Long> yeniKatilimcilar = (Map<String, Long>) dokuman.get("yenikatilimcilar");
+            if (eskiKatilimcilar == null) eskiKatilimcilar = new HashMap<>();
+            if (yeniKatilimcilar == null) yeniKatilimcilar = new HashMap<>();
+            yeniKatilimcilar.putAll(girisZamanlari);
+            yeniKatilimcilarRef[0] = yeniKatilimcilar;
+            eskiKatilimcilarRef[0] = eskiKatilimcilar;
+
+            for(String yeniler: yeniKatilimcilar.keySet()){
+                eskiKatilimcilar.remove(yeniler);
+            }
+
+            for(String uye : yeniUyeler){
+                grupRef.update("uyeler", FieldValue.arrayUnion(uye))
+                        .addOnSuccessListener(dokumans ->{
+                            sohbetRef.update("katilimcilar", FieldValue.arrayUnion(uye));
+
+                            grup.getUyeler().add(uye);
+                            tamamlanan[0]++;
+                            uyeAdapterGuncelle.run();
+                            if(tamamlanan[0] == toplam) {
+                                grupRef.update("yenikatilimcilar", yeniKatilimcilarRef[0]);
+                                grupRef.update("eskikatilimcilar", eskiKatilimcilarRef[0]);
+                                sohbetRef.update("yenikatilimcilar", yeniKatilimcilarRef[0]);
+                                sohbetRef.update("eskikatilimcilar", eskiKatilimcilarRef[0]);
+                            }
+                        });
+            }
+        });
     }
 
-    public void GrupKisiCikar(Grup grup, ArrayList<String> cikacaklar,Runnable tamamdir){
-        for(String uye : cikacaklar) {
-            db.collection("gruplar")
-                    .document(grup.getGrupId())
-                    .update("uyeler", FieldValue.arrayRemove(uye))
-                    .addOnSuccessListener(dok -> {
-                        db.collection("sohbetler")
-                                .document(grup.getGrupId())
-                                .update("katilimcilar", FieldValue.arrayRemove(uye))
-                                .addOnSuccessListener(dokuman -> {
-                                });
-                        for (int i=0; i<grup.getUyeler().size(); i++){
-                            if(grup.getUyeler().get(i).equals(uye)){
-                                grup.getUyeler().remove(i);
-                                break;
-                            }
-                        }
-                        System.out.println("boyut: "+grup.getUyeler().size());
-                        tamamdir.run();
-                    });
+    public void GrupKisiCikar(Grup grup, ArrayList<String> cikacaklar, Runnable tamamdir) {
+        Map<String, Long> cikisZamanlari = new HashMap<>();
+        for (String uye : cikacaklar) {
+            cikisZamanlari.put(uye, System.currentTimeMillis());
         }
+
+        int toplam = cikacaklar.size();
+        final int[] tamamlanan = {0};
+
+        DocumentReference grupRef = db.collection("gruplar").document(grup.getGrupId());
+        DocumentReference sohbetRef = db.collection("sohbetler").document(grup.getGrupId());
+
+        final Map<String, Long>[] eskiKatilimcilarRef = new Map[]{new HashMap<>()};
+        final Map<String, Long>[] yeniKatilimcilarRef = new Map[]{new HashMap<>()};
+
+        grupRef.get().addOnSuccessListener(dokuman -> {
+            Map<String, Long> eskiKatilimcilar = (Map<String, Long>) dokuman.get("eskikatilimcilar");
+            Map<String, Long> yeniKatilimcilar = (Map<String, Long>) dokuman.get("yenikatilimcilar");
+            if (yeniKatilimcilar == null) yeniKatilimcilar = new HashMap<>();
+            if (eskiKatilimcilar == null) eskiKatilimcilar = new HashMap<>();
+            eskiKatilimcilar.putAll(cikisZamanlari);
+
+            for (String uye : cikacaklar) {
+                yeniKatilimcilar.remove(uye);
+            }
+
+            yeniKatilimcilarRef[0] = yeniKatilimcilar;
+            eskiKatilimcilarRef[0] = eskiKatilimcilar;
+
+            for (String uye : cikacaklar) {
+                grupRef.update("uyeler", FieldValue.arrayRemove(uye))
+                        .addOnSuccessListener(a -> {
+                            sohbetRef.update("katilimcilar", FieldValue.arrayRemove(uye));
+
+                            grup.getUyeler().removeIf(id -> id.equals(uye));
+                            System.out.println("boyut: " + grup.getUyeler().size());
+
+                            tamamlanan[0]++;
+                            tamamdir.run();
+
+                            if (tamamlanan[0] == toplam) {
+                                grupRef.update("eskikatilimcilar", eskiKatilimcilarRef[0]);
+                                grupRef.update("yenikatilimcilar", yeniKatilimcilarRef[0]);
+                                sohbetRef.update("eskikatilimcilar", eskiKatilimcilarRef[0]);
+                                sohbetRef.update("yenikatilimcilar", yeniKatilimcilarRef[0]);
+                            }
+                        });
+            }
+        });
     }
+
     public void GrupSayisiKayit(int sayi){
         db.collection("users")
                 .document(MainActivity.kullanicistatic.getKullaniciId())
@@ -183,5 +266,18 @@ public class GruplarYonetici {
         db.collection("gruplar")
                 .document(grupID)
                 .update("olusturan", ID);
+    }
+
+    public void GrupNesneKontrolu(Grup grup, Runnable tamamdir){
+        if(grup.getOlusturan()!=null && !grup.getOlusturan().isEmpty()){
+            return;
+        }
+        db.collection("gruplar")
+                .document(grup.getGrupId())
+                .get()
+                .addOnSuccessListener(dokuman->{
+                    GrupNesneleriniOlustur(dokuman,grup);
+                    tamamdir.run();
+                });
     }
 }

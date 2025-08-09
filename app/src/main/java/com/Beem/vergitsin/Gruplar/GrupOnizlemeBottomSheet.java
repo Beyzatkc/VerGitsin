@@ -82,7 +82,9 @@ public class GrupOnizlemeBottomSheet extends BottomSheetDialogFragment {
 
         yonetici = new GruplarYonetici();
 
-        GrupOnizlemeViewAyarlari();
+        yonetici.GrupNesneKontrolu(grup, () -> {
+            GrupOnizlemeViewAyarlari();
+        });
 
         textGrupAdi.setText(grup.getGrupAdi());
         textGrupAciklama.setText(grup.getGrupHakkinda());
@@ -91,47 +93,56 @@ public class GrupOnizlemeBottomSheet extends BottomSheetDialogFragment {
         textGrupTarih.setText(formatTarih(grup.getOlusturmaTarihi()));
 
         uyeler = new ArrayList<>();
-        uyelerAdapter = new UyelerAdapter(uyeler,uye -> { ProfileYonlendir(uye); }, grup.getOlusturan());
-        recyclerUyeler.setLayoutManager(new LinearLayoutManager(requireContext(),LinearLayoutManager.HORIZONTAL,false));
+        uyelerAdapter = new UyelerAdapter(uyeler, uye -> {
+            ProfileYonlendir(uye);
+        }, grup.getOlusturan());
+        recyclerUyeler.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         recyclerUyeler.setAdapter(uyelerAdapter);
         UyeleriDoldur();
 
-        grupDuzenle.setOnClickListener(v->{ GrupDuzenleyeYonlendir(); });
-        gruptanCik.setOnClickListener(v->{ GruptanCik(); });
-        arkadasEkle.setOnClickListener(v->{ ArkadasEkle(); });
-        arkadasCikar.setOnClickListener(v->{ ArkadasCikar(); });
+        grupDuzenle.setOnClickListener(v -> {
+            GrupDuzenleyeYonlendir();
+        });
+        gruptanCik.setOnClickListener(v -> {
+            GruptanCik();
+        });
+        arkadasEkle.setOnClickListener(v -> {
+            ArkadasEkle();
+        });
+        arkadasCikar.setOnClickListener(v -> {
+            ArkadasCikar();
+        });
     }
-
 
 
     private String formatTarih(Timestamp tarih) {
         Date date = tarih.toDate();
         SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault());
         String formattedDate = formatter.format(date);
-        return "Oluşturuldu: "+formattedDate;
+        return "Oluşturuldu: " + formattedDate;
     }
 
 
-    private void UyeleriDoldur(){
-        for(String kullaniciId : grup.getUyeler()){
+    private void UyeleriDoldur() {
+        for (String kullaniciId : grup.getUyeler()) {
             FirebaseFirestore.getInstance().collection("users")
                     .document(kullaniciId)
                     .get()
-                    .addOnSuccessListener(dokuman->{
+                    .addOnSuccessListener(dokuman -> {
                         Dokumantasyon(dokuman);
                     });
         }
     }
 
-    private void GrupOnizlemeViewAyarlari(){
-        if(!grup.getOlusturan().equals(MainActivity.kullanicistatic.getKullaniciId())){
+    private void GrupOnizlemeViewAyarlari() {
+        if (!grup.getOlusturan().equals(MainActivity.kullanicistatic.getKullaniciId())) {
             arkadasCikar.setVisibility(View.GONE);
             grupDuzenle.setVisibility(View.GONE);
             arkadasEkle.setVisibility(View.GONE);
         }
     }
 
-    private void Dokumantasyon(DocumentSnapshot dokuman){
+    private void Dokumantasyon(DocumentSnapshot dokuman) {
         Kullanici arkadas = new Kullanici();
 
         String ID = dokuman.getId();
@@ -163,9 +174,9 @@ public class GrupOnizlemeBottomSheet extends BottomSheetDialogFragment {
         uyelerAdapter.notifyDataSetChanged();
     }
 
-    private void ProfileYonlendir(Kullanici uye){
+    private void ProfileYonlendir(Kullanici uye) {
         this.dismiss();
-        if(uye.getKullaniciId().equals(MainActivity.kullanicistatic.getKullaniciId())){
+        if (uye.getKullaniciId().equals(MainActivity.kullanicistatic.getKullaniciId())) {
             FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             ProfilFragment fragment = new ProfilFragment();
@@ -185,8 +196,8 @@ public class GrupOnizlemeBottomSheet extends BottomSheetDialogFragment {
         fragmentTransaction.commit();
     }
 
-    private void GrupDuzenleyeYonlendir(){
-        GrupDuzenleBottomSheet bottomSheet = new GrupDuzenleBottomSheet(grup,() -> {
+    private void GrupDuzenleyeYonlendir() {
+        GrupDuzenleBottomSheet bottomSheet = new GrupDuzenleBottomSheet(grup, () -> {
             textGrupAciklama.setText(grup.getGrupHakkinda());
             int resId = getResources().getIdentifier(grup.getGrupFoto(), "drawable", requireContext().getPackageName());
             imageGrupProfil.setImageResource(resId);
@@ -195,9 +206,8 @@ public class GrupOnizlemeBottomSheet extends BottomSheetDialogFragment {
     }
 
 
-
-    private void GruptanCik(){
-        if(grup.getOlusturan().equals(MainActivity.kullanicistatic.getKullaniciId())){
+    private void GruptanCik() {
+        if (grup.getOlusturan().equals(MainActivity.kullanicistatic.getKullaniciId())) {
             YeniYoneticiSec();
             return;
         }
@@ -210,7 +220,7 @@ public class GrupOnizlemeBottomSheet extends BottomSheetDialogFragment {
         });
     }
 
-    private void ArkadasEkle(){
+    private void ArkadasEkle() {
         GrupOlusturGorunumu();
     }
 
@@ -222,11 +232,11 @@ public class GrupOnizlemeBottomSheet extends BottomSheetDialogFragment {
         Button btnDevamEt = dialog.findViewById(R.id.btnDevamEt);
         btnDevamEt.setText("Arkadaş Ekle");
         yonetici.GrupArkEklemekIcinArkCek(arklar -> {
-            GrupArkadasEkleAdapter adapter = new GrupArkadasEkleAdapter(arklar,requireContext(),grup);
+            GrupArkadasEkleAdapter adapter = new GrupArkadasEkleAdapter(arklar, requireContext(), grup);
             recyclerArkadas.setLayoutManager(new LinearLayoutManager(requireContext()));
             recyclerArkadas.setAdapter(adapter);
             btnDevamEt.setOnClickListener(v -> {
-                yonetici.GrupArkEkle(grup,adapter.getYeniUyeler(),()->{
+                yonetici.GrupArkEkle(grup, adapter.getYeniUyeler(), () -> {
                     uyeler.addAll(adapter.getYeniArklar());
                     gruplarAdapterGuncelle.run();
                     uyelerAdapter.notifyDataSetChanged();
@@ -239,39 +249,39 @@ public class GrupOnizlemeBottomSheet extends BottomSheetDialogFragment {
         dialog.show();
     }
 
-    private void ArkadasCikar(){
+    private void ArkadasCikar() {
         Dialog dialog = new Dialog(requireContext());
         dialog.setContentView(R.layout.grup_ark_cikart);
         RecyclerView recyclerArkadas = dialog.findViewById(R.id.recyclerArkadasCikar);
         Button btnDevamEt = dialog.findViewById(R.id.btnCikarmayiOnayla);
-        GrupArkadasCikarAdapter adapter = new GrupArkadasCikarAdapter(BenYokumListesi(),requireContext());
+        GrupArkadasCikarAdapter adapter = new GrupArkadasCikarAdapter(BenYokumListesi(), requireContext());
         recyclerArkadas.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerArkadas.setAdapter(adapter);
         btnDevamEt.setOnClickListener(v -> {
-            yonetici.GrupKisiCikar(grup,adapter.getSecilenCikacaklar(),()->{
+            yonetici.GrupKisiCikar(grup, adapter.getSecilenCikacaklar(), () -> {
 
 
-            for(Kullanici kullanici: adapter.getSecilenKullanicilar()){
-                for(int i = 0; i < uyeler.size(); i++){
-                    if(uyeler.get(i).getKullaniciId().equals(kullanici.getKullaniciId())){
-                        uyeler.remove(i);
-                        break;
+                for (Kullanici kullanici : adapter.getSecilenKullanicilar()) {
+                    for (int i = 0; i < uyeler.size(); i++) {
+                        if (uyeler.get(i).getKullaniciId().equals(kullanici.getKullaniciId())) {
+                            uyeler.remove(i);
+                            break;
+                        }
                     }
                 }
-            }
 
-            gruplarAdapterGuncelle.run();
-            uyelerAdapter.notifyDataSetChanged();
-            adapter.getSecilenCikacaklar().clear();
-            adapter.getSecilenKullanicilar().clear();
-            dialog.dismiss();
+                gruplarAdapterGuncelle.run();
+                uyelerAdapter.notifyDataSetChanged();
+                adapter.getSecilenCikacaklar().clear();
+                adapter.getSecilenKullanicilar().clear();
+                dialog.dismiss();
             });
         });
         dialog.show();
 
     }
 
-    private void YeniYoneticiSec(){
+    private void YeniYoneticiSec() {
         Dialog dialog = new Dialog(requireContext());
         dialog.setContentView(R.layout.grup_ark_cikart);
         RecyclerView recyclerArkadas = dialog.findViewById(R.id.recyclerArkadasCikar);
@@ -279,7 +289,7 @@ public class GrupOnizlemeBottomSheet extends BottomSheetDialogFragment {
         TextView baslik = dialog.findViewById(R.id.baslik);
         baslik.setText("Yeni Yönetici");
         btnDevamEt.setText("Yeni Yöneticiyi Seç");
-        YoneticiSecAdapter adapter = new YoneticiSecAdapter(requireContext(),BenYokumListesi());
+        YoneticiSecAdapter adapter = new YoneticiSecAdapter(requireContext(), BenYokumListesi());
         recyclerArkadas.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerArkadas.setAdapter(adapter);
         btnDevamEt.setOnClickListener(v -> {
@@ -298,10 +308,10 @@ public class GrupOnizlemeBottomSheet extends BottomSheetDialogFragment {
         dialog.show();
     }
 
-    private ArrayList<Kullanici> BenYokumListesi(){
+    private ArrayList<Kullanici> BenYokumListesi() {
         ArrayList<Kullanici> benYokumListesi = new ArrayList<>();
-        for (Kullanici k: uyeler){
-            if(k.getKullaniciId().equals(MainActivity.kullanicistatic.getKullaniciId())){
+        for (Kullanici k : uyeler) {
+            if (k.getKullaniciId().equals(MainActivity.kullanicistatic.getKullaniciId())) {
                 continue;
             }
             benYokumListesi.add(k);

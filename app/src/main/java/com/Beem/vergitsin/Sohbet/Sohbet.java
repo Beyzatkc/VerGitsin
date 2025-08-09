@@ -18,6 +18,9 @@ public class Sohbet {
     private Boolean gizlemeKaldirildiMi=false;
     private Boolean gizlendiMi=false;
     private Long sohbetGizlenmeZaman=0L;
+    private boolean eskiGrubumMu=false;
+    private boolean yeniGrubumMu=false;
+    private long eskiGrupZaman=0;
 
     public Sohbet(String sohbetID, String kullaniciAdi, Long sonmsjsaati, String ppfoto, String sonMesaj, ArrayList<String> katilimcilar, String tur) {
         this.sohbetID = sohbetID;
@@ -141,5 +144,29 @@ public class Sohbet {
 
     public void setSonMesaj(String sonMesaj) {
         this.sonMesaj = sonMesaj;
+    }
+
+    public void setEskiGrubumMu(boolean eskiGrubumMu) {
+        this.eskiGrubumMu = eskiGrubumMu;
+    }
+
+    public void setYeniGrubumMu(boolean yeniGrubumMu) {
+        this.yeniGrubumMu = yeniGrubumMu;
+    }
+
+    public boolean isEskiGrubumMu() {
+        return eskiGrubumMu;
+    }
+
+    public boolean isYeniGrubumMu() {
+        return yeniGrubumMu;
+    }
+
+    public void setEskiGrupZaman(long eskiGrupZaman) {
+        this.eskiGrupZaman = eskiGrupZaman;
+    }
+
+    public long getEskiGrupZaman() {
+        return eskiGrupZaman;
     }
 }

@@ -26,6 +26,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.Beem.vergitsin.Grup;
+import com.Beem.vergitsin.Gruplar.GrupOnizlemeBottomSheet;
+import com.Beem.vergitsin.Gruplar.GruplarYonetici;
 import com.Beem.vergitsin.Kullanici.Observe;
 import com.Beem.vergitsin.MainActivity;
 import com.Beem.vergitsin.R;
@@ -78,6 +81,11 @@ public class MesajGrupFragment extends Fragment{
     private String SonMesajadptr;
     private Long SonMesajSaatadptr;
 
+    private LinearLayout grupAdiLinear;
+
+    private Grup grup;
+    private GrupOnizlemeBottomSheet bottomSheet;
+
     private boolean ilkMesajAlindi = false;
     private boolean ilkMesajAlindiadptr = false;
     private Long ilkmsjSaati;
@@ -107,6 +115,7 @@ public class MesajGrupFragment extends Fragment{
                 sohbetedilenAd=getArguments().getString("sohbetedilenAd");
                 sohbetEdilenPP=getArguments().getString("sohbetEdilenPP");
                 AcilmaZamaniadptr=getArguments().getLong("acilmaZamani");
+                GrupOnizlemeAc(sohbetIdAdptr);
             } else if (kaynak.equals("mainactivity")) {
                 PP=getArguments().getString("pp");
                 istekatilanAd = getArguments().getString("istekatilanAdi");
@@ -116,6 +125,7 @@ public class MesajGrupFragment extends Fragment{
                 ibani=getArguments().getString("iban").trim();
                 sohbetID=getArguments().getString("sohbetId");
                 AcilmaZamani=getArguments().getLong("acilmaZamani");
+                GrupOnizlemeAc(sohbetID);
             }
         }
         // Geri tuşuna basıldığında fragmentten çık
@@ -150,6 +160,8 @@ public class MesajGrupFragment extends Fragment{
         odemeTarihiedit=view.findViewById(R.id.odemeTarihiedit);
         ibanEdit=view.findViewById(R.id.ibanEdit);
 
+        grupAdiLinear=view.findViewById(R.id.grupAdiLinear);
+
         istekTextViewLayout=view.findViewById(R.id.istekTextViewLayout);
         gonderenadiview=view.findViewById(R.id.gonderenadiview);
         miktartext=view.findViewById(R.id.miktar);
@@ -182,6 +194,10 @@ public class MesajGrupFragment extends Fragment{
             }
         });
 
+        // bunu ben koydum aşkım bottomsheeti aciyor
+        grupAdiLinear.setOnClickListener(v->{ bottomSheet.show(getParentFragmentManager(), bottomSheet.getTag()); });
+
+
         if ("mainactivity".equals(kaynak)) {
             arayuzum=new CevapGeldiGrup() {
                 @Override
@@ -191,7 +207,7 @@ public class MesajGrupFragment extends Fragment{
 
                 @Override
                 public void onEveteBastiGrup(String cvpverenid, Mesaj mesaj) {
-                    mViewModel.AlinanlarVerilenlerKayit(cvpverenid,mesaj.getIstegiAtanId(),mesaj.getAciklama(),mesaj.getMiktar(),mesaj.getOdenecekTarih());
+                    mViewModel.AlinanlarVerilenlerKayit(cvpverenid,mesaj.getIstegiAtanId(),mesaj.getAciklama(),mesaj.getMiktar(),mesaj.getOdenecekTarih(),mesaj.getIban());
                 }
             };
             adapter.setListenercvp(arayuzum);
@@ -322,7 +338,7 @@ public class MesajGrupFragment extends Fragment{
 
                 @Override
                 public void onEveteBastiGrup(String cvpverenid, Mesaj mesaj) {
-                    mViewModel.AlinanlarVerilenlerKayit(cvpverenid,mesaj.getIstegiAtanId(),mesaj.getAciklama(),mesaj.getMiktar(),mesaj.getOdenecekTarih());
+                    mViewModel.AlinanlarVerilenlerKayit(cvpverenid,mesaj.getIstegiAtanId(),mesaj.getAciklama(),mesaj.getMiktar(),mesaj.getOdenecekTarih(),mesaj.getIban());
                 }
             };
             adapter.setListenercvp(arayuzum);
@@ -510,6 +526,21 @@ public class MesajGrupFragment extends Fragment{
             return null;
         }
     }
+
+    private void GrupOnizlemeAc(String sohbetID){
+        GruplarYonetici yonetici = new GruplarYonetici();
+        if(grup==null) grup = new Grup();
+        grup.setGrupId(sohbetID);
+        yonetici.GrupNesneKontrolu(grup,()->{
+            bottomSheet = new GrupOnizlemeBottomSheet(grup,()->{
+                // bu kısım da gruptan başarılı şekilde çıkıldıktan sonra çalışıyor
+
+            },()->{
+                /// bu kısımı elleme askim yada sen bilirsin adapter ile ilgiili güncelleme varsa kullanabilirsin
+
+            });
+        });
+    }
     public void Kaydirma() {
         mesaj_gonderGrup_layout.setOnTouchListener(new View.OnTouchListener() {
             float startY;
@@ -549,5 +580,4 @@ public class MesajGrupFragment extends Fragment{
             }
         });
     }
-
 }

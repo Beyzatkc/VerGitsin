@@ -96,6 +96,17 @@ public class SohbetViewModel extends ViewModel {
                                     }
                                 }
 
+                                Map<String, Long> yeniKatilimcilar = (Map<String, Long>) doc.get("yenikatilimcilar");
+
+                                if(yeniKatilimcilar!=null){
+                                    if(yeniKatilimcilar.containsKey(MainActivity.kullanicistatic.getKullaniciId())){
+                                        sohbet.setEskiGrubumMu(false);
+                                        sohbet.setYeniGrubumMu(true);
+                                        long yeniZaman = yeniKatilimcilar.get(MainActivity.kullanicistatic.getKullaniciId());
+                                        SohbetAcilmaZamani(sohbet,yeniZaman);
+                                    }
+                                }
+
                                 ArrayList<Map<String, Object>> gizleyenler = (ArrayList<Map<String, Object>>) doc.get("gizleyenler");
                                 if (gizleyenler != null) {
                                     boolean gizleniyor = false;
@@ -393,5 +404,30 @@ public class SohbetViewModel extends ViewModel {
                 .addOnFailureListener(e -> Log.e("SohbetSilme", "Gizleme hatası: ", e));
     }
 
+
+    private void SohbetAcilmaZamani(Sohbet sohbet, long yeniZaman){
+        if(sohbet.getAcilmazamani()!=null && yeniZaman !=0){
+            if(sohbet.getAcilmazamani()<yeniZaman){
+                sohbet.setAcilmazamani(yeniZaman);
+            }
+        }
+        else if(sohbet.getAcilmazamani()==null && yeniZaman!=0){
+            sohbet.setAcilmazamani(yeniZaman);
+        }
+    }
+
+    public void EskiGrupSohbetleriCek(){
+        db.collection("sohbetler")
+                .get()
+                .addOnSuccessListener(dokumanlar->{
+                    for(DocumentSnapshot doc : dokumanlar){
+                        Map<String , Long> eskiKat = (Map<String, Long>) doc.get("eskikatilimcilar");
+                        if(eskiKat==null) continue;
+                        if(eskiKat.containsKey(MainActivity.kullanicistatic.getKullaniciId())){
+
+                        }
+                    }
+                });
+    }
 
 }

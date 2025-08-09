@@ -180,7 +180,7 @@ public class MesajKisiFragment extends Fragment {
             arayuzum=new CevapGeldi() {
                 @Override
                 public void onEveteBasti(String cvpverenid, Mesaj mesaj) {
-                    mViewModel.AlinanlarVerilenlerKayit(cvpverenid,mesaj.getIstegiAtanId(),mesaj.getAciklama(),mesaj.getMiktar(),mesaj.getOdenecekTarih());
+                    mViewModel.AlinanlarVerilenlerKayit(cvpverenid,mesaj.getIstegiAtanId(),mesaj.getAciklama(),mesaj.getMiktar(),mesaj.getOdenecekTarih(),mesaj.getIban());
                 }
 
                 @Override
@@ -311,7 +311,7 @@ public class MesajKisiFragment extends Fragment {
 
                 @Override
                 public void onEveteBasti(String cvpverenid, Mesaj mesaj) {
-                    mViewModel.AlinanlarVerilenlerKayit(cvpverenid,mesaj.getIstegiAtanId(),mesaj.getAciklama(),mesaj.getMiktar(),mesaj.getOdenecekTarih());
+                    mViewModel.AlinanlarVerilenlerKayit(cvpverenid,mesaj.getIstegiAtanId(),mesaj.getAciklama(),mesaj.getMiktar(),mesaj.getOdenecekTarih(),mesaj.getIban());
                 }
             };
             adapter.setListenercvp(arayuzum);
