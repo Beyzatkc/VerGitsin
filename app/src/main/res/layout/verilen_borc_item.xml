@@ -98,6 +98,18 @@
             android:layout_alignTop="@id/tvAciklama"
             android:layout_marginTop="4dp" />
 
+        <TextView
+            android:id="@+id/hatirlatici"
+            android:layout_width="wrap_content"
+            android:layout_height="24dp"
+            android:layout_alignTop="@id/tvAciklama"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="4dp"
+            android:visibility="gone"
+            android:text="Hatırlatıcı eklendi"
+            android:textColor="#2196F3"
+            android:textStyle="italic" />
+
         <!-- Hatırlat butonu -->
         <Button
             android:id="@+id/btnHatirlat"

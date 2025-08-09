@@ -1,13 +1,17 @@
 package com.Beem.vergitsin.BorcVerilenler;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Build;
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -25,6 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.Beem.vergitsin.Alarm.AlarmReceiver;
+import com.Beem.vergitsin.Alarm.AlarmService;
 import com.Beem.vergitsin.R;
 import com.google.firebase.Timestamp;
 
@@ -100,42 +105,49 @@ public class VerilenBorcAdapter extends RecyclerView.Adapter<VerilenBorcAdapter.
             AlertDialog dialog = builder.create();
 
             evet.setOnClickListener(e -> {
+                dialog.dismiss();
+                holder.icon.setVisibility(View.GONE);
+                holder.hatirlatici.setVisibility(View.VISIBLE);
+                checkAndRequestBatteryOptimizationIgnore(context);
+
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-                    if (!alarmManager.canScheduleExactAlarms()) {
-                        Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
-                        context.startActivity(intent);
+                    AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                    if (!am.canScheduleExactAlarms()) {
+                        Intent izinIntent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+                        izinIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // Bunu ekle
+                        context.startActivity(izinIntent);
                         Toast.makeText(context, "Lütfen alarm iznini açın.", Toast.LENGTH_LONG).show();
-                        dialog.dismiss();
                         return;
                     }
                 }
+
                 Timestamp zaman = borc.getOdenecekTarih();
                 Date date = zaman.toDate();
 
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(date);
-
-                calendar.set(Calendar.HOUR_OF_DAY, 18);
-                calendar.set(Calendar.MINUTE, 20);
+                calendar.set(Calendar.HOUR_OF_DAY, 20);
+                calendar.set(Calendar.MINUTE, 0);
                 calendar.set(Calendar.SECOND, 0);
                 calendar.set(Calendar.MILLISECOND, 0);
 
                 long hedefZaman = calendar.getTimeInMillis();
+
                 Intent intent = new Intent(context, AlarmReceiver.class);
                 intent.putExtra("adi","verilenborc");
-                intent.putExtra("miktar",borc.getMiktar());
+                intent.putExtra("miktar", String.valueOf(borc.getMiktar()));
+
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(
                         context,
                         0,
                         intent,
                         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
                 );
-                AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, hedefZaman, pendingIntent);
 
-                Toast.makeText(context, "Hatırlatıcı kuruldu", Toast.LENGTH_SHORT).show();
-                dialog.dismiss();
+                AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, hedefZaman, pendingIntent);
+
             });
 
             hayir.setOnClickListener(h -> {
@@ -145,6 +157,48 @@ public class VerilenBorcAdapter extends RecyclerView.Adapter<VerilenBorcAdapter.
             dialog.show();
 
         });
+        holder.hatirlatici.setOnClickListener(b->{
+            Context context = b.getContext();
+            LayoutInflater inflater=LayoutInflater.from(context);
+            View dialogview=inflater.inflate(R.layout.alarmkaldirmakicin,null);
+
+            Button evet=dialogview.findViewById(R.id.evtbuton);
+            Button hayir= dialogview.findViewById(R.id.hyrbuton);
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setView(dialogview);
+            AlertDialog dialog = builder.create();
+
+            evet.setOnClickListener(v->{
+                dialog.dismiss();
+                Intent intent = new Intent(context, AlarmReceiver.class);
+                intent.putExtra("adi", "verilenborc");
+                intent.putExtra("miktar", String.valueOf(borc.getMiktar()));
+
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                        context,
+                        0,
+                        intent,
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                );
+
+                AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                if (am != null) {
+                    am.cancel(pendingIntent);
+                    Toast.makeText(context, "Hatırlatıcı iptal edildi", Toast.LENGTH_SHORT).show();
+                }
+
+                Intent servisIntent = new Intent(context, AlarmService.class);
+                context.stopService(servisIntent);
+
+                holder.hatirlatici.setVisibility(View.GONE);
+                holder.icon.setVisibility(View.VISIBLE);
+            });
+            hayir.setOnClickListener(h->{
+                dialog.dismiss();
+            });
+            dialog.show();
+        });
     }
 
     @Override
@@ -153,7 +207,7 @@ public class VerilenBorcAdapter extends RecyclerView.Adapter<VerilenBorcAdapter.
     }
 
     public static class BorcViewHolder extends RecyclerView.ViewHolder {
-        TextView tvAciklama, tvMiktar, tvOdemeTarihi, tvZaman, tvKimeVerildi, tvIban;
+        TextView tvAciklama, tvMiktar, tvOdemeTarihi, tvZaman, tvKimeVerildi, tvIban,hatirlatici;
         ImageView icon;
         Button btnHatirlat;
 
@@ -167,6 +221,7 @@ public class VerilenBorcAdapter extends RecyclerView.Adapter<VerilenBorcAdapter.
             tvIban = itemView.findViewById(R.id.tvIban);
             icon = itemView.findViewById(R.id.icon);
             btnHatirlat = itemView.findViewById(R.id.btnHatirlat);
+            hatirlatici=itemView.findViewById(R.id.hatirlatici);
         }
     }
 
@@ -182,4 +237,55 @@ public class VerilenBorcAdapter extends RecyclerView.Adapter<VerilenBorcAdapter.
     public void setHatirlatClickListener(OnHatirlatClickListener listener) {
         this.hatirlatClickListener = listener;
     }
+    public void checkAndRequestBatteryOptimizationIgnore(Context context) {
+        String packageName = context.getPackageName();
+
+        // 1️⃣ Önce standart Android pil optimizasyonu izni
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                intent.setData(Uri.parse("package:" + packageName));
+                if (!(context instanceof Activity)) {
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                }
+                context.startActivity(intent);
+            }
+        }
+
+        // 2️⃣ Marka bazlı ek arka plan izni (Xiaomi, Oppo, Samsung vb.)
+        String marka = Build.MANUFACTURER.toLowerCase();
+        Intent izinIntent = null;
+
+        try {
+            if (marka.contains("xiaomi") || marka.contains("redmi") || marka.contains("poco")) {
+                izinIntent = new Intent().setComponent(
+                        new ComponentName("com.miui.securitycenter",
+                                "com.miui.permcenter.autostart.AutoStartManagementActivity"));
+            } else if (marka.contains("oppo") || marka.contains("realme")) {
+                izinIntent = new Intent().setComponent(
+                        new ComponentName("com.coloros.safecenter",
+                                "com.coloros.safecenter.permission.startup.StartupAppListActivity"));
+            } else if (marka.contains("samsung")) {
+                izinIntent = new Intent().setComponent(
+                        new ComponentName("com.samsung.android.sm",
+                                "com.samsung.android.sm.app.dashboard.SmartManagerDashBoardActivity"));
+            }
+
+            if (izinIntent != null) {
+                if (!(context instanceof Activity)) {
+                    izinIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                }
+                context.startActivity(izinIntent);
+            }
+        } catch (Exception e) {
+            Intent fallback = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+            if (!(context instanceof Activity)) {
+                fallback.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            }
+            context.startActivity(fallback);
+        }
+    }
+
 }
