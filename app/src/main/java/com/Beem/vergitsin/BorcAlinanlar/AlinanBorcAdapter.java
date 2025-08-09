@@ -1,7 +1,14 @@
 package com.Beem.vergitsin.BorcAlinanlar;
 
+import android.app.AlarmManager;
+import android.app.AlertDialog;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.Build;
+import android.provider.Settings;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
@@ -12,13 +19,17 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.Beem.vergitsin.Alarm.AlarmReceiver;
 import com.Beem.vergitsin.R;
 import com.google.firebase.Timestamp;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class AlinanBorcAdapter extends RecyclerView.Adapter<AlinanBorcAdapter.BorcViewHolder> {
@@ -66,6 +77,64 @@ public class AlinanBorcAdapter extends RecyclerView.Adapter<AlinanBorcAdapter.Bo
             if (borcOdeClickListener != null) {
                 borcOdeClickListener.onBorcOdeClick(borc, position);
             }
+        });
+        holder.icon.setOnClickListener(v->{
+            Context context=v.getContext();
+            LayoutInflater inflater=LayoutInflater.from(context);
+            View dialogview=inflater.inflate(R.layout.alarmicin,null);
+
+            Button evet=dialogview.findViewById(R.id.evtbuton);
+            Button hayir= dialogview.findViewById(R.id.hyrbuton);
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setView(dialogview);
+            AlertDialog dialog = builder.create();
+
+            evet.setOnClickListener(e -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                    if (!alarmManager.canScheduleExactAlarms()) {
+                        Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+                        context.startActivity(intent);
+                        Toast.makeText(context, "Lütfen alarm iznini açın.", Toast.LENGTH_LONG).show();
+                        dialog.dismiss();
+                        return;
+                    }
+                }
+                Timestamp zaman = borc.getOdenecekTarih();
+                Date date = zaman.toDate();
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(date);
+
+                calendar.set(Calendar.HOUR_OF_DAY, 18);
+                calendar.set(Calendar.MINUTE, 20);
+                calendar.set(Calendar.SECOND, 0);
+                calendar.set(Calendar.MILLISECOND, 0);
+
+                long hedefZaman = calendar.getTimeInMillis();
+                Intent intent = new Intent(context, AlarmReceiver.class);
+                intent.putExtra("adi","alinanborc");
+                intent.putExtra("miktar",borc.getMiktar());
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                        context,
+                        0,
+                        intent,
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                );
+                AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, hedefZaman, pendingIntent);
+
+                Toast.makeText(context, "Hatırlatıcı kuruldu", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            });
+
+            hayir.setOnClickListener(h -> {
+                dialog.dismiss();
+            });
+
+            dialog.show();
+
         });
     }
 
