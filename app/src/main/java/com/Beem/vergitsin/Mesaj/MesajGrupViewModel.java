@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -493,6 +494,37 @@ public class MesajGrupViewModel extends ViewModel {
             Log.e("Firestore", "Hata oluştu: " + e.getMessage());
         });
 
+    }
+
+
+    public void GruptanCikilmisMesajlar(String id, Long baslangicZ, Long bitisZ){
+        Query query=  db.collection("gruplar")
+                .document(id)
+                .collection("mesajlar")
+                .orderBy("isteginAtildigiZaman", Query.Direction.ASCENDING)
+                .limit(3);
+        if(baslangicZ!=null){
+            query = query.whereGreaterThan("isteginAtildigiZaman", baslangicZ);
+            System.out.println("girildi");
+        }
+        if(bitisZ!=null){
+            query = query.whereLessThan("isteginAtildigiZaman", bitisZ);
+            System.out.println("girildi**");
+        }
+        query.get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Mesaj> mesajlar = new ArrayList<>();
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        System.out.println("Doc time: " + doc.getLong("isteginAtildigiZaman"));
+                        Mesaj mesaj = documentToMesaj(doc);
+                        mesajlar.add(mesaj);
+                        System.out.println(mesaj.getMsjID());
+                    }
+                    _tumMesajlar.setValue((ArrayList<Mesaj>) mesajlar);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Firestore", "Mesajlar çekilirken hata", e);
+                });
     }
 }
 

@@ -116,6 +116,9 @@ public class GruplarYonetici {
                     db.collection("sohbetler")
                             .document(grup.getGrupId())
                             .update("katilimcilar", FieldValue.arrayRemove(MainActivity.kullanicistatic.getKullaniciId()));
+                    ArrayList<String> kisi = new ArrayList<>();
+                    kisi.add(MainActivity.kullanicistatic.getKullaniciId());
+                    GrupKisiCikar(grup,kisi,()->{});
                     Cikildi.run();
                 })
                 .addOnFailureListener(hata->{

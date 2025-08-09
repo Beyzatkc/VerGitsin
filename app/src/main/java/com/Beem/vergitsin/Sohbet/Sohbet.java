@@ -21,6 +21,7 @@ public class Sohbet {
     private boolean eskiGrubumMu=false;
     private boolean yeniGrubumMu=false;
     private long eskiGrupZaman=0;
+    private boolean grupCikildiMi=false;
 
     public Sohbet(String sohbetID, String kullaniciAdi, Long sonmsjsaati, String ppfoto, String sonMesaj, ArrayList<String> katilimcilar, String tur) {
         this.sohbetID = sohbetID;
@@ -168,5 +169,13 @@ public class Sohbet {
 
     public long getEskiGrupZaman() {
         return eskiGrupZaman;
+    }
+
+    public void setGrupCikildiMi(boolean grupCikildiMi) {
+        this.grupCikildiMi = grupCikildiMi;
+    }
+
+    public boolean isGrupCikildiMi() {
+        return grupCikildiMi;
     }
 }

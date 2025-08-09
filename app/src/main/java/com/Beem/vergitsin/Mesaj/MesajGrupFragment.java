@@ -94,6 +94,7 @@ public class MesajGrupFragment extends Fragment{
     private CevapGeldiGrup arayuzum;
     private MesajSilmeGuncellemeGrup arayuzSilme;
     private Long AcilmaZamani;
+    private Long CikilmaZamani;
     private Long AcilmaZamaniadptr;
     private String ibani;
     private LinearLayout borcIstegiYollaBtn;
@@ -127,6 +128,8 @@ public class MesajGrupFragment extends Fragment{
                 AcilmaZamani=getArguments().getLong("acilmaZamani");
                 GrupOnizlemeAc(sohbetID);
             }
+            CikilmaZamani = getArguments().getLong("CikilmaZaman");
+            System.out.println(CikilmaZamani);
         }
         // Geri tuşuna basıldığında fragmentten çık
         requireActivity().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -267,7 +270,13 @@ public class MesajGrupFragment extends Fragment{
                         "user", "drawable", requireContext().getPackageName());
                 grup_fotosu.setImageResource(resId);
             }
-            mViewModel.MesajBorcistekleriDbCek(sohbetID,AcilmaZamani);
+            if(CikilmaZamani!=null && CikilmaZamani!=0L){
+                System.out.println("mgf de girdim");
+                mViewModel.GruptanCikilmisMesajlar(sohbetID,AcilmaZamani,CikilmaZamani);
+            }
+            else{
+                mViewModel.MesajBorcistekleriDbCek(sohbetID,AcilmaZamani);
+            }
 
             mViewModel.eklenen().observe(getViewLifecycleOwner(), mesaj -> {
                 if (mesaj != null) {
@@ -388,7 +397,12 @@ public class MesajGrupFragment extends Fragment{
                 grup_fotosu.setImageResource(resId);
             }
             gonderenadiview.setText(MainActivity.kullanicistatic.getKullaniciAdi());
-            mViewModel.MesajBorcistekleriDbCek(sohbetIdAdptr,AcilmaZamaniadptr);
+            if(CikilmaZamani!=null && CikilmaZamani!=0L){
+                mViewModel.GruptanCikilmisMesajlar(sohbetIdAdptr,AcilmaZamani,CikilmaZamani);
+            }
+            else{
+                mViewModel.MesajBorcistekleriDbCek(sohbetIdAdptr,AcilmaZamani);
+            }
 
             mViewModel.eklenen().observe(getViewLifecycleOwner(), mesaj -> {
                 if (mesaj != null) {

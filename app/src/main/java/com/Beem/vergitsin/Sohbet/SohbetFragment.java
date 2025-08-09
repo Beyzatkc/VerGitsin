@@ -76,6 +76,12 @@ public class SohbetFragment extends Fragment{
                     if (acilmaZamaniObj != null) {
                         bundle.putLong("acilmaZamani", acilmaZamaniObj);
                     }
+                    Long cikilmaZaman = sohbet.getEskiGrupZaman();
+                    if (cikilmaZaman!=null){
+                        System.out.println("sf de girdim");
+                        System.out.println(sohbet.getEskiGrupZaman()+"---"+cikilmaZaman);
+                        bundle.putLong("CikilmaZaman",cikilmaZaman);
+                    }
                     if(sohbet.getTur().equals("grup")) {
                         Fragment mesajGrupFragment = new MesajGrupFragment();
                         mesajGrupFragment.setArguments(bundle);
@@ -108,6 +114,7 @@ public class SohbetFragment extends Fragment{
                     adapter.GorulmeyenSayisi(sohbet);
         });
 
+        mViewModel.EskiGrupSohbetleriCek();
 
         mViewModel.getGorulmeyenMesajSayilariGrup().observe(getViewLifecycleOwner(), sohbet -> {
             adapter.GorulmeyenSayisi(sohbet);
