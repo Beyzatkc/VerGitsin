@@ -1,32 +1,29 @@
-package com.Beem.vergitsin.BorcAlinanlar;
+package com.Beem.vergitsin.BorcVerilenler;
 
 import com.Beem.vergitsin.MainActivity;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class BorcAlinanlarYonetici {
+public class BorcVerilenlerYonetici {
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private VerilenBorcAdapter adapter;
 
-    private AlinanBorcAdapter adapter;
-
-    public BorcAlinanlarYonetici(AlinanBorcAdapter adapter) {
+    public BorcVerilenlerYonetici(VerilenBorcAdapter adapter) {
         this.adapter = adapter;
     }
 
-    public void TumAlinanBorclariCek(){
+    public void TumVerilenBorclariCek() {
         db.collection("users")
                 .document(MainActivity.kullanicistatic.getKullaniciId())
-                .collection("alinanlar")
+                .collection("verilenler")
                 .get()
-                .addOnSuccessListener(dokumanlar->{
+                .addOnSuccessListener(dokumanlar -> {
                     for (DocumentSnapshot document : dokumanlar) {
                         dokumanVerisiniIsle(document);
                     }
                 });
     }
-
-
 
     private void dokumanVerisiniIsle(DocumentSnapshot document) {
         if (document != null && document.exists()) {
@@ -57,45 +54,45 @@ public class BorcAlinanlarYonetici {
             boolean odendiMi = document.contains("odendiMi") && document.get("odendiMi") != null
                     ? document.getBoolean("odendiMi")
                     : false;
-            AlinanBorcModel model = new AlinanBorcModel(kullaniciId, aciklama, miktar, odemeTarihi, tarih, odendiMi, iban);
+
+            VerilenBorcModel model = new VerilenBorcModel(kullaniciId, aciklama, miktar, odemeTarihi, tarih, odendiMi, iban);
             model.setID(document.getId());
             KullaniciAdiUlas(model);
         }
     }
 
-    private void KullaniciAdiUlas(AlinanBorcModel model){
+    private void KullaniciAdiUlas(VerilenBorcModel model) {
         db.collection("users")
                 .document(model.getKullaniciId())
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         String kullaniciAdi = documentSnapshot.getString("kullaniciAdi");
-                        model.setAlinanAdi(kullaniciAdi);
-                        adapter.ItemEkle(model);
+                        model.setVerilenAdi(kullaniciAdi);
+                        adapter.itemEkle(model);
                     }
                 });
     }
 
-    public void BorcuOde(AlinanBorcModel borcModel, int posizyon){
+    public void BorcuOde(VerilenBorcModel borcModel, int pozisyon) {
         db.collection("users")
                 .document(MainActivity.kullanicistatic.getKullaniciId())
-                .collection("alinanlar")
-                .document(borcModel.getID())
-                .update("odendiMi", true)
-                        .addOnSuccessListener(s->{
-                            borcModel.setOdendiMi(true);
-                            adapter.notifyItemChanged(posizyon);
-                        });
-        db.collection("users")
-                .document(borcModel.getKullaniciId())
                 .collection("verilenler")
                 .document(borcModel.getID())
                 .update("odendiMi", true)
-                .addOnSuccessListener(s->{
+                .addOnSuccessListener(s -> {
                     borcModel.setOdendiMi(true);
-                    adapter.notifyItemChanged(posizyon);
+                    adapter.notifyItemChanged(pozisyon);
+                });
+
+        db.collection("users")
+                .document(borcModel.getKullaniciId())
+                .collection("alinanlar")
+                .document(borcModel.getID())
+                .update("odendiMi", true)
+                .addOnSuccessListener(s -> {
+                    borcModel.setOdendiMi(true);
+                    adapter.notifyItemChanged(pozisyon);
                 });
     }
-
-
 }

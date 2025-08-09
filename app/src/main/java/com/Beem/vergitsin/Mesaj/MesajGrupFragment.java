@@ -207,7 +207,7 @@ public class MesajGrupFragment extends Fragment{
 
                 @Override
                 public void onEveteBastiGrup(String cvpverenid, Mesaj mesaj) {
-                    mViewModel.AlinanlarVerilenlerKayit(cvpverenid,mesaj.getIstegiAtanId(),mesaj.getAciklama(),mesaj.getMiktar(),mesaj.getOdenecekTarih());
+                    mViewModel.AlinanlarVerilenlerKayit(cvpverenid,mesaj.getIstegiAtanId(),mesaj.getAciklama(),mesaj.getMiktar(),mesaj.getOdenecekTarih(),mesaj.getIban());
                 }
             };
             adapter.setListenercvp(arayuzum);
@@ -338,7 +338,7 @@ public class MesajGrupFragment extends Fragment{
 
                 @Override
                 public void onEveteBastiGrup(String cvpverenid, Mesaj mesaj) {
-                    mViewModel.AlinanlarVerilenlerKayit(cvpverenid,mesaj.getIstegiAtanId(),mesaj.getAciklama(),mesaj.getMiktar(),mesaj.getOdenecekTarih());
+                    mViewModel.AlinanlarVerilenlerKayit(cvpverenid,mesaj.getIstegiAtanId(),mesaj.getAciklama(),mesaj.getMiktar(),mesaj.getOdenecekTarih(),mesaj.getIban());
                 }
             };
             adapter.setListenercvp(arayuzum);

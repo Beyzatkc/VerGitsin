@@ -456,27 +456,30 @@ public class MesajGrupViewModel extends ViewModel {
                 });
 
     }
-    public void AlinanlarVerilenlerKayit(String eveteBasanId,String istekGonderenId,String aciklama,String miktar,Timestamp odenecekTarih){
+    public void AlinanlarVerilenlerKayit(String eveteBasanId,String istekGonderenId,String aciklama,String miktar,Timestamp odenecekTarih,String iban){
+        String ortakId = db.collection("users").document().getId();
         DocumentReference verilenRef=db.collection("users")
                 .document(eveteBasanId)
                 .collection("verilenler")
-                .document(istekGonderenId);
+                .document(ortakId);
         Map<String,Object>verilenverisi=new HashMap<>();
         verilenverisi.put("kullaniciId",istekGonderenId);
         verilenverisi.put("aciklama",aciklama);
         verilenverisi.put("miktar",miktar);
+        verilenverisi.put("iban",iban);
         verilenverisi.put("odemeTarihi",odenecekTarih);
         verilenverisi.put("tarih", FieldValue.serverTimestamp());
 
         DocumentReference alinanRef=db.collection("users")
                 .document(istekGonderenId)
                 .collection("alinanlar")
-                .document(eveteBasanId);
+                .document(ortakId);
         Map<String,Object>alinanverisi=new HashMap<>();
 
         alinanverisi.put("kullaniciId",eveteBasanId);
         alinanverisi.put("aciklama",aciklama);
         alinanverisi.put("miktar",miktar);
+        alinanverisi.put("iban",iban);
         alinanverisi.put("odemeTarihi",odenecekTarih);
         alinanverisi.put("tarih", FieldValue.serverTimestamp());
 
