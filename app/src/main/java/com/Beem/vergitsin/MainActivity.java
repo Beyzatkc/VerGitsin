@@ -100,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
         profilAlani = findViewById(R.id.profilCardView);
         profilFoto = findViewById(R.id.profilFoto);
 
-        BorcVerilenlerAlinanlarGecis();
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -141,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
             MainActivity.kullanicistatic = kullanici;
             ProfilFotoYerlestir();
             cevrimici();
+            BorcVerilenlerAlinanlarGecis();
 
             FirebaseMessaging.getInstance().getToken()
                     .addOnSuccessListener(token -> {
