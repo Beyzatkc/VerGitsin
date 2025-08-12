@@ -1,5 +1,6 @@
 package com.Beem.vergitsin.Alarm;
 
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.widget.Button;
@@ -44,19 +45,18 @@ public class AlarmActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        mediaPlayer = MediaPlayer.create(this, R.raw.alarmsounds);
-        mediaPlayer.setLooping(true);
-        mediaPlayer.start();
 
         alarmikapat=findViewById(R.id.btnAlarmKapat);
         borc_miktr=findViewById(R.id.borc_miktr);
-        borc_miktr.setText(miktar);
+        borc_miktr.setText(miktar+" TL");
         alarmikapat.setOnClickListener(b->{
             if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                 mediaPlayer.stop();
                 mediaPlayer.release();
                 mediaPlayer = null;
             }
+            Intent intent = new Intent(this, AlarmService.class);
+            stopService(intent);
             finish();
         });
 

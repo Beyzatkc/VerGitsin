@@ -43,16 +43,33 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
                 return;
             }
         }
-        sohbetler.add(yeniSohbet);
-        notifyItemInserted(sohbetler.size() - 1);
+        sohbetler.add(0, yeniSohbet);
+        notifyItemInserted(0);
     }
 
     public void SohbetGuncelle(Sohbet guncelSohbet) {
-        for (int i = 0; i < sohbetler.size(); i++) {
+       /* for (int i = 0; i < sohbetler.size(); i++) {
             if (sohbetler.get(i).getSohbetID().equals(guncelSohbet.getSohbetID())) {
                 sohbetler.get(i).setSonMesaj(guncelSohbet.getSonMesaj());
                 sohbetler.get(i).setSonmsjsaati(guncelSohbet.getSonmsjsaati());
                 notifyItemChanged(i);
+                break;
+            }
+        }*/
+        for (int i = 0; i < sohbetler.size(); i++) {
+            if (sohbetler.get(i).getSohbetID().equals(guncelSohbet.getSohbetID())) {
+
+                // Mevcut sohbeti al ve güncelle
+                Sohbet mevcut = sohbetler.remove(i);
+                mevcut.setSonMesaj(guncelSohbet.getSonMesaj());
+                mevcut.setSonmsjsaati(guncelSohbet.getSonmsjsaati());
+
+                // Başa ekle
+                sohbetler.add(0, mevcut);
+
+                // Adapter'a bildir
+                notifyItemMoved(i, 0);
+                notifyItemChanged(0);
                 break;
             }
         }
