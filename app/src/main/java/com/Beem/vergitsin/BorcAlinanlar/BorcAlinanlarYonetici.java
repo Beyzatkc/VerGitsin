@@ -25,9 +25,6 @@ public class BorcAlinanlarYonetici {
                     }
                 });
     }
-
-
-
     private void dokumanVerisiniIsle(DocumentSnapshot document) {
         if (document != null && document.exists()) {
             String aciklama = document.contains("aciklama") && document.get("aciklama") != null

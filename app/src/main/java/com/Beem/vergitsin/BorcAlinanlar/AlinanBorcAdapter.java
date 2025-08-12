@@ -76,6 +76,12 @@ public class AlinanBorcAdapter extends RecyclerView.Adapter<AlinanBorcAdapter.Bo
 
         if(borc.isOdendiMi()){
             holder.btnBorcuOde.setVisibility(View.GONE);
+            holder.odenditext.setVisibility(View.VISIBLE);
+            holder.hatirlatici.setVisibility(View.GONE);
+            holder.icon.setVisibility(View.GONE);
+        }else{
+            holder.btnBorcuOde.setVisibility(View.VISIBLE);
+            holder.odenditext.setVisibility(View.GONE);
         }
 
         holder.btnBorcuOde.setOnClickListener(v -> {
@@ -83,6 +89,25 @@ public class AlinanBorcAdapter extends RecyclerView.Adapter<AlinanBorcAdapter.Bo
                 borcOdeClickListener.onBorcOdeClick(borc, position);
             }
         });
+
+        Timestamp zaman2 = borc.getOdenecekTarih();
+        Date date2 = zaman2.toDate();
+
+        Calendar calendar2 = Calendar.getInstance();
+        calendar2.setTime(date2);
+        calendar2.set(Calendar.HOUR_OF_DAY, 20);
+        calendar2.set(Calendar.MINUTE, 0);
+        calendar2.set(Calendar.SECOND, 0);
+        calendar2.set(Calendar.MILLISECOND, 0);
+
+        long hedefZaman2 = calendar2.getTimeInMillis();
+
+        if (hedefZaman2 < System.currentTimeMillis()) {
+            holder.hatirlatici.setVisibility(View.GONE);
+            holder.icon.setAlpha(0.5f);
+            holder.icon.setEnabled(false);
+        }
+
         holder.icon.setOnClickListener(v->{
             Context context=v.getContext();
             LayoutInflater inflater=LayoutInflater.from(context);
@@ -124,16 +149,6 @@ public class AlinanBorcAdapter extends RecyclerView.Adapter<AlinanBorcAdapter.Bo
                 calendar.set(Calendar.MILLISECOND, 0);
 
                 long hedefZaman = calendar.getTimeInMillis();
-
-                Toast.makeText(context, "Alarm zamanı: " + new Date(hedefZaman).toString(), Toast.LENGTH_SHORT).show();
-
-                if (hedefZaman <= System.currentTimeMillis()) {
-                    Toast.makeText(context, "Alarm zamanı geçmiş. Alarm 1 dakika sonraya ayarlanıyor.", Toast.LENGTH_SHORT).show();
-
-                    hedefZaman = System.currentTimeMillis() + 60 * 1000;
-
-                    Toast.makeText(context, "Yeni alarm zamanı: " + new Date(hedefZaman).toString(), Toast.LENGTH_SHORT).show();
-                }
 
                 Intent intent = new Intent(context, AlarmReceiver.class);
                 intent.putExtra("adi","alinanborc");
@@ -210,7 +225,7 @@ public class AlinanBorcAdapter extends RecyclerView.Adapter<AlinanBorcAdapter.Bo
     }
 
     public static class BorcViewHolder extends RecyclerView.ViewHolder {
-        TextView tvAciklama, tvMiktar, tvOdenecekTarih, tvZaman, tvKimdenAlindi, tvIban,hatirlatici;
+        TextView tvAciklama, tvMiktar, tvOdenecekTarih, tvZaman, tvKimdenAlindi, tvIban,hatirlatici,odenditext;
         ImageView icon;
         Button btnBorcuOde;
 
@@ -225,6 +240,7 @@ public class AlinanBorcAdapter extends RecyclerView.Adapter<AlinanBorcAdapter.Bo
             tvKimdenAlindi = itemView.findViewById(R.id.tvKimdenAlindi);
             tvIban = itemView.findViewById(R.id.tvIban);
             hatirlatici=itemView.findViewById(R.id.hatirlatici);
+            odenditext=itemView.findViewById(R.id.odenditext);
         }
     }
     private String formatTarih(Timestamp timestamp) {

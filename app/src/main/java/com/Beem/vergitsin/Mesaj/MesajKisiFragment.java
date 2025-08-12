@@ -269,6 +269,8 @@ public class MesajKisiFragment extends Fragment {
                 }
                 adapter.guncelleMesajListesi(mesajList);
                 borcIstegiYollaBtn.setVisibility(View.VISIBLE);
+                istekEditTextViewLayout.setVisibility(View.GONE);
+                istekTextViewLayout.setVisibility(View.GONE);
                 Kaydirma();
                 SonMesaj=mesajList.get(mesajList.size()-1).getMiktar()+" Tl borç isteği";
                 SonMesajSaat=mesajList.get(mesajList.size()-1).getZaman();

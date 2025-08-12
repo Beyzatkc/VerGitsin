@@ -80,6 +80,12 @@ public class VerilenBorcAdapter extends RecyclerView.Adapter<VerilenBorcAdapter.
 
         if (borc.isOdendiMi()) {
             holder.btnHatirlat.setVisibility(View.GONE);
+            holder.odenditext.setVisibility(View.VISIBLE);
+            holder.hatirlatici.setVisibility(View.GONE);
+            holder.icon.setVisibility(View.GONE);
+        }else{
+            holder.btnHatirlat.setVisibility(View.VISIBLE);
+            holder.odenditext.setVisibility(View.GONE);
         }
 
         holder.btnHatirlat.setOnClickListener(v -> {
@@ -92,6 +98,26 @@ public class VerilenBorcAdapter extends RecyclerView.Adapter<VerilenBorcAdapter.
                 hatirlatClickListener.onProfileGec(borc.getKullaniciId());
             }
         });
+
+        Timestamp zaman2 = borc.getOdenecekTarih();
+        Date date2 = zaman2.toDate();
+
+        Calendar calendar2 = Calendar.getInstance();
+        calendar2.setTime(date2);
+        calendar2.set(Calendar.HOUR_OF_DAY, 20);
+        calendar2.set(Calendar.MINUTE, 0);
+        calendar2.set(Calendar.SECOND, 0);
+        calendar2.set(Calendar.MILLISECOND, 0);
+
+        long hedefZaman2 = calendar2.getTimeInMillis();
+
+        if (hedefZaman2 < System.currentTimeMillis()) {
+            holder.hatirlatici.setVisibility(View.GONE);
+            holder.icon.setAlpha(0.5f);
+            holder.icon.setEnabled(false);
+        }
+
+
         holder.icon.setOnClickListener(v->{
             Context context=v.getContext();
             LayoutInflater inflater=LayoutInflater.from(context);
@@ -207,7 +233,7 @@ public class VerilenBorcAdapter extends RecyclerView.Adapter<VerilenBorcAdapter.
     }
 
     public static class BorcViewHolder extends RecyclerView.ViewHolder {
-        TextView tvAciklama, tvMiktar, tvOdemeTarihi, tvZaman, tvKimeVerildi, tvIban,hatirlatici;
+        TextView tvAciklama, tvMiktar, tvOdemeTarihi, tvZaman, tvKimeVerildi, tvIban,hatirlatici,odenditext;
         ImageView icon;
         Button btnHatirlat;
 
@@ -222,6 +248,7 @@ public class VerilenBorcAdapter extends RecyclerView.Adapter<VerilenBorcAdapter.
             icon = itemView.findViewById(R.id.icon);
             btnHatirlat = itemView.findViewById(R.id.btnHatirlat);
             hatirlatici=itemView.findViewById(R.id.hatirlatici);
+            odenditext=itemView.findViewById(R.id.odenditext);
         }
     }
 

@@ -29,12 +29,12 @@
             android:id="@+id/tvKimeVerildi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Verilen: "
+            android:text="Verilen:Ahmet "
             android:textSize="14sp"
-            android:textColor="#616161"
+            android:textColor="#4E342E"
             android:layout_below="@id/tvAciklama"
             android:layout_marginTop="2dp"
-            android:fontFamily="sans-serif"
+            android:textStyle="normal"
             android:background="@drawable/text_view_tiklama_efekt"
             android:paddingVertical="2dp"
             android:clickable="true"
@@ -59,10 +59,21 @@
             android:layout_height="wrap_content"
             android:text="Geri Ödeme: 10.08.2025"
             android:textSize="14sp"
-            android:textColor="#388E3C"
+            android:textColor="#4E342E"
             android:layout_below="@id/tvMiktar"
             android:layout_marginTop="6dp"
-            android:fontFamily="cursive" />
+            android:textStyle="normal" />
+
+        <TextView
+            android:id="@+id/tvIban"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="IBAN: TR98 7654 3210 9876 5432 1098 76"
+            android:textSize="12sp"
+            android:textColor="#4E342E"
+            android:layout_below="@id/tvOdemeTarihi"
+            android:layout_marginTop="6dp"
+            android:textStyle="normal" />
 
         <!-- Eklenme tarihi -->
         <TextView
@@ -72,21 +83,9 @@
             android:text="Eklenme: 05 Ağustos"
             android:textSize="12sp"
             android:textColor="#9E9E9E"
-            android:layout_below="@id/tvOdemeTarihi"
-            android:layout_marginTop="2dp"
+            android:layout_below="@id/tvIban"
+            android:layout_marginTop="6dp"
             android:fontFamily="sans-serif-condensed" />
-
-        <!-- IBAN alanı -->
-        <TextView
-            android:id="@+id/tvIban"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="IBAN: TR98 7654 3210 9876 5432 1098 76"
-            android:textSize="12sp"
-            android:textColor="#4E342E"
-            android:layout_below="@id/tvZaman"
-            android:layout_marginTop="4dp"
-            android:fontFamily="monospace" />
 
         <!-- Saat ikonu -->
         <ImageView
@@ -121,9 +120,23 @@
             android:layout_alignParentEnd="true"
             android:backgroundTint="#43A047"
             android:textColor="#FFFFFF"
+            android:visibility="gone"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
             android:fontFamily="sans-serif-medium" />
+        <TextView
+            android:id="@+id/odenditext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tvIban"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="12dp"
+            android:fontFamily="sans-serif-medium"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:text="Ödendi"
+            android:textColor="#0B670F"
+            android:textStyle="italic" />
 
     </RelativeLayout>
 </androidx.cardview.widget.CardView>

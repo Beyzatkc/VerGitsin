@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:text="Alınan: Ahmet Yılmaz"
             android:textSize="14sp"
-            android:textColor="#616161"
+            android:textColor="#6D4C41"
             android:layout_below="@id/tvAciklama"
             android:layout_marginTop="2dp"
             android:fontFamily="sans-serif"
@@ -60,22 +60,11 @@
             android:text="Ödeme: 01.08.2025"
             android:textSize="14sp"
             android:textColor="#6D4C41"
+            android:textStyle="normal"
             android:layout_below="@id/tvMiktar"
             android:layout_marginTop="6dp"
-            android:fontFamily="cursive" />
+            />
 
-        <TextView
-            android:id="@+id/tvZaman"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Eklenme: 25 Temmuz"
-            android:textSize="12sp"
-            android:textColor="#9E9E9E"
-            android:layout_below="@id/tvOdenecekTarih"
-            android:layout_marginTop="2dp"
-            android:fontFamily="sans-serif-condensed" />
-
-        <!-- IBAN alanı -->
         <TextView
             android:id="@+id/tvIban"
             android:layout_width="wrap_content"
@@ -83,9 +72,21 @@
             android:text="IBAN: TR12 3456 7890 1234 5678 9012 34"
             android:textSize="12sp"
             android:textColor="#795548"
-            android:layout_below="@id/tvZaman"
-            android:layout_marginTop="4dp"
-            android:fontFamily="monospace" />
+            android:layout_below="@id/tvOdenecekTarih"
+            android:layout_marginTop="6dp"
+            android:textStyle="normal" />
+
+        <!-- Zaman alanı -->
+        <TextView
+            android:id="@+id/tvZaman"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Eklenme: 25 Temmuz"
+            android:textSize="12sp"
+            android:textColor="#9E9E9E"
+            android:layout_below="@id/tvIban"
+            android:layout_marginTop="6dp"
+            android:fontFamily="sans-serif-condensed" />
 
         <ImageView
             android:id="@+id/icon"
@@ -119,6 +120,23 @@
             android:textColor="#FFFFFF"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
+            android:visibility="visible"
             android:fontFamily="sans-serif-medium" />
+
+        <TextView
+            android:id="@+id/odenditext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tvIban"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="12dp"
+            android:fontFamily="sans-serif-medium"
+            android:paddingLeft="16dp"
+            android:visibility="gone"
+            android:paddingRight="16dp"
+            android:text="Ödediniz"
+            android:textColor="#0B670F"
+            android:textStyle="italic" />
+
     </RelativeLayout>
 </androidx.cardview.widget.CardView>
