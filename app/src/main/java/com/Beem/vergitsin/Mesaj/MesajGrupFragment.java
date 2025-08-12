@@ -1,6 +1,8 @@
 package com.Beem.vergitsin.Mesaj;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.annotation.SuppressLint;
@@ -29,8 +31,11 @@ import android.widget.Toast;
 import com.Beem.vergitsin.Grup;
 import com.Beem.vergitsin.Gruplar.GrupOnizlemeBottomSheet;
 import com.Beem.vergitsin.Gruplar.GruplarYonetici;
+import com.Beem.vergitsin.Kullanici.Kullanici;
 import com.Beem.vergitsin.Kullanici.Observe;
 import com.Beem.vergitsin.MainActivity;
+import com.Beem.vergitsin.Profil.DigerProfilFragment;
+import com.Beem.vergitsin.Profil.ProfilYonetici;
 import com.Beem.vergitsin.R;
 import com.Beem.vergitsin.UyariMesaj;
 import com.google.firebase.Timestamp;
@@ -128,8 +133,14 @@ public class MesajGrupFragment extends Fragment{
                 AcilmaZamani=getArguments().getLong("acilmaZamani");
                 GrupOnizlemeAc(sohbetID);
             }
-            CikilmaZamani = getArguments().getLong("CikilmaZaman");
-            System.out.println(CikilmaZamani);
+            else if(kaynak.equals("cikilmis")){
+                sohbetIdAdptr= getArguments().getString("sohbetId");
+                sohbetedilenAd=getArguments().getString("sohbetedilenAd");
+                sohbetEdilenPP=getArguments().getString("sohbetEdilenPP");
+                AcilmaZamaniadptr=getArguments().getLong("acilmaZamani");
+                CikilmaZamani = getArguments().getLong("CikilmaZaman");
+                System.out.println(CikilmaZamani);
+            }
         }
         // Geri tuşuna basıldığında fragmentten çık
         requireActivity().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -188,8 +199,13 @@ public class MesajGrupFragment extends Fragment{
                 if (layoutManager.findFirstVisibleItemPosition() == 0 && !isLoading) {
                     isLoading = true; // yükleniyor flag'i
                     if ("mainactivity".equals(kaynak)) {
+                        System.out.println(ilkmsjSaati+"-girdim*-"+AcilmaZamani);
                         mViewModel.EskiMesajlariYukle(sohbetID,ilkmsjSaati,AcilmaZamani);
-                    }else{
+                    }
+                    else if("cikilmis".equals(kaynak)){
+                        mViewModel.EskiMesajlariYukle(sohbetIdAdptr,ilkmsjSaatiadptr,AcilmaZamaniadptr);
+                    }else if("SohbetAdapter".equals(kaynak)){
+                        System.out.println(ilkmsjSaatiadptr+"-girdim****-"+AcilmaZamaniadptr);
                         mViewModel.EskiMesajlariYukle(sohbetIdAdptr,ilkmsjSaatiadptr,AcilmaZamaniadptr);
                     }
 
@@ -199,6 +215,9 @@ public class MesajGrupFragment extends Fragment{
 
         // bunu ben koydum aşkım bottomsheeti aciyor
         grupAdiLinear.setOnClickListener(v->{ bottomSheet.show(getParentFragmentManager(), bottomSheet.getTag()); });
+        adapter.setProfilGec((id)->{
+            ProfileGec(id);
+        });
 
 
         if ("mainactivity".equals(kaynak)) {
@@ -270,14 +289,7 @@ public class MesajGrupFragment extends Fragment{
                         "user", "drawable", requireContext().getPackageName());
                 grup_fotosu.setImageResource(resId);
             }
-            if(CikilmaZamani!=null && CikilmaZamani!=0L){
-                System.out.println("mgf de girdim");
-                mViewModel.GruptanCikilmisMesajlar(sohbetID,AcilmaZamani,CikilmaZamani);
-            }
-            else{
-                mViewModel.MesajBorcistekleriDbCek(sohbetID,AcilmaZamani);
-            }
-
+            mViewModel.MesajBorcistekleriDbCek(sohbetID,AcilmaZamani);
             mViewModel.eklenen().observe(getViewLifecycleOwner(), mesaj -> {
                 if (mesaj != null) {
                     mViewModel.IddenGonderenAdaUlasmaTekKisi(mesaj);
@@ -332,6 +344,57 @@ public class MesajGrupFragment extends Fragment{
                     ArrayList<Mesaj> mesajList = mViewModel.getGeciciEskiMesajListesi();
                     if (mesajList != null && !mesajList.isEmpty()) {
                         ilkmsjSaati=mesajList.get(0).getZaman();
+                        adapter.eskiMesajlariBasaEkle(mesajList);
+                        isLoading = false;
+                    }
+                }
+            });
+
+        } else if (kaynak.equals("cikilmis")) {
+            adapter.setCikilmisMi(true);
+            grupAdi.setText(sohbetedilenAd);
+            grupAdiLinear.setClickable(false);
+            if (sohbetEdilenPP != null) {
+                int resId = requireContext().getResources().getIdentifier(
+                        sohbetEdilenPP, "drawable", requireContext().getPackageName());
+                grup_fotosu.setImageResource(resId);
+            }
+            else{
+                int resId = requireContext().getResources().getIdentifier(
+                        "user", "drawable", requireContext().getPackageName());
+                grup_fotosu.setImageResource(resId);
+            }
+            System.out.println("mgf de girdim");
+            mViewModel.GruptanCikilmisMesajlar(sohbetIdAdptr,AcilmaZamaniadptr,CikilmaZamani);
+            mViewModel.tumMesajlar().observe(getViewLifecycleOwner(), mesajList -> {
+                mViewModel.IddenGonderenAdaUlasma(mesajList,"mesajlar");
+                adapter.guncelleMesajListesi(mesajList);
+            });
+            mViewModel.tamamlandi().observe(getViewLifecycleOwner(), tamamlandiMi -> {
+                if (Boolean.TRUE.equals(tamamlandiMi)) {
+                    ArrayList<Mesaj> mesajList = mViewModel.tumMesajlar().getValue();
+                    if (mesajList != null) {
+                        if (!ilkMesajAlindiadptr) {
+                            ilkmsjSaatiadptr = mesajList.get(0).getZaman();
+                            ilkMesajAlindiadptr = true;
+                        }
+                        adapter.guncelleMesajListesi(mesajList);
+                        mesajGrupRecyclerView.scrollToPosition(adapter.getItemCount() - 1);
+                    }
+                }
+
+            });
+
+            mViewModel.eskiMesajlar().observe(getViewLifecycleOwner(), mesajList -> {
+                mViewModel.setGeciciEskiMesajListesi(mesajList);
+                mViewModel.IddenGonderenAdaUlasma(mesajList,"eskimsjlar");
+            });
+
+            mViewModel.tamamlandieski().observe(getViewLifecycleOwner(), tamamlandiMi -> {
+                if (Boolean.TRUE.equals(tamamlandiMi)) {
+                    ArrayList<Mesaj> mesajList = mViewModel.getGeciciEskiMesajListesi();
+                    if (mesajList != null && !mesajList.isEmpty()) {
+                        ilkmsjSaatiadptr=mesajList.get(0).getZaman();
                         adapter.eskiMesajlariBasaEkle(mesajList);
                         isLoading = false;
                     }
@@ -397,12 +460,7 @@ public class MesajGrupFragment extends Fragment{
                 grup_fotosu.setImageResource(resId);
             }
             gonderenadiview.setText(MainActivity.kullanicistatic.getKullaniciAdi());
-            if(CikilmaZamani!=null && CikilmaZamani!=0L){
-                mViewModel.GruptanCikilmisMesajlar(sohbetIdAdptr,AcilmaZamani,CikilmaZamani);
-            }
-            else{
-                mViewModel.MesajBorcistekleriDbCek(sohbetIdAdptr,AcilmaZamani);
-            }
+            mViewModel.MesajBorcistekleriDbCek(sohbetIdAdptr,AcilmaZamaniadptr);
 
             mViewModel.eklenen().observe(getViewLifecycleOwner(), mesaj -> {
                 if (mesaj != null) {
@@ -593,5 +651,24 @@ public class MesajGrupFragment extends Fragment{
                 return false;
             }
         });
+    }
+
+
+
+    private void ProfileGec(String id){
+        Kullanici k1 = new Kullanici();
+        k1.setKullaniciId(id);
+        ProfilYonetici yonetici = new ProfilYonetici(k1);
+        yonetici.ProfilDoldur(()->{
+            FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            DigerProfilFragment profilFragment = new DigerProfilFragment();
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("kullanici", k1);
+            profilFragment.setArguments(bundle);
+            fragmentTransaction.replace(R.id.konteynir, profilFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+        },()->{});
     }
 }

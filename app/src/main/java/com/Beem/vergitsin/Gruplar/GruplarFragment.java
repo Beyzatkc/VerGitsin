@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -27,6 +28,7 @@ public class GruplarFragment extends Fragment {
     private GruplarAdapter adapter;
     private ArrayList<Grup> gruplar;
     private GruplarYonetici yonetici;
+    private EditText aramaEditText;
     private SharedPreferencesK yerelKayit;
 
 
@@ -37,6 +39,7 @@ public class GruplarFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.recyclerViewKullanicilar);
         textViewDialogBaslik = view.findViewById(R.id.textViewDialogBaslik);
+        view.findViewById(R.id.aramaEditText).setVisibility(View.GONE);
         textViewDialogBaslik.setText("Gruplarım");
 
         yerelKayit = new SharedPreferencesK(requireContext());

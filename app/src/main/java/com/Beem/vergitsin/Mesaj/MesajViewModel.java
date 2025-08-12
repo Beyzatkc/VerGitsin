@@ -386,6 +386,10 @@ public class MesajViewModel extends ViewModel {
             Log.e("Firestore", "Hata oluştu: " + e.getMessage());
         });
 
+        db.collection("users")
+                .document(eveteBasanId)
+                .update("BorcSayisi", FieldValue.increment(Integer.valueOf(miktar)));
+
     }
     private String TimeStampiSaate(Timestamp gorulme){
         if (gorulme == null) return "";

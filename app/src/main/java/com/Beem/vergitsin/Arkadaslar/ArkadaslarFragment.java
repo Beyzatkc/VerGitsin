@@ -43,6 +43,7 @@ public class ArkadaslarFragment extends Fragment {
 
         textViewDialogBaslik = view.findViewById(R.id.textViewDialogBaslik);
         recyclerViewKullanicilar = view.findViewById(R.id.recyclerViewKullanicilar);
+        view.findViewById(R.id.aramaEditText).setVisibility(View.GONE);
         textViewDialogBaslik.setText("Arkadaşlarım");
         recyclerViewKullanicilar.setLayoutManager(new LinearLayoutManager(getContext()));
 

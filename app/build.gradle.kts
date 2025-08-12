@@ -55,6 +55,8 @@ dependencies {
     implementation("com.google.android.material:material:1.12.0")
 
     implementation("com.facebook.shimmer:shimmer:0.5.0")
+    implementation("com.google.firebase:firebase-functions:20.1.1")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

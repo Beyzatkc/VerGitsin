@@ -189,16 +189,17 @@ public class MesajGrupViewModel extends ViewModel {
 
 
     public void EskiMesajlariYukle(String aktifSohbetId,Long zaman, Long gizlemeZamani){
+        System.out.println(zaman+"-girdim-"+gizlemeZamani);
         Query query = db.collection("sohbetler")
                 .document(aktifSohbetId)
                 .collection("borc_istekleri")
                 .orderBy("isteginAtildigiZaman", Query.Direction.DESCENDING)
                 .limit(3);
 
-        if (zaman != null) {
+        if (zaman != null && zaman!=0) {
             query = query.whereLessThan("isteginAtildigiZaman", zaman);
         }
-        if (gizlemeZamani != null) {
+        if (gizlemeZamani != null && gizlemeZamani!=0) {
             query = query.whereGreaterThan("isteginAtildigiZaman", gizlemeZamani);
         }
 
@@ -206,6 +207,8 @@ public class MesajGrupViewModel extends ViewModel {
             ArrayList<Mesaj> eskiMesajlar = new ArrayList<>();
             for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
                 Mesaj mesaj=documentToMesaj(doc);
+                System.out.println(mesaj.getMsjID());
+                System.out.println(mesaj.getZaman()+"---");
                 eskiMesajlar.add(mesaj);
                 GorulmeKontrolEtVeGuncelle(mesaj, aktifSohbetId, () -> {
                 });
@@ -494,13 +497,17 @@ public class MesajGrupViewModel extends ViewModel {
             Log.e("Firestore", "Hata oluştu: " + e.getMessage());
         });
 
+
+        db.collection("users")
+                .document(eveteBasanId)
+                .update("BorcSayisi", FieldValue.increment(Integer.valueOf(miktar)));
     }
 
 
     public void GruptanCikilmisMesajlar(String id, Long baslangicZ, Long bitisZ){
-        Query query=  db.collection("gruplar")
+        Query query=  db.collection("sohbetler")
                 .document(id)
-                .collection("mesajlar")
+                .collection("borc_istekleri")
                 .orderBy("isteginAtildigiZaman", Query.Direction.ASCENDING)
                 .limit(3);
         if(baslangicZ!=null){

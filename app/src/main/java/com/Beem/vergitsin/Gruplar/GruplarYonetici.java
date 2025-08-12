@@ -272,9 +272,12 @@ public class GruplarYonetici {
     }
 
     public void GrupNesneKontrolu(Grup grup, Runnable tamamdir){
+        System.out.println("girildimi");
         if(grup.getOlusturan()!=null && !grup.getOlusturan().isEmpty()){
+            tamamdir.run();
             return;
         }
+        System.out.println("gecildimi");
         db.collection("gruplar")
                 .document(grup.getGrupId())
                 .get()

@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.os.Bundle;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,9 +21,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.Beem.vergitsin.Kullanici.Kullanici;
 import com.Beem.vergitsin.MainActivity;
+import com.Beem.vergitsin.Profil.DigerProfilFragment;
+import com.Beem.vergitsin.Profil.ProfilYonetici;
 import com.Beem.vergitsin.R;
 import com.google.firebase.Timestamp;
 
@@ -41,7 +47,12 @@ public class MesajAdapterGrup extends RecyclerView.Adapter<MesajAdapterGrup.View
     private Context context;
     private CevapGeldiGrup listenercvp;
     private MesajSilmeGuncellemeGrup listenersilme;
+    private boolean CikilmisMi = false;
+    private ProfileGec profilGec;
 
+    interface ProfileGec{
+        void profilGec(String kullaniciID);
+    }
     public MesajAdapterGrup(ArrayList<Mesaj>tumMesajlar, Context context) {
         this.tumMesajlar=tumMesajlar;
         this.context=context;
@@ -119,6 +130,19 @@ public class MesajAdapterGrup extends RecyclerView.Adapter<MesajAdapterGrup.View
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Mesaj mesaj=tumMesajlar.get(position);
         String benim= MainActivity.kullanicistatic.getKullaniciId();
+
+
+        if(CikilmisMi){
+            holder.EVETgelen.setEnabled(false);
+            holder.HAYIRgelen.setEnabled(false);
+            holder.EVETgelen.setAlpha(0.5f);
+            holder.HAYIRgelen.setAlpha(0.5f);
+        }
+        holder.gonderenadigelen.setOnClickListener(v->{
+            if(profilGec!=null){
+                profilGec.profilGec(mesaj.getIstegiAtanId());
+            }
+        });
 
         if(mesaj.getIstegiAtanId().equals(benim)){
             holder.gelenLayout.setVisibility(View.GONE);
@@ -397,4 +421,15 @@ public class MesajAdapterGrup extends RecyclerView.Adapter<MesajAdapterGrup.View
         }
     }
 
+    public void setCikilmisMi(boolean cikilmisMi) {
+        CikilmisMi = cikilmisMi;
+    }
+
+    public boolean isCikilmisMi() {
+        return CikilmisMi;
+    }
+
+    public void setProfilGec(ProfileGec profilGec) {
+        this.profilGec = profilGec;
+    }
 }

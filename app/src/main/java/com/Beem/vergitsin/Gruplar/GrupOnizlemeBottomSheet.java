@@ -135,6 +135,7 @@ public class GrupOnizlemeBottomSheet extends BottomSheetDialogFragment {
     }
 
     private void GrupOnizlemeViewAyarlari() {
+        System.out.println(grup.getOlusturan());
         if (!grup.getOlusturan().equals(MainActivity.kullanicistatic.getKullaniciId())) {
             arkadasCikar.setVisibility(View.GONE);
             grupDuzenle.setVisibility(View.GONE);
