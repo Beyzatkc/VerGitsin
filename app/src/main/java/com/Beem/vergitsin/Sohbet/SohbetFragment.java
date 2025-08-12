@@ -68,13 +68,22 @@ public class SohbetFragment extends Fragment{
                     sohbet.setGorulmemisMesajSayisi(0);
                     sohbet.setSohbeteGirildiMi(true);
                     Bundle bundle = new Bundle();
-                    bundle.putString("kaynak", "SohbetAdapter");
                     bundle.putString("sohbetId", sohbet.getSohbetID());
                     bundle.putString("sohbetedilenAd",sohbet.getKullaniciAdi());
                     bundle.putString("sohbetEdilenPP",sohbet.getPpfoto());
                     Long acilmaZamaniObj = sohbet.getAcilmazamani();
                     if (acilmaZamaniObj != null) {
                         bundle.putLong("acilmaZamani", acilmaZamaniObj);
+                    }
+                    Long cikilmaZaman = sohbet.getEskiGrupZaman();
+                    if (cikilmaZaman!=null && cikilmaZaman!=0){
+                        System.out.println("sf de girdim");
+                        System.out.println(sohbet.getEskiGrupZaman()+"---"+cikilmaZaman);
+                        bundle.putLong("CikilmaZaman",cikilmaZaman);
+                        bundle.putString("kaynak", "cikilmis");
+                    }
+                    else{
+                        bundle.putString("kaynak", "SohbetAdapter");
                     }
                     if(sohbet.getTur().equals("grup")) {
                         Fragment mesajGrupFragment = new MesajGrupFragment();
@@ -108,6 +117,7 @@ public class SohbetFragment extends Fragment{
                     adapter.GorulmeyenSayisi(sohbet);
         });
 
+        mViewModel.EskiGrupSohbetleriCek();
 
         mViewModel.getGorulmeyenMesajSayilariGrup().observe(getViewLifecycleOwner(), sohbet -> {
             adapter.GorulmeyenSayisi(sohbet);

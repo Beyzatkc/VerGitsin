@@ -424,7 +424,29 @@ public class SohbetViewModel extends ViewModel {
                         Map<String , Long> eskiKat = (Map<String, Long>) doc.get("eskikatilimcilar");
                         if(eskiKat==null) continue;
                         if(eskiKat.containsKey(MainActivity.kullanicistatic.getKullaniciId())){
-
+                            String tur = doc.getString("tur");
+                            String sohbetId = doc.getString("sohbetId");
+                            String kullaniciAdi = doc.getString("kullaniciAdi");
+                            String ppfoto = doc.getString("ppfoto");
+                            String sonMesaj = doc.getString("sonMesaj");
+                            Long sonMsjSaati = doc.getLong("sonMsjSaati");
+                            ArrayList<String> katilimcilar = (ArrayList<String>) doc.get("katilimcilar");
+                            ArrayList<Map<String, Object>> acilmaZamanlari = (ArrayList<Map<String, Object>>) doc.get("acilmaZamanlari");
+                            Sohbet sohbet = new Sohbet(sohbetId, kullaniciAdi, sonMsjSaati, ppfoto, sonMesaj, katilimcilar, tur);
+                            sohbet.setGrupCikildiMi(true);
+                            sohbet.setEskiGrupZaman(eskiKat.get(MainActivity.kullanicistatic.getKullaniciId()));
+                            if (acilmaZamanlari != null) {
+                                for (Map<String, Object> map : acilmaZamanlari) {
+                                    if (map.get("id") != null && map.get("id").equals(MainActivity.kullanicistatic.getKullaniciId())) {
+                                        Object zamanObj = map.get("acilmaZamani");
+                                        if (zamanObj instanceof Number) {
+                                            Long zaman = ((Number) zamanObj).longValue();
+                                            sohbet.setAcilmazamani(zaman);
+                                        }
+                                    }
+                                }
+                            }
+                            _eklenenSohbet.setValue(sohbet);
                         }
                     }
                 });

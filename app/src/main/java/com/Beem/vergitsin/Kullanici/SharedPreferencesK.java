@@ -84,7 +84,6 @@ public class SharedPreferencesK{
     }
 
     public void cikisYap() {
-        MainActivity.kullanicistatic = new Kullanici();
         editor.clear();
         editor.apply();
     }

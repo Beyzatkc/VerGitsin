@@ -9,6 +9,11 @@
     <!-- Android 13+ için medya oynatma tipli foreground service izni -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
 
+    <meta-data
+        android:name="com.google.firebase.messaging.default_notification_icon"
+        android:resource="@drawable/ic_bildirim"/>
+
+
 
     <application
         android:allowBackup="false"

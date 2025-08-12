@@ -133,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferencesK shared = new SharedPreferencesK(this);
         boolean fromFragment = getIntent().getBooleanExtra("fromFragment", false);
         if (shared.girisYapildiMi()||fromFragment) {
+            System.out.println("main girildi");
             String id=shared.getid();
             String email = shared.getEmail();
             String kAdi = shared.getKullaniciAdi();
@@ -146,13 +147,16 @@ public class MainActivity extends AppCompatActivity {
             cevrimici();
             BorcVerilenlerAlinanlarGecis();
 
+            System.out.println("mainin ustu");
             FirebaseMessaging.getInstance().getToken()
                     .addOnSuccessListener(token -> {
+                        System.out.println("token"+token);
                         FirebaseFirestore.getInstance()
                                 .collection("users")
                                 .document(MainActivity.kullanicistatic.getKullaniciId())
                                 .update("fcmToken", token)
                                 .addOnSuccessListener(aVoid -> {
+                                    System.out.println("mainin ici");
                                     Log.d("FCM", "Token başarıyla Firestore'a kaydedildi.");
                                 })
                                 .addOnFailureListener(e -> {
