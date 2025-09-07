@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.Beem.vergitsin.FragmentYonlendirici;
 import com.Beem.vergitsin.Mesaj.MesajGrupFragment;
 import com.Beem.vergitsin.Mesaj.MesajKisiFragment;
 import com.Beem.vergitsin.R;
@@ -88,19 +89,22 @@ public class SohbetFragment extends Fragment{
                     if(sohbet.getTur().equals("grup")) {
                         Fragment mesajGrupFragment = new MesajGrupFragment();
                         mesajGrupFragment.setArguments(bundle);
-                        requireActivity().getSupportFragmentManager()
+                        FragmentYonlendirici.Yonlendir(requireActivity().getSupportFragmentManager(), mesajGrupFragment,sohbet.getSohbetID());
+                        /*requireActivity().getSupportFragmentManager()
                                 .beginTransaction()
                                 .replace(R.id.konteynir, mesajGrupFragment)
                                 .addToBackStack(null)
-                                .commit();
+                                .commit();*/
                     }else if(sohbet.getTur().equals("kisi")){
                         Fragment mesajKisiFragment = new MesajKisiFragment();
                         mesajKisiFragment.setArguments(bundle);
+                        FragmentYonlendirici.Yonlendir(requireActivity().getSupportFragmentManager(), mesajKisiFragment,sohbet.getSohbetID());
+                        /*
                         requireActivity().getSupportFragmentManager()
                                 .beginTransaction()
                                 .replace(R.id.konteynir, mesajKisiFragment)
                                 .addToBackStack(null)
-                                .commit();
+                                .commit();*/
                     }
                 }
 

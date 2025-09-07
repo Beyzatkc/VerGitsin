@@ -100,16 +100,19 @@ public class MesajViewModel extends ViewModel {
                         Mesaj mesaj = documentToMesaj(dc.getDocument());
                         switch (dc.getType()) {
                             case ADDED:
+                                System.out.println("ADDED");
                                 GorulmeKontrolEtVeGuncelle(mesaj, aktifSohbetId, () -> {
                                     _eklenenMesaj.setValue(mesaj);
                                 });
                                 break;
                             case MODIFIED:
+                                System.out.println("MODIFIED");
                                 GorulmeKontrolEtVeGuncelle(mesaj, aktifSohbetId,() -> {
                                     _guncellenenMesaj.setValue(mesaj);
                                 });
                                 break;
                             case REMOVED:
+                                System.out.println("REMOVED");
                                 _silinenMesaj.setValue(mesaj);
                                 break;
                         }
@@ -123,8 +126,10 @@ public class MesajViewModel extends ViewModel {
             borcIstekleriListener.remove();
             borcIstekleriListener = null;
         }
+        ilkTetikleme = true;
     }
     public void GorulmeKontrolEtVeGuncelle(Mesaj mesaj, String aktifSohbetId, Runnable onComplete) {
+        System.out.println("GorulmeKontrolEtVeGuncelle");
         String kendiId = MainActivity.kullanicistatic.getKullaniciId();
         if (!mesaj.getIstegiAtanId().equals(kendiId) && !mesaj.isGoruldu()) {
             mesaj.setGoruldu(true);
@@ -147,6 +152,7 @@ public class MesajViewModel extends ViewModel {
 
 
     public void EskiMesajlariYukle(String aktifSohbetId,Long zaman, Long gizlemeZamani){
+        System.out.println("EskiMesajlariYukle");
         Query query = db.collection("sohbetler")
                 .document(aktifSohbetId)
                 .collection("borc_istekleri")
@@ -173,6 +179,7 @@ public class MesajViewModel extends ViewModel {
     }
 
     public Mesaj documentToMesaj(DocumentSnapshot doc){
+        System.out.println("documentToMesaj");
            Map<String, Object> cevapVerenMap = (Map<String, Object>) doc.get("cevap_veren");
 
            String cevapId = null;
@@ -205,6 +212,7 @@ public class MesajViewModel extends ViewModel {
             return mesaj;
     }
     public void BorcIstekleriDb(UyariMesaj uyariMesaj,String istekatan, String istekatilan, String miktar, String aciklama, Timestamp tarih,String iban, String ad, String sohbetId, Long zaman){
+        System.out.println("BorcIstekleriDb");
         uyariMesaj.YuklemeDurum("");
         Map<String, Object> borcData = new HashMap<>();
         borcData.put("istekatanAdi",ad);
@@ -230,6 +238,7 @@ public class MesajViewModel extends ViewModel {
                 });
     }
     public void SohbetIDsindenAliciya(String sohbetID){
+        System.out.println("SohbetIDsindenAliciya");
         db.collection("sohbetler").document(sohbetID)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -295,6 +304,7 @@ public class MesajViewModel extends ViewModel {
     }
 
     public void sonMsjDbKaydi(String sohbetId, String yeniSonMesaj, Long yeniSonMsjSaati) {
+        System.out.println("sonMsjDbKaydi");
         DocumentReference docRef = db.collection("sohbetler").document(sohbetId);
 
         docRef.get().addOnSuccessListener(documentSnapshot -> {
@@ -332,6 +342,7 @@ public class MesajViewModel extends ViewModel {
 
     }
     public void MesajGuncelleme(String sohbetid,Mesaj mesaj){
+        System.out.println("MesajGuncelleme");
         Map<String, Object> guncellemeVerisi = new HashMap<>();
         guncellemeVerisi.put("miktar", mesaj.getMiktar());
         guncellemeVerisi.put("aciklama", mesaj.getAciklama());

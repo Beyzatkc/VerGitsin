@@ -1,12 +1,16 @@
 package com.Beem.vergitsin.Mesaj;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
+import android.content.res.Resources;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -28,6 +32,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.Beem.vergitsin.FragmentYonlendirici;
 import com.Beem.vergitsin.Kullanici.Kullanici;
 import com.Beem.vergitsin.MainActivity;
 import com.Beem.vergitsin.Profil.DigerProfilFragment;
@@ -133,6 +138,15 @@ public class MesajKisiFragment extends Fragment {
             }
         });
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mViewModel.DinleyiciKaldir();
+        recyclerView.setAdapter(null);
+        adapter = null;
+    }
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -167,6 +181,8 @@ public class MesajKisiFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         adapter = new MesajAdapterKisi(new ArrayList<>(), requireContext());
         recyclerView.setAdapter(adapter);
+
+        KlavyeAyari(view);
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -252,9 +268,15 @@ public class MesajKisiFragment extends Fragment {
                             Bundle bundle = new Bundle();
                             bundle.putSerializable("kullanici", k1);
                             profilFragment.setArguments(bundle);
-                            fragmentTransaction.replace(R.id.konteynir, profilFragment);
+
+                            Fragment mesajFragment = fragmentManager.findFragmentById(R.id.konteynir);
+                            if (mesajFragment != null) {
+                                fragmentTransaction.hide(mesajFragment);
+                            }
+                            fragmentTransaction.add(R.id.konteynir, profilFragment);
                             fragmentTransaction.addToBackStack(null);
                             fragmentTransaction.commit();
+
                         },()->{});
                     });
                 }
@@ -381,15 +403,11 @@ public class MesajKisiFragment extends Fragment {
                         k1.setKullaniciId(id);
                         ProfilYonetici yonetici = new ProfilYonetici(k1);
                         yonetici.ProfilDoldur(()->{
-                            FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-                            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                             DigerProfilFragment profilFragment = new DigerProfilFragment();
                             Bundle bundle = new Bundle();
                             bundle.putSerializable("kullanici", k1);
                             profilFragment.setArguments(bundle);
-                            fragmentTransaction.replace(R.id.konteynir, profilFragment);
-                            fragmentTransaction.addToBackStack(null);
-                            fragmentTransaction.commit();
+                            FragmentYonlendirici.Yonlendir(requireActivity().getSupportFragmentManager(),profilFragment, k1.getKullaniciId());
                         },()->{});
                     });
 
@@ -572,6 +590,33 @@ public class MesajKisiFragment extends Fragment {
                 return false;
             }
         });
+    }
+
+
+    private void KlavyeAyari(View rootView){
+        LinearLayout mesajLayout = mesaj_gonder_layout;
+
+        ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
+            Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime()); // Klavye boyutu
+            Insets navInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars()); // Sistem barları
+            boolean klavyeAcik = imeInsets.bottom > 0;
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) mesajLayout.getLayoutParams();
+
+            int klavyeYuksekligi = imeInsets.bottom;
+            int sistemCubuğuYuksekligi = navInsets.bottom;
+
+            int netYukseklik = klavyeYuksekligi - sistemCubuğuYuksekligi;
+            if (netYukseklik < 0) netYukseklik = 0;
+
+            params.bottomMargin = klavyeAcik ? netYukseklik + dpToPx(4) : dpToPx(8);
+            mesajLayout.setLayoutParams(params);
+            return insets;
+        });
+
+    }
+
+    private int dpToPx(int dp) {
+        return (int) (dp * Resources.getSystem().getDisplayMetrics().density);
     }
 
 }

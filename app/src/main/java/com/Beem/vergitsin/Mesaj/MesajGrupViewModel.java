@@ -57,6 +57,8 @@ public class MesajGrupViewModel extends ViewModel {
     MutableLiveData<Mesaj>_tamamlananMesaj=new MutableLiveData<>();
     LiveData<Mesaj>tamamlandimsj(){return _tamamlananMesaj;}
 
+    private HashMap<String,String> IddenAdlari= new HashMap<>();
+
     private ArrayList<Mesaj> geciciEskiMesajListesi;
     public void setGeciciEskiMesajListesi(ArrayList<Mesaj> liste) {
         this.geciciEskiMesajListesi = liste;
@@ -68,6 +70,7 @@ public class MesajGrupViewModel extends ViewModel {
 
 
     public void MesajBorcistekleriDbCek(String aktifSohbetId,Long gizlemeZamani){
+        System.out.println("MesajBorcistekleriDbCek");
         Query query = db.collection("sohbetler")
                 .document(aktifSohbetId)
                 .collection("borc_istekleri")
@@ -81,6 +84,7 @@ public class MesajGrupViewModel extends ViewModel {
             }
             if (queryDocumentSnapshots != null) {
                 if (ilkTetikleme) {
+                    System.out.println("ilk tetikleme");
                     ArrayList<Mesaj> tumMesajlar = new ArrayList<>();
                     for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
                         Mesaj mesaj=documentToMesaj(doc);
@@ -103,16 +107,19 @@ public class MesajGrupViewModel extends ViewModel {
                         Mesaj mesaj = documentToMesaj(dc.getDocument());
                         switch (dc.getType()) {
                             case ADDED:
+                                System.out.println("ADDED");
                                 GorulmeKontrolEtVeGuncelle(mesaj, aktifSohbetId, () -> {
                                     _eklenenMesaj.setValue(mesaj);
                                 });
                                 break;
                             case MODIFIED:
+                                System.out.println("MODIFIED");
                                 GorulmeKontrolEtVeGuncelle(mesaj, aktifSohbetId,() -> {
                                     _guncellenenMesaj.setValue(mesaj);
                                 });
                                 break;
                             case REMOVED:
+                                System.out.println("REMOVED");
                                 _silinenMesaj.setValue(mesaj);
                                 break;
                         }
@@ -126,8 +133,10 @@ public class MesajGrupViewModel extends ViewModel {
             borcIstekleriListener.remove();
             borcIstekleriListener = null;
         }
+        ilkTetikleme = true;
     }
     public void GorulmeKontrolEtVeGuncelle(Mesaj mesaj, String aktifSohbetId, Runnable onComplete) {
+        System.out.println("GorulmeKontrolEtVeGuncelle");
         String kendiId = MainActivity.kullanicistatic.getKullaniciId();
         db.collection("gruplar")
                 .document(aktifSohbetId)
@@ -189,6 +198,7 @@ public class MesajGrupViewModel extends ViewModel {
 
 
     public void EskiMesajlariYukle(String aktifSohbetId,Long zaman, Long gizlemeZamani){
+        System.out.println("EskiMesajlariYukle");
         System.out.println(zaman+"-girdim-"+gizlemeZamani);
         Query query = db.collection("sohbetler")
                 .document(aktifSohbetId)
@@ -220,6 +230,7 @@ public class MesajGrupViewModel extends ViewModel {
     }
 
     public Mesaj documentToMesaj(DocumentSnapshot doc){
+        System.out.println("documentToMesaj");
         Map<String, Object> cevapVerenMap = (Map<String, Object>) doc.get("cevap_veren");
 
         String cevapId = null;
@@ -257,6 +268,7 @@ public class MesajGrupViewModel extends ViewModel {
         return mesaj;
     }
     public void GorenlerinAdlariniBul(Map<String, Boolean> gorulmeler,Mesaj mesaj,Runnable onComplete) {
+        System.out.println("GorenlerinAdlariniBul");
         if (gorulmeler == null || gorulmeler.isEmpty()) return;
         int toplam = gorulmeler.size();
         Map<String, Boolean> adlarigtr = new HashMap<>();
@@ -286,17 +298,19 @@ public class MesajGrupViewModel extends ViewModel {
         }
     }
 
-    public void sonMsjDbKaydi(String sohbetId, String yeniSonMesaj, Long yeniSonMsjSaati) {
+    public void sonMsjDbKaydi(String sohbetId, String yeniSonMesaj, Long yeniSonMsjSaati,String id, boolean guncellendiMi) {
+        System.out.println("sonMsjDbKaydi");
         DocumentReference docRef = db.collection("sohbetler").document(sohbetId);
 
         docRef.get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
-                String mevcutMesaj = documentSnapshot.getString("sonMesaj");
-                Long mevcutSaat = documentSnapshot.getLong("sonMsjSaati");
+                String sonMesajID = documentSnapshot.contains("sonMesajID") ? documentSnapshot.getString("sonMesajID") : "_";
 
-                if (!Objects.equals(mevcutMesaj, yeniSonMesaj) || !Objects.equals(mevcutSaat, yeniSonMsjSaati)) {
+                if (!sonMesajID.equals(id) || guncellendiMi) {
+                    System.out.println("son mesaj güncellendi");
                     Map<String, Object> guncelleme = new HashMap<>();
                     guncelleme.put("sonMesaj", yeniSonMesaj);
+                    guncelleme.put("sonMesajID", id);
                     guncelleme.put("sonMsjSaati", yeniSonMsjSaati);
 
                     docRef.update(guncelleme)
@@ -311,6 +325,7 @@ public class MesajGrupViewModel extends ViewModel {
         }).addOnFailureListener(e -> Log.e("Firestore", "Belge okunamadı", e));
     }
     public void IddenGonderenAdaUlasma(ArrayList<Mesaj>tummesajlar,String tip){
+        System.out.println("IddenGonderenAdaUlasma - "+tip);
         AtomicInteger sayac = new AtomicInteger(0);
         for(int i=0;i<tummesajlar.size();i++){
             int finalI = i;
@@ -319,12 +334,15 @@ public class MesajGrupViewModel extends ViewModel {
                     .get()
                     .addOnSuccessListener(documentSnapshot -> {
                         String adi=documentSnapshot.getString("kullaniciAdi");
+                        IddenAdlari.put(tummesajlar.get(finalI).getIstegiAtanId(),adi);
                         tummesajlar.get(finalI).setIstekAtanAdi(adi);
                         if (sayac.incrementAndGet() == tummesajlar.size()) {
                             if(tip.equals("mesajlar")) {
                                 _tamamlandi.setValue(true);
+                                System.out.println("_tamamlandi.setValue(true);");
                             }else if(tip.equals("eskimsjlar")){
                                 _tamamlandieskimesajlar.setValue(true);
+                                System.out.println("_tamamlandieskimesajlar.setValue(true);");
                             }
                         }
                     }) .addOnFailureListener(e -> {
@@ -338,6 +356,12 @@ public class MesajGrupViewModel extends ViewModel {
     }
 
     public void IddenGonderenAdaUlasmaTekKisi(Mesaj mesaj){
+        System.out.println("IddenGonderenAdaUlasmaTekKisi");
+        if(IddenAdlari.containsKey(mesaj.getIstegiAtanId())){
+            mesaj.setIstekAtanAdi(IddenAdlari.get(mesaj.getIstegiAtanId()));
+            _tamamlananMesaj.setValue(mesaj);
+            return;
+        }
             db.collection("users")
                     .document(mesaj.getIstegiAtanId())
                     .get()

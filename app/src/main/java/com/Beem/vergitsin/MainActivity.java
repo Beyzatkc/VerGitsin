@@ -794,11 +794,12 @@ public class MainActivity extends AppCompatActivity {
         Sohbetler.setOnClickListener(b->{
             icerikLayout.setVisibility(View.GONE);
             SohbetFragment fragment = new SohbetFragment();
-            getSupportFragmentManager()
+            FragmentYonlendirici.Yonlendir(getSupportFragmentManager(),fragment,"sohbetler");
+            /*getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.konteynir, fragment)
                     .addToBackStack(null)
-                    .commit();
+                    .commit();*/
         });
     }
     public void GrupDbCek() {
