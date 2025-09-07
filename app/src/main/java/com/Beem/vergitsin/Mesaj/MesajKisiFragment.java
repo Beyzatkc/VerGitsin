@@ -1,6 +1,8 @@
 package com.Beem.vergitsin.Mesaj;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.annotation.SuppressLint;
@@ -26,8 +28,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.Beem.vergitsin.Kullanici.Kullanici;
 import com.Beem.vergitsin.MainActivity;
+import com.Beem.vergitsin.Profil.DigerProfilFragment;
+import com.Beem.vergitsin.Profil.ProfilFragment;
+import com.Beem.vergitsin.Profil.ProfilYonetici;
 import com.Beem.vergitsin.R;
+import com.Beem.vergitsin.Sohbet.SohbetFragment;
 import com.Beem.vergitsin.UyariMesaj;
 import com.google.firebase.Timestamp;
 
@@ -234,6 +241,22 @@ public class MesajKisiFragment extends Fragment {
                             }
                         }
                     });
+                    kisiAdiText.setOnClickListener(b->{
+                        Kullanici k1 = new Kullanici();
+                        k1.setKullaniciId(id);
+                        ProfilYonetici yonetici = new ProfilYonetici(k1);
+                        yonetici.ProfilDoldur(()->{
+                            FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                            DigerProfilFragment profilFragment = new DigerProfilFragment();
+                            Bundle bundle = new Bundle();
+                            bundle.putSerializable("kullanici", k1);
+                            profilFragment.setArguments(bundle);
+                            fragmentTransaction.replace(R.id.konteynir, profilFragment);
+                            fragmentTransaction.addToBackStack(null);
+                            fragmentTransaction.commit();
+                        },()->{});
+                    });
                 }
             });
             borcIstegiYollaBtn.setVisibility(View.GONE);
@@ -352,6 +375,24 @@ public class MesajKisiFragment extends Fragment {
             mViewModel.AliciID().observe(getViewLifecycleOwner(), id -> {
                 if (id != null) {
                     mViewModel.CevrimiciSongorulmeDb(id);
+
+                    kisiAdiText.setOnClickListener(b->{
+                        Kullanici k1 = new Kullanici();
+                        k1.setKullaniciId(id);
+                        ProfilYonetici yonetici = new ProfilYonetici(k1);
+                        yonetici.ProfilDoldur(()->{
+                            FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                            DigerProfilFragment profilFragment = new DigerProfilFragment();
+                            Bundle bundle = new Bundle();
+                            bundle.putSerializable("kullanici", k1);
+                            profilFragment.setArguments(bundle);
+                            fragmentTransaction.replace(R.id.konteynir, profilFragment);
+                            fragmentTransaction.addToBackStack(null);
+                            fragmentTransaction.commit();
+                        },()->{});
+                    });
+
                 }
             });
 
@@ -374,6 +415,7 @@ public class MesajKisiFragment extends Fragment {
                         "user", "drawable", requireContext().getPackageName());
                 kisi_fotosu.setImageResource(resId);
             }
+
             mViewModel.MesajBorcistekleriDbCek(sohbetIdAdptr,AcilmaZamaniadptr);
 
             mViewModel.tumMesajlar().observe(getViewLifecycleOwner(), mesajList -> {

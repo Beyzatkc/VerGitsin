@@ -159,7 +159,6 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
             popupMenu.show();
             return true;
         });
-
     }
     @Override
     public int getItemCount() {

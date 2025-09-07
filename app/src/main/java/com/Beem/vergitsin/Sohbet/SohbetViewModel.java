@@ -137,7 +137,8 @@ public class SohbetViewModel extends ViewModel {
                                 }
                                 tumSohbetler.add(sohbet);
                             }
-                            Collections.sort(tumSohbetler, Comparator.comparingLong(Sohbet::getSonmsjsaati));
+                            Collections.sort(tumSohbetler, Comparator.comparingLong(Sohbet::getSonmsjsaati).reversed());
+                            //Collections.sort(tumSohbetler, Comparator.comparingLong(Sohbet::getSonmsjsaati));
                             _sohbetler.setValue(tumSohbetler);
                             ilkTetikleme = false;
                         } else {

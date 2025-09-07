@@ -64,9 +64,6 @@ public class BorcVerilenlerFragment extends Fragment {
 
         return view;
     }
-
-
-
     private void ProfileGec(String id){
         Kullanici k1 = new Kullanici();
         k1.setKullaniciId(id);
