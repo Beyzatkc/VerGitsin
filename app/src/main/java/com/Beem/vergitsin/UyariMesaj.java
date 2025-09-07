@@ -63,7 +63,9 @@ public class UyariMesaj {
                 }
             }
             else{
-                dialog.dismiss();
+                try {
+                    dialog.dismiss();
+                } catch (Exception e) {}
             }
         }
     }

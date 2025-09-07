@@ -371,6 +371,26 @@ public class SohbetViewModel extends ViewModel {
         listenerMapGrup.put(sohbet.getSohbetID(), listenerRegistration);
     }
     public void SohbetSilme(Sohbet sohbet) {
+        if(sohbet.isGrupCikildiMi()){
+            System.out.println("girdim");
+            DocumentReference grupRef = db.collection("gruplar").document(sohbet.getSohbetID());
+            DocumentReference sohbetRef = db.collection("sohbetler").document(sohbet.getSohbetID());
+
+            final Map<String, Long>[] eskiKatilimcilarRef = new Map[]{new HashMap<>()};
+
+            grupRef.get().addOnSuccessListener(dokuman -> {
+                Map<String, Long> eskiKatilimcilar = (Map<String, Long>) dokuman.get("eskikatilimcilar");
+
+                if (eskiKatilimcilar == null) eskiKatilimcilar = new HashMap<>();
+                for (String key : eskiKatilimcilar.keySet()){
+                    if(key.equals(MainActivity.kullanicistatic.getKullaniciId())) continue;
+                    eskiKatilimcilarRef[0].put(key, eskiKatilimcilar.get(key));
+                }
+                sohbetRef.update("eskikatilimcilar", eskiKatilimcilarRef[0]);
+                grupRef.update("eskikatilimcilar", eskiKatilimcilarRef[0]);
+            });
+            return;
+        }
         DocumentReference sohbetRef = db.collection("sohbetler").document(sohbet.getSohbetID());
 
         Map<String, Object> gizleyenObjesi = new HashMap<>();

@@ -106,7 +106,6 @@ public class SohbetFragment extends Fragment{
 
                  @Override
                  public void onSohbetSilindi(Sohbet sohbet) {
-
                     mViewModel.SohbetSilme(sohbet);
                  }
              });

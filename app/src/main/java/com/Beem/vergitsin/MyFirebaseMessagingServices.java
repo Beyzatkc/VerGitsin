@@ -32,6 +32,7 @@ public class MyFirebaseMessagingServices extends FirebaseMessagingService {
         createNotificationChannels();
     }
 
+
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         System.out.println("servis basladı");

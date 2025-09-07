@@ -1,166 +1,176 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/grupOnizlemeLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/onizleme_bg"
     android:fillViewport="true"
     android:scrollbars="none"
+    android:orientation="vertical"
     android:padding="16dp">
 
 
     <LinearLayout
+        android:layout_width="300dp"
+        android:layout_height="10dp"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:background="@drawable/onizleme_bg"
+        android:backgroundTint="@color/surface_dark"
+        android:layout_marginBottom="16dp"/>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/grupOnizlemeLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:scrollbars="none">
         <LinearLayout
-            android:layout_width="300dp"
-            android:layout_height="10dp"
-            android:layout_gravity="center"
-            android:orientation="vertical"
-            android:background="@drawable/onizleme_bg"
-            android:backgroundTint="@color/surface_dark"
-            android:layout_marginBottom="16dp"/>
-
-        <!-- Grup Adı -->
-        <TextView
-            android:id="@+id/textGrupAdi"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Çaycılar Grubu"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#3E2723"
-            android:gravity="center"
-            android:background="@drawable/bg_textview_box"
-            android:padding="12dp"
-            android:layout_marginBottom="16dp" />
+            android:orientation="vertical">
 
-        <!-- Grup Profil Fotoğrafı -->
-        <ImageView
-            android:id="@+id/imageGrupProfil"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_gravity="center"
-            android:src="@drawable/user"
-            android:scaleType="centerCrop"
-            android:layout_marginBottom="24dp" />
-
-        <!-- Üyeler -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Üyeler"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="#4E342E"
-            android:background="@drawable/bg_textview_box"
-            android:padding="8dp"
-            android:layout_marginBottom="8dp" />
-
-        <!-- Yatay Üye Listesi -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerUyeler"
+            <!-- Grup Adı -->
+            <TextView
+                android:id="@+id/textGrupAdi"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:orientation="horizontal"
-                android:scrollbars="none"
-                tools:listitem="@layout/uye_item"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
-        <!-- Grup Açıklama -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Grup Hakkında"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="#4E342E"
-            android:background="@drawable/bg_textview_box"
-            android:padding="8dp"
-            android:layout_marginBottom="8dp" />
+                android:text="Çaycılar Grubu"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#3E2723"
+                android:gravity="center"
+                android:background="@drawable/bg_textview_box"
+                android:padding="12dp"
+                android:layout_marginBottom="16dp" />
 
-        <TextView
-            android:id="@+id/textGrupAciklama"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Bu grup sadece çay molasında derin sohbet edenlerin toplandığı bir yerdir."
-            android:textSize="14sp"
-            android:textColor="#3E2723"
-            android:background="@drawable/bg_textview_chip"
-            android:padding="10dp"
-            android:layout_marginBottom="16dp" />
+            <!-- Grup Profil Fotoğrafı -->
+            <ImageView
+                android:id="@+id/imageGrupProfil"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center"
+                android:src="@drawable/user"
+                android:scaleType="centerCrop"
+                android:layout_marginBottom="24dp" />
 
-        <!-- Oluşturulma Tarihi -->
-        <TextView
-            android:id="@+id/textGrupTarih"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Oluşturulma Tarihi: 25 Temmuz 2025"
-            android:textSize="13sp"
-            android:textColor="#5D4037"
-            android:background="@drawable/bg_textview_chip"
-            android:padding="8dp" />
-
-        <Button
-            android:id="@+id/grupDuzenle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Grup Düzenle"
-            android:textColor="@color/text_primary1"
-            android:paddingLeft="24dp"
-            android:paddingRight="24dp"
-            android:layout_marginTop="24dp"
-            android:backgroundTint="@color/accent_blue1"
-            />
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal">
-            <Button
-                android:id="@+id/arkadasEkle"
-                android:layout_width="0dp"
+            <!-- Üyeler -->
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Arkadaş Ekle"
+                android:text="Üyeler"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#4E342E"
+                android:background="@drawable/bg_textview_box"
+                android:padding="8dp"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Yatay Üye Listesi -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerUyeler"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:orientation="horizontal"
+                    android:scrollbars="none"
+                    tools:listitem="@layout/uye_item"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+            <!-- Grup Açıklama -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Grup Hakkında"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#4E342E"
+                android:background="@drawable/bg_textview_box"
+                android:padding="8dp"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/textGrupAciklama"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Bu grup sadece çay molasında derin sohbet edenlerin toplandığı bir yerdir."
+                android:textSize="14sp"
+                android:textColor="#3E2723"
+                android:background="@drawable/bg_textview_chip"
+                android:padding="10dp"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Oluşturulma Tarihi -->
+            <TextView
+                android:id="@+id/textGrupTarih"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Oluşturulma Tarihi: 25 Temmuz 2025"
+                android:textSize="13sp"
+                android:textColor="#5D4037"
+                android:background="@drawable/bg_textview_chip"
+                android:padding="8dp" />
+
+            <Button
+                android:id="@+id/grupDuzenle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Grup Düzenle"
                 android:textColor="@color/text_primary1"
                 android:paddingLeft="24dp"
                 android:paddingRight="24dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="8dp"
-                android:backgroundTint="@color/accent_green" />
-
-            <Button
-                android:id="@+id/arkadasCikar"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Arkadaş Çıkar"
-                android:textColor="@color/text_primary1"
-                android:paddingLeft="24dp"
-                android:paddingRight="24dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                android:layout_marginStart="8dp"
-                android:backgroundTint="@color/accent_red_soft"
+                android:layout_marginTop="24dp"
+                android:backgroundTint="@color/accent_blue1"
                 />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
+                <Button
+                    android:id="@+id/arkadasEkle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Arkadaş Ekle"
+                    android:textColor="@color/text_primary1"
+                    android:paddingLeft="24dp"
+                    android:paddingRight="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="@color/accent_green" />
+
+                <Button
+                    android:id="@+id/arkadasCikar"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Arkadaş Çıkar"
+                    android:textColor="@color/text_primary1"
+                    android:paddingLeft="24dp"
+                    android:paddingRight="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginStart="8dp"
+                    android:backgroundTint="@color/accent_red_soft"
+                    />
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/gruptanCik"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Gruptan Çık"
+                android:textColor="@color/text_primary1"
+                android:paddingLeft="24dp"
+                android:paddingRight="24dp"
+                android:layout_marginBottom="24dp"
+                android:backgroundTint="@color/accent_red" />
 
         </LinearLayout>
-
-        <Button
-            android:id="@+id/gruptanCik"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Gruptan Çık"
-            android:textColor="@color/text_primary1"
-            android:paddingLeft="24dp"
-            android:paddingRight="24dp"
-            android:layout_marginBottom="24dp"
-            android:backgroundTint="@color/accent_red" />
-
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

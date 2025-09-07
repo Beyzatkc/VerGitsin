@@ -65,6 +65,7 @@ public class MesajGrupFragment extends Fragment{
     private TextView kackisicevrimici;
     private RecyclerView mesajGrupRecyclerView;
     private MesajAdapterGrup adapter;
+    private Button gruptanCikildiBtn;
 
     private LinearLayout istekEditTextViewLayout;
     private EditText miktaredit;
@@ -173,6 +174,7 @@ public class MesajGrupFragment extends Fragment{
         gonderButton2edit=view.findViewById(R.id.gonderButton2edit);
         odemeTarihiedit=view.findViewById(R.id.odemeTarihiedit);
         ibanEdit=view.findViewById(R.id.ibanEdit);
+        gruptanCikildiBtn=view.findViewById(R.id.gruptanCikildiBtn);
 
         grupAdiLinear=view.findViewById(R.id.grupAdiLinear);
 
@@ -356,6 +358,8 @@ public class MesajGrupFragment extends Fragment{
             adapter.setCikilmisMi(true);
             grupAdi.setText(sohbetedilenAd);
             grupAdiLinear.setClickable(false);
+            borcIstegiYollaBtn.setVisibility(View.GONE);
+            gruptanCikildiBtn.setVisibility(View.VISIBLE);
             if (sohbetEdilenPP != null) {
                 int resId = requireContext().getResources().getIdentifier(
                         sohbetEdilenPP, "drawable", requireContext().getPackageName());
@@ -608,7 +612,17 @@ public class MesajGrupFragment extends Fragment{
         yonetici.GrupNesneKontrolu(grup,()->{
             bottomSheet = new GrupOnizlemeBottomSheet(grup,()->{
                 // bu kısım da gruptan başarılı şekilde çıkıldıktan sonra çalışıyor
+                gruptanCikildiBtn.setVisibility(View.VISIBLE);
+                borcIstegiYollaBtn.setVisibility(View.GONE);
+                adapter.setCikilmisMi(true);
+                grupAdiLinear.setClickable(false);
 
+                mesaj_gonderGrup_layout.setOnTouchListener(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        return false;
+                    }
+                });
             },()->{
                 /// bu kısımı elleme askim yada sen bilirsin adapter ile ilgiili güncelleme varsa kullanabilirsin
 

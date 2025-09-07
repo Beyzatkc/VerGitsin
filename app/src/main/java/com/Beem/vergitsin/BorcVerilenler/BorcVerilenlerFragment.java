@@ -51,7 +51,7 @@ public class BorcVerilenlerFragment extends Fragment {
         adapter.setHatirlatClickListener(new VerilenBorcAdapter.OnHatirlatClickListener() {
             @Override
             public void onHatirlatClick(VerilenBorcModel borcModel, int position) {
-                Hatirlat(borcModel);
+                Hatirlat(borcModel,position);
             }
 
             @Override
@@ -84,7 +84,7 @@ public class BorcVerilenlerFragment extends Fragment {
         },()->{});
     }
 
-    private void Hatirlat(VerilenBorcModel borcModel){
+    private void Hatirlat(VerilenBorcModel borcModel,int pozisyon){
         System.out.println("hatilar valıstı");
         FirebaseFirestore.getInstance()
                 .collection("users")
@@ -93,27 +93,41 @@ public class BorcVerilenlerFragment extends Fragment {
                 .addOnSuccessListener(doc->{
                     String token = doc.getString("fcmToken");
                     String borcVerenAdi = borcModel.getVerilenAdi();
-                    System.out.println("token: "+token);
                     int miktar = Integer.valueOf(borcModel.getMiktar());
                     System.out.println("hatilar valıstı icerde");
-                    Map<String, Object> data = new HashMap<>();
-                    data.put("token", token);
-                    data.put("borcVerenAdi", borcVerenAdi);
-                    data.put("miktar", miktar);
-                    fonksiyonlar
-                            .getHttpsCallable("borcHatirlat")
-                            .call(data)
-                            .addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<HttpsCallableResult> task) {
-                                    Map<String, Object> result = (Map<String, Object>) task.getResult().getData();
-                                    Boolean success = (Boolean) result.get("success");
-                                    if (success) {
-                                        System.out.println("Bildirim gönderildi!");
-                                    } else {
-                                        String errorMsg = (String) result.get("error");
-                                        System.out.println("Hata: " + errorMsg);
-                                    }
+                    FirebaseFirestore.getInstance()
+                            .collection("users")
+                            .document(borcModel.getKullaniciId())
+                            .collection("alinanlar")
+                            .document(borcModel.getID())
+                            .get()
+                            .addOnSuccessListener(doc1->{
+                                Boolean odendiMi = doc1.getBoolean("odendiMi");
+                                if(Boolean.FALSE.equals(odendiMi) || odendiMi==null){
+                                    Map<String, Object> data = new HashMap<>();
+                                    data.put("token", token);
+                                    data.put("borcVerenAdi", borcVerenAdi);
+                                    data.put("miktar", miktar);
+                                    fonksiyonlar
+                                            .getHttpsCallable("borcHatirlat")
+                                            .call(data)
+                                            .addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<HttpsCallableResult> task) {
+                                                    Map<String, Object> result = (Map<String, Object>) task.getResult().getData();
+                                                    Boolean success = (Boolean) result.get("success");
+                                                    if (success) {
+                                                        System.out.println("Bildirim gönderildi!");
+                                                    } else {
+                                                        String errorMsg = (String) result.get("error");
+                                                        System.out.println("Hata: " + errorMsg);
+                                                    }
+                                                }
+                                            });
+                                }
+                                else{
+                                    borcModel.setOdendiMi(true);
+                                    adapter.notifyItemChanged(pozisyon);
                                 }
                             });
                 });
