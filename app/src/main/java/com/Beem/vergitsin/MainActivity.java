@@ -210,6 +210,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.e("Firestore", "Hata: " + e.getMessage());
                 });
     }
+
     @Override
     protected void onStop() {
         super.onStop();
@@ -664,6 +665,9 @@ public class MainActivity extends AppCompatActivity {
                                                     bundle.putString("kaynak", "mainactivity");
                                                     bundle.putString("pp",secilen.getProfilFoto());
                                                     bundle.putString("istekatilanAdi",secilen.getKullaniciAdi());
+                                                    bundle.putString("istekatilanid",secilen.getKullaniciId());
+                                                    bundle.putString("istekatanad",MainActivity.kullanicistatic.getKullaniciAdi());
+                                                    bundle.putString("istekatanpp",MainActivity.kullanicistatic.getProfilFoto());
                                                     bundle.putString("miktar", miktar);
                                                     bundle.putString("aciklama", aciklama);
                                                     bundle.putString("odemeTarihi", tarih);

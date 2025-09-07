@@ -58,6 +58,9 @@ public class SohbetViewModel extends ViewModel {
     MutableLiveData<Sohbet>_silindiSohbet=new MutableLiveData<>();
     LiveData<Sohbet>silindiSohbet(){return _silindiSohbet;}
 
+     MutableLiveData<ArrayList<String>>_adpp = new MutableLiveData<>();
+     LiveData<ArrayList<String>>adpp() { return _adpp; }
+
 
     public void SohbetleriCek() {
         db.collection("sohbetler")
@@ -472,5 +475,28 @@ public class SohbetViewModel extends ViewModel {
                     }
                 });
     }
+    public void iddenAdvePP(String id, KatilimciCallback callback) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users")
+                .document(id)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String isim = documentSnapshot.getString("kullaniciAdi");
+                        String ppfoto = documentSnapshot.getString("ProfilFoto");
+                        callback.onComplete(isim, ppfoto);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Firestore", "Kullanıcı verisi çekilemedi: " + e.getMessage());
+                    callback.onComplete("Bilinmiyor", "user");
+                });
+    }
+
+    public interface KatilimciCallback {
+        void onComplete(String isim, String pp);
+    }
+
+
 
 }

@@ -21,12 +21,27 @@ import com.Beem.vergitsin.R;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder>{
     public interface OnSohbetClickListener {
         void onSohbetClicked(Sohbet sohbet);
         void onSohbetSilindi(Sohbet sohbet);
+    }
+    public interface KatilimciAdBulma {
+        void onKatilimci(String katilimciId, Callback callback);
+    }
+
+
+    public interface Callback {
+        void onComplete(String isim, String pp);
+    }
+
+    private KatilimciAdBulma katilimciAdBulmaListener;
+
+    public void setKatilimciAdBulmaListener(KatilimciAdBulma listener) {
+        this.katilimciAdBulmaListener = listener;
     }
     private ArrayList<Sohbet>sohbetler;
     private Context context;
@@ -37,6 +52,8 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
         this.context = context;
         this.listener=listener;
     }
+
+
     public void sohbetEkle(Sohbet yeniSohbet) {
         for (Sohbet s : sohbetler) {
             if (s.getSohbetID().equals(yeniSohbet.getSohbetID())) {
@@ -46,7 +63,12 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
         sohbetler.add(0, yeniSohbet);
         notifyItemInserted(0);
     }
-
+    private void setHolderData(ViewHolder holder, String isim, String ppfoto) {
+        holder.kisi_adi.setText(isim);
+        String pp = ppfoto != null ? ppfoto : "user";
+        int resId = context.getResources().getIdentifier(pp, "drawable", context.getPackageName());
+        holder.kisi_fotosu.setImageResource(resId);
+    }
     public void SohbetGuncelle(Sohbet guncelSohbet) {
        /* for (int i = 0; i < sohbetler.size(); i++) {
             if (sohbetler.get(i).getSohbetID().equals(guncelSohbet.getSohbetID())) {
@@ -98,10 +120,29 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
         View view= LayoutInflater.from(parent.getContext()).inflate(R.layout.herbi_sohbet,parent,false);
         return new SohbetAdapter.ViewHolder(view);
     }
-    public String longToSaatDakika(long timeMillis) {
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
+    public String longToTarihSaat(long timeMillis) {
         Date date = new Date(timeMillis);
-        return sdf.format(date);
+
+        SimpleDateFormat saatFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+        String saat = saatFormat.format(date);
+        Calendar calMesaj = Calendar.getInstance();
+        calMesaj.setTime(date);
+
+        Calendar calBugun = Calendar.getInstance();
+
+        Calendar calDun = Calendar.getInstance();
+        calDun.add(Calendar.DAY_OF_YEAR, -1);
+
+        if (calMesaj.get(Calendar.YEAR) == calBugun.get(Calendar.YEAR) &&
+                calMesaj.get(Calendar.DAY_OF_YEAR) == calBugun.get(Calendar.DAY_OF_YEAR)) {
+            return saat;
+        } else if (calMesaj.get(Calendar.YEAR) == calDun.get(Calendar.YEAR) &&
+                calMesaj.get(Calendar.DAY_OF_YEAR) == calDun.get(Calendar.DAY_OF_YEAR)) {
+            return "Dün " + saat;
+        } else {
+            SimpleDateFormat tarihSaatFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+            return tarihSaatFormat.format(date);
+        }
     }
 
     @Override
@@ -123,20 +164,30 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
             holder.gorulmeyen_sayi.setVisibility(View.GONE);
             holder.yazi.setVisibility(View.GONE);
         }
+        if (sohbet.getTur().equals("kisi") &&
+                sohbet.getKullaniciAdi().equals(MainActivity.kullanicistatic.getKullaniciAdi()) &&
+                katilimciAdBulmaListener != null) {
 
-        holder.kisi_adi.setText(sohbet.getKullaniciAdi());
-        if(sohbet.getPpfoto()!=null) {
-            int resId = context.getResources().getIdentifier(
-                    sohbet.getPpfoto(), "drawable", context.getPackageName());
-            holder.kisi_fotosu.setImageResource(resId);
-        }else {
-            int resId = context.getResources().getIdentifier(
-                    "user", "drawable", context.getPackageName());
-            holder.kisi_fotosu.setImageResource(resId);
+            for (String katilimciId : sohbet.getKatilimcilar()) {
+                if (!katilimciId.equals(MainActivity.kullanicistatic.getKullaniciId())) {
+                    final int pos = holder.getAdapterPosition();
+                    katilimciAdBulmaListener.onKatilimci(katilimciId, (isim, pp) -> {
+                        if (pos != RecyclerView.NO_POSITION) {
+                            Sohbet s = sohbetler.get(pos);
+                            s.setKullaniciAdi(isim);
+                            s.setPpfoto(pp);
+                            notifyItemChanged(pos);
+                        }
+                    });
+                    break;
+                }
+            }
+        } else {
+            setHolderData(holder, sohbet.getKullaniciAdi(), sohbet.getPpfoto());
         }
         if(sohbet.getSonmsjsaati()!=null) {
             holder.mesaj_saat.setVisibility(View.VISIBLE);
-            String zaman=longToSaatDakika(sohbet.getSonmsjsaati());
+            String zaman=longToTarihSaat(sohbet.getSonmsjsaati());
             holder.mesaj_saat.setText(zaman);
         }else{
             holder.mesaj_saat.setVisibility(View.GONE);

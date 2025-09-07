@@ -94,6 +94,9 @@ public class MesajKisiFragment extends Fragment {
     private MesajSilmeGuncellemeKisi arayuzSilme;
     private LinearLayout borcIstegiYollaBtn;
     private LinearLayout mesaj_gonder_layout;
+    private String istekatilanid;
+    private String istekatanad;
+    private String istekatanpp;
 
 
     public static MesajKisiFragment newInstance() {
@@ -112,9 +115,13 @@ public class MesajKisiFragment extends Fragment {
                 sohbetedilenAd=getArguments().getString("sohbetedilenAd");
                 sohbetEdilenPP=getArguments().getString("sohbetEdilenPP");
                 AcilmaZamaniadptr=getArguments().getLong("acilmaZamani");
+
             } else if (kaynak.equals("mainactivity")) {
                 PP=getArguments().getString("pp");
                 istekatilanAd = getArguments().getString("istekatilanAdi");
+                istekatilanid=getArguments().getString("istekatilanid");
+                istekatanad=getArguments().getString("istekatanad");
+                istekatanpp=getArguments().getString("istekatanpp");
                 miktari = getArguments().getString("miktar").trim();
                 aciklamasi = getArguments().getString("aciklama").trim();
                 odemeTarihi = getArguments().getString("odemeTarihi").trim();
@@ -267,17 +274,29 @@ public class MesajKisiFragment extends Fragment {
             odemeTarihitext.setText(odemeTarihi);
             ibantext.setText(ibani);
 
-               kisiAdiText.setText(istekatilanAd);
-                   if (PP != null) {
-                       int resId = requireContext().getResources().getIdentifier(
-                               PP, "drawable", requireContext().getPackageName());
-                       kisi_fotosu.setImageResource(resId);
-                   } else {
-                       int resId = requireContext().getResources().getIdentifier(
-                               "user", "drawable", requireContext().getPackageName());
-                       kisi_fotosu.setImageResource(resId);
-                   }
-
+            if(istekatilanid.equals(MainActivity.kullanicistatic.getKullaniciId())){
+                kisiAdiText.setText(istekatanad);
+                if (PP != null) {
+                    int resId = requireContext().getResources().getIdentifier(
+                            istekatanpp, "drawable", requireContext().getPackageName());
+                    kisi_fotosu.setImageResource(resId);
+                } else {
+                    int resId = requireContext().getResources().getIdentifier(
+                            "user", "drawable", requireContext().getPackageName());
+                    kisi_fotosu.setImageResource(resId);
+                }
+            }else{
+                kisiAdiText.setText(istekatilanAd);
+                if (PP != null) {
+                    int resId = requireContext().getResources().getIdentifier(
+                            PP, "drawable", requireContext().getPackageName());
+                    kisi_fotosu.setImageResource(resId);
+                } else {
+                    int resId = requireContext().getResources().getIdentifier(
+                            "user", "drawable", requireContext().getPackageName());
+                    kisi_fotosu.setImageResource(resId);
+                }
+            }
             mViewModel.MesajBorcistekleriDbCek(sohbetID,AcilmaZamani);
 
             mViewModel.tumMesajlar().observe(getViewLifecycleOwner(), mesajList -> {
@@ -405,16 +424,17 @@ public class MesajKisiFragment extends Fragment {
                     }
                 }
             });
-           kisiAdiText.setText(sohbetedilenAd);
-            if (sohbetEdilenPP != null) {
-                int resId = requireContext().getResources().getIdentifier(
-                        sohbetEdilenPP, "drawable", requireContext().getPackageName());
-                kisi_fotosu.setImageResource(resId);
-            } else {
-                int resId = requireContext().getResources().getIdentifier(
-                        "user", "drawable", requireContext().getPackageName());
-                kisi_fotosu.setImageResource(resId);
-            }
+
+                kisiAdiText.setText(sohbetedilenAd);
+                if (sohbetEdilenPP != null) {
+                    int resId = requireContext().getResources().getIdentifier(
+                            sohbetEdilenPP, "drawable", requireContext().getPackageName());
+                    kisi_fotosu.setImageResource(resId);
+                } else {
+                    int resId = requireContext().getResources().getIdentifier(
+                            "user", "drawable", requireContext().getPackageName());
+                    kisi_fotosu.setImageResource(resId);
+                }
 
             mViewModel.MesajBorcistekleriDbCek(sohbetIdAdptr,AcilmaZamaniadptr);
 
