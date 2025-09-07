@@ -152,6 +152,9 @@ public class SohbetAdapter extends RecyclerView.Adapter<SohbetAdapter.ViewHolder
             popupMenu.setOnMenuItemClickListener(item->{
                 if(item.getTitle().equals("Sil")){
                     listener.onSohbetSilindi(sohbet);
+                    int a = sohbetler.indexOf(sohbet);
+                    sohbetler.remove(sohbet);
+                    notifyItemRemoved(a);
                     return true;
                 }
                 return false;
