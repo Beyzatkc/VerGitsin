@@ -497,7 +497,6 @@ public class MesajGrupViewModel extends ViewModel {
             Log.e("Firestore", "Hata oluştu: " + e.getMessage());
         });
 
-
         db.collection("users")
                 .document(eveteBasanId)
                 .update("BorcSayisi", FieldValue.increment(Integer.valueOf(miktar)));

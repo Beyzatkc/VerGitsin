@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.Beem.vergitsin.Kullanici.Kullanici;
+import com.Beem.vergitsin.MainActivity;
 import com.Beem.vergitsin.Profil.DigerProfilFragment;
 import com.Beem.vergitsin.Profil.ProfilYonetici;
 import com.Beem.vergitsin.R;
@@ -89,7 +90,7 @@ public class BorcVerilenlerFragment extends Fragment {
                 .get()
                 .addOnSuccessListener(doc->{
                     String token = doc.getString("fcmToken");
-                    String borcVerenAdi = borcModel.getVerilenAdi();
+                    String borcVerenAdi = MainActivity.kullanicistatic.getKullaniciAdi();
                     int miktar = Integer.valueOf(borcModel.getMiktar());
                     System.out.println("hatilar valıstı icerde");
                     FirebaseFirestore.getInstance()

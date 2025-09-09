@@ -102,7 +102,7 @@ public class MyFirebaseMessagingServices extends FirebaseMessagingService {
             NotificationChannel hatirlatmaChannel = new NotificationChannel(
                     CHANNEL_HATIRLATMA,
                     "Hatırlatma Bildirimleri",
-                    NotificationManager.IMPORTANCE_LOW);
+                    NotificationManager.IMPORTANCE_DEFAULT);
             nm.createNotificationChannel(hatirlatmaChannel);
 
             NotificationChannel hata = new NotificationChannel(
