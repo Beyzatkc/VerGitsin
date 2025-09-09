@@ -121,17 +121,6 @@ public class SohbetFragment extends Fragment{
                                 .replace(R.id.konteynir, mesajGrupFragment)
                                 .addToBackStack(null)
                                 .commit();*/
-                    }else if(sohbet.getTur().equals("kisi")){
-                        Fragment mesajKisiFragment = new MesajKisiFragment();
-                        mesajKisiFragment.setArguments(bundle);
-                        FragmentYonlendirici.Yonlendir(requireActivity().getSupportFragmentManager(), mesajKisiFragment,sohbet.getSohbetID());
-                        /*
-                        requireActivity().getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(R.id.konteynir, mesajKisiFragment)
-                                .addToBackStack(null)
-                                .commit();*/
-
                     }
                 }
 
