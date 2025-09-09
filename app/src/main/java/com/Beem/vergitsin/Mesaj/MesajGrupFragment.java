@@ -281,7 +281,7 @@ public class MesajGrupFragment extends Fragment{
             adapter.setListenersil(arayuzSilme);
             mViewModel.KacKisiCevrimiciGrup(sohbetID);
             mViewModel.kackisicevrimici().observe(getViewLifecycleOwner(),kisisayisi-> {
-                kackisicevrimici.setText(kisisayisi.toString());
+                kackisicevrimici.setText(kisisayisi.toString()+" kişi çevrimiçi");
             });
 
             borcIstegiYollaBtn.setVisibility(View.GONE);
@@ -465,7 +465,7 @@ public class MesajGrupFragment extends Fragment{
             adapter.setListenersil(arayuzSilme);
             mViewModel.KacKisiCevrimiciGrup(sohbetIdAdptr);
             mViewModel.kackisicevrimici().observe(getViewLifecycleOwner(),kisisayisi-> {
-                kackisicevrimici.setText(kisisayisi.toString());
+                kackisicevrimici.setText(kisisayisi.toString()+" kişi çevrimiçi");
             });
             grupAdi.setText(sohbetedilenAd);
             if (sohbetEdilenPP != null) {

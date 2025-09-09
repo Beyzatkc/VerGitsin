@@ -68,25 +68,51 @@ public class SohbetFragment extends Fragment{
                 public void onSohbetClicked(Sohbet sohbet) {
                     sohbet.setGorulmemisMesajSayisi(0);
                     sohbet.setSohbeteGirildiMi(true);
-                    Bundle bundle = new Bundle();
-                    bundle.putString("sohbetId", sohbet.getSohbetID());
-                    bundle.putString("sohbetedilenAd",sohbet.getKullaniciAdi());
-                    bundle.putString("sohbetEdilenPP",sohbet.getPpfoto());
-                    Long acilmaZamaniObj = sohbet.getAcilmazamani();
-                    if (acilmaZamaniObj != null) {
-                        bundle.putLong("acilmaZamani", acilmaZamaniObj);
-                    }
-                    Long cikilmaZaman = sohbet.getEskiGrupZaman();
-                    if (cikilmaZaman!=null && cikilmaZaman!=0){
-                        System.out.println("sf de girdim");
-                        System.out.println(sohbet.getEskiGrupZaman()+"---"+cikilmaZaman);
-                        bundle.putLong("CikilmaZaman",cikilmaZaman);
-                        bundle.putString("kaynak", "cikilmis");
-                    }
-                    else{
-                        bundle.putString("kaynak", "SohbetAdapter");
-                    }
-                    if(sohbet.getTur().equals("grup")) {
+                    if (sohbet.getTur().equals("kisi")){
+                                Bundle bundle = new Bundle();
+                                bundle.putString("sohbetId", sohbet.getSohbetID());
+                                bundle.putString("sohbetedilenAd",sohbet.getKullaniciAdi());
+                                bundle.putString("sohbetEdilenPP",sohbet.getPpfoto());
+                                Long acilmaZamaniObj = sohbet.getAcilmazamani();
+                                if (acilmaZamaniObj != null) {
+                                    bundle.putLong("acilmaZamani", acilmaZamaniObj);
+                                }
+                                Long cikilmaZaman = sohbet.getEskiGrupZaman();
+                                if (cikilmaZaman!=null && cikilmaZaman!=0){
+                                    System.out.println("sf de girdim");
+                                    System.out.println(sohbet.getEskiGrupZaman()+"---"+cikilmaZaman);
+                                    bundle.putLong("CikilmaZaman",cikilmaZaman);
+                                    bundle.putString("kaynak", "cikilmis");
+                                }
+                                else{
+                                    bundle.putString("kaynak", "SohbetAdapter");
+                                }
+                            Fragment mesajKisiFragment = new MesajKisiFragment();
+                            mesajKisiFragment.setArguments(bundle);
+                            requireActivity().getSupportFragmentManager()
+                                    .beginTransaction()
+                                    .replace(R.id.konteynir, mesajKisiFragment)
+                                    .addToBackStack(null)
+                                    .commit();
+
+                    }else {
+                        Bundle bundle = new Bundle();
+                        bundle.putString("sohbetId", sohbet.getSohbetID());
+                        bundle.putString("sohbetedilenAd", sohbet.getKullaniciAdi());
+                        bundle.putString("sohbetEdilenPP", sohbet.getPpfoto());
+                        Long acilmaZamaniObj = sohbet.getAcilmazamani();
+                        if (acilmaZamaniObj != null) {
+                            bundle.putLong("acilmaZamani", acilmaZamaniObj);
+                        }
+                        Long cikilmaZaman = sohbet.getEskiGrupZaman();
+                        if (cikilmaZaman != null && cikilmaZaman != 0) {
+                            System.out.println("sf de girdim");
+                            System.out.println(sohbet.getEskiGrupZaman() + "---" + cikilmaZaman);
+                            bundle.putLong("CikilmaZaman", cikilmaZaman);
+                            bundle.putString("kaynak", "cikilmis");
+                        } else {
+                            bundle.putString("kaynak", "SohbetAdapter");
+                        }
                         Fragment mesajGrupFragment = new MesajGrupFragment();
                         mesajGrupFragment.setArguments(bundle);
                         FragmentYonlendirici.Yonlendir(requireActivity().getSupportFragmentManager(), mesajGrupFragment,sohbet.getSohbetID());
@@ -105,6 +131,7 @@ public class SohbetFragment extends Fragment{
                                 .replace(R.id.konteynir, mesajKisiFragment)
                                 .addToBackStack(null)
                                 .commit();*/
+
                     }
                 }
 
@@ -114,8 +141,13 @@ public class SohbetFragment extends Fragment{
                  }
              });
             recyclerView.setAdapter(adapter);
-        });
+            adapter.setKatilimciAdBulmaListener((katilimciId, callback) -> {
+                mViewModel.iddenAdvePP(katilimciId, (isim, pp) -> {
+                    callback.onComplete(isim, pp);
+                });
+            });
 
+        });
         mViewModel.getGorulmeyenMesajSayilari().observe(getViewLifecycleOwner(), sohbet -> {
                     adapter.GorulmeyenSayisi(sohbet);
         });

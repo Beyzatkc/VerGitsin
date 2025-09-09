@@ -29,8 +29,8 @@ public class ArkadasAdapter extends RecyclerView.Adapter<ArkadasAdapter.ViewHold
         this.context=contex;
     }
     public Kullanici getSecilenKullanici() {
-        if (secilenPozisyon != -1 && secilenPozisyon < arkadaslar.size()) {
-            return arkadaslar.get(secilenPozisyon);
+        if (secilenPozisyon != -1 && secilenPozisyon < gosterilecekArkadaslar.size()) {
+            return gosterilecekArkadaslar.get(secilenPozisyon);
         }
         return null;
     }
@@ -76,12 +76,12 @@ public class ArkadasAdapter extends RecyclerView.Adapter<ArkadasAdapter.ViewHold
 
             // Seçiliyse, kaldır. Değilse, seç.
             if (position == secilenPozisyon) {
-                secilenPozisyon = -1; // seçim kaldırıldı
+                secilenPozisyon = -1;
                 notifyItemChanged(oncekiPozisyon);
             } else {
                 secilenPozisyon = position;
-                notifyItemChanged(oncekiPozisyon); // önceki seçimi kaldır
-                notifyItemChanged(secilenPozisyon); // yeni seçimi göster
+                notifyItemChanged(oncekiPozisyon);
+                notifyItemChanged(secilenPozisyon);
             }
         });
 

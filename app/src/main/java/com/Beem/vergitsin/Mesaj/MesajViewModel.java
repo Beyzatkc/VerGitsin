@@ -22,6 +22,7 @@ import com.google.firebase.firestore.WriteBatch;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -402,11 +403,29 @@ public class MesajViewModel extends ViewModel {
                 .update("BorcSayisi", FieldValue.increment(Integer.valueOf(miktar)));
 
     }
-    private String TimeStampiSaate(Timestamp gorulme){
+    private String TimeStampiSaate(Timestamp gorulme) {
         if (gorulme == null) return "";
-        Date date = gorulme.toDate();
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
-        return sdf.format(date);
-    }
 
+        Date date = gorulme.toDate();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+
+        Calendar now = Calendar.getInstance();
+
+        SimpleDateFormat saatFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+        SimpleDateFormat tarihSaatFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+
+
+        if (cal.get(Calendar.YEAR) == now.get(Calendar.YEAR) &&
+                cal.get(Calendar.DAY_OF_YEAR) == now.get(Calendar.DAY_OF_YEAR)) {
+            return saatFormat.format(date);
+        }
+
+        now.add(Calendar.DAY_OF_YEAR, -1); // 1 gün geri git
+        if (cal.get(Calendar.YEAR) == now.get(Calendar.YEAR) &&
+                cal.get(Calendar.DAY_OF_YEAR) == now.get(Calendar.DAY_OF_YEAR)) {
+            return "Dün " + saatFormat.format(date);
+        }
+        return tarihSaatFormat.format(date);
+    }
 }

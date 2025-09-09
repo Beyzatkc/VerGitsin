@@ -118,7 +118,7 @@ public class BorcVerilenlerFragment extends Fragment {
                 .get()
                 .addOnSuccessListener(doc->{
                     String token = doc.getString("fcmToken");
-                    String borcVerenAdi = borcModel.getVerilenAdi();
+                    String borcVerenAdi = MainActivity.kullanicistatic.getKullaniciAdi();
                     int miktar = Integer.valueOf(borcModel.getMiktar());
                     System.out.println("hatilar valıstı icerde");
                     FirebaseFirestore.getInstance()
