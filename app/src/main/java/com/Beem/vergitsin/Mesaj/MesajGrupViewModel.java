@@ -265,13 +265,22 @@ public class MesajGrupViewModel extends ViewModel {
             mesaj.setGorulmeler(new HashMap<>());
             mesaj.setadlar(new HashMap<>());
         }
+        if(IddenAdlari.containsKey(mesaj.getIstegiAtanId())){
+            mesaj.setIstekAtanAdi(IddenAdlari.get(mesaj.getIstegiAtanId()));
+        }
         return mesaj;
     }
     public void GorenlerinAdlariniBul(Map<String, Boolean> gorulmeler,Mesaj mesaj,Runnable onComplete) {
         System.out.println("GorenlerinAdlariniBul");
+        Map<String, Boolean> adlarigtr = new HashMap<>();
+        mesaj.setadlar(adlarigtr);
+        for(String key: gorulmeler.keySet()){
+            if(IddenAdlari.containsKey(key)){
+                mesaj.getadlar().put(IddenAdlari.get(key),gorulmeler.get(key));
+            }
+        }
         if (gorulmeler == null || gorulmeler.isEmpty()) return;
         int toplam = gorulmeler.size();
-        Map<String, Boolean> adlarigtr = new HashMap<>();
         AtomicInteger sayac = new AtomicInteger(0);
         for (Map.Entry<String, Boolean> entry : gorulmeler.entrySet()) {
             String kullaniciId = entry.getKey();

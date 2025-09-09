@@ -65,16 +65,36 @@
             android:layout_marginTop="6dp"
             />
 
-        <TextView
-            android:id="@+id/tvIban"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/ibanLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="IBAN: TR12 3456 7890 1234 5678 9012 34"
-            android:textSize="12sp"
-            android:textColor="#795548"
             android:layout_below="@id/tvOdenecekTarih"
             android:layout_marginTop="6dp"
-            android:textStyle="normal" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvIban"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="IBAN: TR98 7654 3210 9876 5432 1098 76"
+                android:textSize="12sp"
+                android:textColor="#4E342E"
+                android:background="@drawable/text_view_tiklama_efekt"
+                android:padding="4dp"
+                android:textStyle="normal" />
+
+            <ImageButton
+                android:id="@+id/tvKopyala"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/kopyala"
+                android:scaleType="centerCrop"
+                android:background="@drawable/text_view_tiklama_efekt"
+                android:contentDescription="Kopyala IBAN"
+                app:tint="#43A047" />
+        </LinearLayout>
 
         <!-- Zaman alanı -->
         <TextView
@@ -84,7 +104,7 @@
             android:text="Eklenme: 25 Temmuz"
             android:textSize="12sp"
             android:textColor="#9E9E9E"
-            android:layout_below="@id/tvIban"
+            android:layout_below="@id/ibanLayout"
             android:layout_marginTop="6dp"
             android:fontFamily="sans-serif-condensed" />
 
@@ -113,7 +133,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Borcu Öde"
-            android:layout_below="@id/tvIban"
+            android:layout_below="@id/ibanLayout"
             android:layout_marginTop="12dp"
             android:layout_alignParentEnd="true"
             android:backgroundTint="#F05A22"
@@ -127,7 +147,7 @@
             android:id="@+id/odenditext"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/tvIban"
+            android:layout_below="@id/ibanLayout"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="12dp"
             android:fontFamily="sans-serif-medium"

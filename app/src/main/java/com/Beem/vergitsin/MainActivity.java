@@ -792,7 +792,6 @@ public class MainActivity extends AppCompatActivity {
     }
     public void SohbetlereBasarsa(){
         Sohbetler.setOnClickListener(b->{
-            icerikLayout.setVisibility(View.GONE);
             SohbetFragment fragment = new SohbetFragment();
             FragmentYonlendirici.Yonlendir(getSupportFragmentManager(),fragment,"sohbetler");
             /*getSupportFragmentManager()

@@ -1,5 +1,10 @@
 package com.Beem.vergitsin.BorcVerilenler;
 
+import static androidx.core.content.ContextCompat.getSystemService;
+
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,9 +20,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.Beem.vergitsin.Kullanici.Kullanici;
+import com.Beem.vergitsin.MainActivity;
 import com.Beem.vergitsin.Profil.DigerProfilFragment;
 import com.Beem.vergitsin.Profil.ProfilYonetici;
 import com.Beem.vergitsin.R;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.rewarded.RewardedAd;
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -34,6 +46,15 @@ public class BorcVerilenlerFragment extends Fragment {
     private VerilenBorcAdapter adapter;
     private ArrayList<VerilenBorcModel> borclar;
     private FirebaseFunctions fonksiyonlar = FirebaseFunctions.getInstance();
+
+    private RewardedAd reklam;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        MobileAds.initialize(requireContext(), initializationStatus -> {});
+        loadRewardedAd();
+    }
 
     @Nullable
     @Override
@@ -57,6 +78,14 @@ public class BorcVerilenlerFragment extends Fragment {
             @Override
             public void onProfileGec(String id) {
                 ProfileGec(id);
+            }
+
+            @Override
+            public void onIBANClick(String iban) {
+                ClipboardManager clipboard = (ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("IBAN", iban);
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(requireContext(), "IBAN kopyalandı!", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -114,7 +143,11 @@ public class BorcVerilenlerFragment extends Fragment {
                                                     Map<String, Object> result = (Map<String, Object>) task.getResult().getData();
                                                     Boolean success = (Boolean) result.get("success");
                                                     if (success) {
-                                                        System.out.println("Bildirim gönderildi!");
+                                                        if(reklam!=null){
+                                                            reklam.show(requireActivity(), rewardItem ->{
+                                                                Toast.makeText(requireContext(), "Ödül kazandınız!", Toast.LENGTH_SHORT).show();
+                                                            });
+                                                        }
                                                     } else {
                                                         String errorMsg = (String) result.get("error");
                                                         System.out.println("Hata: " + errorMsg);
@@ -130,4 +163,39 @@ public class BorcVerilenlerFragment extends Fragment {
                 });
 
     }
+
+
+
+    private void loadRewardedAd() {
+        AdRequest adRequest = new AdRequest.Builder().build();
+
+        RewardedAd.load(requireContext(),
+                "ca-app-pub-3940256099942544/5224354917",
+                adRequest,
+                new RewardedAdLoadCallback() {
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        super.onAdFailedToLoad(loadAdError);
+                        reklam = null;
+                        Toast.makeText(requireContext(), "Reklam yüklenemedi: " + loadAdError, Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onAdLoaded(@NonNull RewardedAd rewardedAd) {
+                        super.onAdLoaded(rewardedAd);
+
+                        reklam = rewardedAd;
+
+                        // Reklam kapandığında tekrar yükle
+                        rewardedAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                            @Override
+                            public void onAdDismissedFullScreenContent() {
+                                reklam = null;
+                                loadRewardedAd();
+                            }
+                        });
+                    }
+                });
+    }
+
 }

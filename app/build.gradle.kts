@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -46,6 +47,7 @@ dependencies {
     implementation(libs.lifecycle.livedata.ktx)
     implementation(libs.circleimageview)
     implementation(libs.lifecycle.viewmodel.ktx)
+    implementation("com.google.firebase:firebase-crashlytics-ndk")
     implementation(platform("com.google.firebase:firebase-bom:33.16.0"))
     implementation("com.google.firebase:firebase-messaging")
     implementation("com.google.firebase:firebase-analytics")
@@ -53,6 +55,8 @@ dependencies {
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.android.material:material:1.12.0")
+
+    implementation("com.google.android.gms:play-services-ads:22.2.0")
 
     implementation("com.facebook.shimmer:shimmer:0.5.0")
     implementation("com.google.firebase:firebase-functions:20.1.1")

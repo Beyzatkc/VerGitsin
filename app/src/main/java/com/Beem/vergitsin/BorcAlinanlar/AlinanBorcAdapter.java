@@ -21,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,6 +45,8 @@ public class AlinanBorcAdapter extends RecyclerView.Adapter<AlinanBorcAdapter.Bo
 
     public interface OnBorcOdeClickListener {
         void onBorcOdeClick(AlinanBorcModel borcModel, int position);
+        void onProfileGec(String id);
+        void onIBANClick(String iban);
     }
 
     public AlinanBorcAdapter(List<AlinanBorcModel> borcListesi) {
@@ -73,6 +76,24 @@ public class AlinanBorcAdapter extends RecyclerView.Adapter<AlinanBorcAdapter.Bo
         sp.setSpan(new ForegroundColorSpan(Color.parseColor("#F05A22")),alinan.indexOf(borc.getAlinanAdi()),alinan.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         holder.tvKimdenAlindi.setText(sp);
+
+        holder.tvKopyala.setOnClickListener(v -> {
+            if (borcOdeClickListener != null) {
+                borcOdeClickListener.onIBANClick(borc.getIban());
+            }
+        });
+        holder.tvKimdenAlindi.setOnClickListener(v -> {
+            if (borcOdeClickListener != null) {
+                borcOdeClickListener.onProfileGec(borc.getKullaniciId());
+            }
+        });
+        holder.tvIban.setOnClickListener(v -> {
+            if (borcOdeClickListener != null) {
+                borcOdeClickListener.onIBANClick(borc.getIban());
+            }
+        });
+
+        if(borc.getIban().trim().isEmpty()) holder.tvKopyala.setVisibility(View.GONE);
 
         if(borc.isOdendiMi()){
             holder.btnBorcuOde.setVisibility(View.GONE);
@@ -228,6 +249,7 @@ public class AlinanBorcAdapter extends RecyclerView.Adapter<AlinanBorcAdapter.Bo
         TextView tvAciklama, tvMiktar, tvOdenecekTarih, tvZaman, tvKimdenAlindi, tvIban,hatirlatici,odenditext;
         ImageView icon;
         Button btnBorcuOde;
+        ImageButton tvKopyala;
 
         public BorcViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -241,6 +263,7 @@ public class AlinanBorcAdapter extends RecyclerView.Adapter<AlinanBorcAdapter.Bo
             tvIban = itemView.findViewById(R.id.tvIban);
             hatirlatici=itemView.findViewById(R.id.hatirlatici);
             odenditext=itemView.findViewById(R.id.odenditext);
+            tvKopyala = itemView.findViewById(R.id.tvKopyala);
         }
     }
     private String formatTarih(Timestamp timestamp) {

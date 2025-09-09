@@ -40,7 +40,7 @@ public class DigerKullaniciArkadasFragment extends Fragment {
         if (getArguments() != null) {
             arkadas = (Kullanici) getArguments().getSerializable("kullanici");
         }
-
+        view.findViewById(R.id.aramaEditText).setVisibility(View.GONE);
         textViewDialogBaslik = view.findViewById(R.id.textViewDialogBaslik);
         recyclerViewKullanicilar = view.findViewById(R.id.recyclerViewKullanicilar);
         textViewDialogBaslik.setText("Arkadaşlar");

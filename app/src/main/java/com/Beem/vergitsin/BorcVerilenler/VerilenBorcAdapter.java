@@ -21,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,6 +48,7 @@ public class VerilenBorcAdapter extends RecyclerView.Adapter<VerilenBorcAdapter.
     public interface OnHatirlatClickListener {
         void onHatirlatClick(VerilenBorcModel borcModel, int position);
         void onProfileGec(String id);
+        void onIBANClick(String iban);
     }
 
     public VerilenBorcAdapter(List<VerilenBorcModel> borcListesi) {
@@ -70,6 +72,17 @@ public class VerilenBorcAdapter extends RecyclerView.Adapter<VerilenBorcAdapter.
         holder.tvOdemeTarihi.setText("Geri Ödeme: " + formatTarih(borc.getOdenecekTarih()));
         holder.tvZaman.setText("Eklenme: " + formatTarih(borc.getTarih()));
         holder.tvIban.setText("IBAN: " + borc.getIban());
+
+        holder.tvIban.setOnClickListener(v->{
+            if(hatirlatClickListener!=null){
+                hatirlatClickListener.onIBANClick(borc.getIban());
+            }
+        });
+        holder.tvKopyala.setOnClickListener(v->{
+            if(hatirlatClickListener!=null){
+                hatirlatClickListener.onIBANClick(borc.getIban());
+            }
+        });
 
         String alinan = "Verilen: "+borc.getVerilenAdi();
         SpannableString sp = new SpannableString(alinan);
@@ -98,6 +111,8 @@ public class VerilenBorcAdapter extends RecyclerView.Adapter<VerilenBorcAdapter.
                 hatirlatClickListener.onProfileGec(borc.getKullaniciId());
             }
         });
+
+        if(borc.getIban().trim().isEmpty()) holder.tvKopyala.setVisibility(View.GONE);
 
         Timestamp zaman2 = borc.getOdenecekTarih();
         Date date2 = zaman2.toDate();
@@ -236,6 +251,7 @@ public class VerilenBorcAdapter extends RecyclerView.Adapter<VerilenBorcAdapter.
         TextView tvAciklama, tvMiktar, tvOdemeTarihi, tvZaman, tvKimeVerildi, tvIban,hatirlatici,odenditext;
         ImageView icon;
         Button btnHatirlat;
+        ImageButton tvKopyala;
 
         public BorcViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -249,6 +265,7 @@ public class VerilenBorcAdapter extends RecyclerView.Adapter<VerilenBorcAdapter.
             btnHatirlat = itemView.findViewById(R.id.btnHatirlat);
             hatirlatici=itemView.findViewById(R.id.hatirlatici);
             odenditext=itemView.findViewById(R.id.odenditext);
+            tvKopyala=itemView.findViewById(R.id.tvKopyala);
         }
     }
 
