@@ -79,16 +79,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="IBAN: TR98 7654 3210 9876 5432 1098 76"
-                android:textSize="12sp"
+                android:textSize="14sp"
                 android:textColor="#4E342E"
                 android:background="@drawable/text_view_tiklama_efekt"
-                android:padding="4dp"
                 android:textStyle="normal" />
 
             <ImageButton
                 android:id="@+id/tvKopyala"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
                 android:src="@drawable/kopyala"
                 android:scaleType="centerCrop"
                 android:background="@drawable/text_view_tiklama_efekt"
