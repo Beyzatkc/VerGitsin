@@ -1,12 +1,16 @@
 package com.Beem.vergitsin.Mesaj;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
+import android.content.res.Resources;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -154,6 +158,14 @@ public class MesajGrupFragment extends Fragment{
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mViewModel.DinleyiciKaldir();
+        mesajGrupRecyclerView.setAdapter(null);
+        adapter = null;
+    }
+
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view =inflater.inflate(R.layout.fragment_mesaj_grup, container, false);
@@ -194,6 +206,8 @@ public class MesajGrupFragment extends Fragment{
         adapter = new MesajAdapterGrup(bosListe, requireContext());
         mesajGrupRecyclerView.setAdapter(adapter);
 
+        KlavyeAyari(view);
+
         mesajGrupRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
@@ -201,13 +215,11 @@ public class MesajGrupFragment extends Fragment{
                 if (layoutManager.findFirstVisibleItemPosition() == 0 && !isLoading) {
                     isLoading = true; // yükleniyor flag'i
                     if ("mainactivity".equals(kaynak)) {
-                        System.out.println(ilkmsjSaati+"-girdim*-"+AcilmaZamani);
                         mViewModel.EskiMesajlariYukle(sohbetID,ilkmsjSaati,AcilmaZamani);
                     }
                     else if("cikilmis".equals(kaynak)){
                         mViewModel.EskiMesajlariYukle(sohbetIdAdptr,ilkmsjSaatiadptr,AcilmaZamaniadptr);
                     }else if("SohbetAdapter".equals(kaynak)){
-                        System.out.println(ilkmsjSaatiadptr+"-girdim****-"+AcilmaZamaniadptr);
                         mViewModel.EskiMesajlariYukle(sohbetIdAdptr,ilkmsjSaatiadptr,AcilmaZamaniadptr);
                     }
 
@@ -246,11 +258,11 @@ public class MesajGrupFragment extends Fragment{
                     if(oncekiMesaj!=null) {
                         SonMesaj = oncekiMesaj.getMiktar() + " TL borç isteği";
                         SonMesajSaat = oncekiMesaj.getZaman();
-                        mViewModel.sonMsjDbKaydi(sohbetID, SonMesaj, SonMesajSaat);
+                        mViewModel.sonMsjDbKaydi(sohbetID, SonMesaj, SonMesajSaat,oncekiMesaj.getMsjID(),false);
                     }else{
                         SonMesaj =" ";
                         SonMesajSaat =System.currentTimeMillis();
-                        mViewModel.sonMsjDbKaydi(sohbetID, SonMesaj, SonMesajSaat);
+                        mViewModel.sonMsjDbKaydi(sohbetID, SonMesaj, SonMesajSaat,"",false);
                     }
                 }
 
@@ -263,7 +275,7 @@ public class MesajGrupFragment extends Fragment{
                 public void onSonMesajGuncelleme(Mesaj msj) {
                     SonMesaj=msj.getIstekAtanAdi()+" "+msj.getMiktar()+" TL borç isteği";
                     SonMesajSaat=msj.getZaman();
-                    mViewModel.sonMsjDbKaydi(sohbetID,SonMesaj,SonMesajSaat);
+                    mViewModel.sonMsjDbKaydi(sohbetID,SonMesaj,SonMesajSaat,msj.getMsjID(),true);
                 }
             };
             adapter.setListenersil(arayuzSilme);
@@ -306,7 +318,7 @@ public class MesajGrupFragment extends Fragment{
                     mesajGrupRecyclerView.scrollToPosition(adapter.getItemCount() - 1);
                     SonMesaj=msj.getIstekAtanAdi()+" "+msj.getMiktar()+" TL borç isteği";
                     SonMesajSaat=msj.getZaman();
-                    mViewModel.sonMsjDbKaydi(sohbetID,SonMesaj,SonMesajSaat);
+                    mViewModel.sonMsjDbKaydi(sohbetID,SonMesaj,SonMesajSaat,msj.getMsjID(),false);
                 }
             });
             Observe.observeOnce(mViewModel.tumMesajlar(), getViewLifecycleOwner(), mesajList -> {
@@ -332,7 +344,7 @@ public class MesajGrupFragment extends Fragment{
                         Kaydirma();
                         SonMesaj=mesajList.get(mesajList.size()-1).getIstekAtanAdi()+" "+mesajList.get(mesajList.size()-1).getMiktar()+" Tl borç isteği";
                         SonMesajSaat=mesajList.get(mesajList.size()-1).getZaman();
-                        mViewModel.sonMsjDbKaydi(sohbetID,SonMesaj,SonMesajSaat);
+                        mViewModel.sonMsjDbKaydi(sohbetID,SonMesaj,SonMesajSaat,mesajList.get(mesajList.size()-1).getMsjID(),false);
                         mesajGrupRecyclerView.scrollToPosition(adapter.getItemCount() - 1);
                     }
                 }
@@ -430,11 +442,11 @@ public class MesajGrupFragment extends Fragment{
                     if(oncekiMesaj!=null) {
                         SonMesajadptr = oncekiMesaj.getMiktar() + " Tl borç isteği";
                         SonMesajSaatadptr = oncekiMesaj.getZaman();
-                        mViewModel.sonMsjDbKaydi(sohbetIdAdptr, SonMesajadptr, SonMesajSaatadptr);
+                        mViewModel.sonMsjDbKaydi(sohbetIdAdptr, SonMesajadptr, SonMesajSaatadptr,oncekiMesaj.getMsjID(),false);
                     }else{
                         SonMesajadptr =" ";
                         SonMesajSaatadptr =System.currentTimeMillis();
-                        mViewModel.sonMsjDbKaydi(sohbetIdAdptr, SonMesajadptr, SonMesajSaatadptr);
+                        mViewModel.sonMsjDbKaydi(sohbetIdAdptr, SonMesajadptr, SonMesajSaatadptr,oncekiMesaj.getMsjID(),false);
                     }
                 }
 
@@ -447,7 +459,7 @@ public class MesajGrupFragment extends Fragment{
                 public void onSonMesajGuncelleme(Mesaj msj) {
                     SonMesajadptr=msj.getIstekAtanAdi()+" "+msj.getMiktar()+" TL borç isteği";
                     SonMesajSaatadptr=msj.getZaman();
-                    mViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesajadptr,SonMesajSaatadptr);
+                    mViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesajadptr,SonMesajSaatadptr,msj.getMsjID(),true);
                 }
             };
             adapter.setListenersil(arayuzSilme);
@@ -479,7 +491,7 @@ public class MesajGrupFragment extends Fragment{
                     mesajGrupRecyclerView.scrollToPosition(adapter.getItemCount() - 1);
                     SonMesajadptr=msj.getIstekAtanAdi()+" "+msj.getMiktar()+" TL borç isteği";
                     SonMesajSaatadptr=msj.getZaman();
-                    mViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesajadptr,SonMesajSaatadptr);
+                    mViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesajadptr,SonMesajSaatadptr, msj.getMsjID(),false);
                 }
             });
             mViewModel.guncellenen().observe(getViewLifecycleOwner(),mesaj->{
@@ -504,7 +516,7 @@ public class MesajGrupFragment extends Fragment{
                         adapter.guncelleMesajListesi(mesajList);
                         SonMesajadptr=mesajList.get(mesajList.size()-1).getIstekAtanAdi()+" "+mesajList.get(mesajList.size()-1).getMiktar()+" Tl borç isteği";
                         SonMesajSaatadptr=mesajList.get(mesajList.size()-1).getZaman();
-                        mViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesajadptr,SonMesajSaatadptr);
+                        mViewModel.sonMsjDbKaydi(sohbetIdAdptr,SonMesajadptr,SonMesajSaatadptr, mesajList.get(mesajList.size()-1).getMsjID(),false);
                         mesajGrupRecyclerView.scrollToPosition(adapter.getItemCount() - 1);
                     }
                 }
@@ -686,5 +698,31 @@ public class MesajGrupFragment extends Fragment{
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         },()->{});
+    }
+
+    private void KlavyeAyari(View rootView){
+        LinearLayout mesajLayout = mesaj_gonderGrup_layout;
+
+        ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
+            Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime()); // Klavye boyutu
+            Insets navInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars()); // Sistem barları
+            boolean klavyeAcik = imeInsets.bottom > 0;
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) mesajLayout.getLayoutParams();
+
+            int klavyeYuksekligi = imeInsets.bottom;
+            int sistemCubuğuYuksekligi = navInsets.bottom;
+
+            int netYukseklik = klavyeYuksekligi - sistemCubuğuYuksekligi;
+            if (netYukseklik < 0) netYukseklik = 0;
+
+            params.bottomMargin = klavyeAcik ? netYukseklik + dpToPx(4) : dpToPx(8);
+            mesajLayout.setLayoutParams(params);
+            return insets;
+        });
+
+    }
+
+    private int dpToPx(int dp) {
+        return (int) (dp * Resources.getSystem().getDisplayMetrics().density);
     }
 }

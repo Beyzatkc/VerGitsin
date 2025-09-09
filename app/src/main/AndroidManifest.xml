@@ -9,9 +9,6 @@
     <!-- Android 13+ için medya oynatma tipli foreground service izni -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
 
-    <meta-data
-        android:name="com.google.firebase.messaging.default_notification_icon"
-        android:resource="@drawable/ic_bildirim"/>
 
 
 
@@ -25,6 +22,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.VerGitsin"
         tools:targetApi="31">
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_bildirim"/>
+
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-7318801428076378~6594252256"/>
 
         <receiver
             android:name=".Alarm.AlarmReceiver"

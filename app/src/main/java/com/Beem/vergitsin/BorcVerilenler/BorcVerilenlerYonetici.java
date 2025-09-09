@@ -1,6 +1,12 @@
 package com.Beem.vergitsin.BorcVerilenler;
 
+import android.widget.Toast;
+
 import com.Beem.vergitsin.MainActivity;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.rewarded.RewardedAd;
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -95,4 +101,7 @@ public class BorcVerilenlerYonetici {
                     adapter.notifyItemChanged(pozisyon);
                 });
     }
+
+
+
 }

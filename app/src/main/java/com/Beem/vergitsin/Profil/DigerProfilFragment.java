@@ -19,6 +19,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.Beem.vergitsin.Arkadaslar.Arkadas;
 import com.Beem.vergitsin.Arkadaslar.ArkadaslarFragment;
 import com.Beem.vergitsin.Arkadaslar.DigerKullaniciArkadasFragment;
+import com.Beem.vergitsin.FragmentYonlendirici;
 import com.Beem.vergitsin.Kullanici.Kullanici;
 import com.Beem.vergitsin.Kullanici.SharedPreferencesK;
 import com.Beem.vergitsin.MainActivity;
@@ -138,14 +139,11 @@ public class DigerProfilFragment extends Fragment {
 
     private void DigerKullaniciArkadas(){
         FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         Bundle bundle = new Bundle();
         bundle.putSerializable("kullanici",kullanici);
         DigerKullaniciArkadasFragment fragment = new DigerKullaniciArkadasFragment();
         fragment.setArguments(bundle);
-        fragmentTransaction.replace(R.id.konteynir, fragment);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
+        FragmentYonlendirici.Yonlendir(fragmentManager,fragment,kullanici.getKullaniciId()+"_Arkadaslar");
     }
 
     public void ArkadasEklemeDb(Kullanici kullanici){

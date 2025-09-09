@@ -796,13 +796,13 @@ public class MainActivity extends AppCompatActivity {
     }
     public void SohbetlereBasarsa(){
         Sohbetler.setOnClickListener(b->{
-            icerikLayout.setVisibility(View.GONE);
             SohbetFragment fragment = new SohbetFragment();
-            getSupportFragmentManager()
+            FragmentYonlendirici.Yonlendir(getSupportFragmentManager(),fragment,"sohbetler");
+            /*getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.konteynir, fragment)
                     .addToBackStack(null)
-                    .commit();
+                    .commit();*/
         });
     }
     public void GrupDbCek() {
