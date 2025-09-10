@@ -4,6 +4,7 @@ import com.Beem.vergitsin.MainActivity;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 public class BorcAlinanlarYonetici {
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -18,6 +19,7 @@ public class BorcAlinanlarYonetici {
         db.collection("users")
                 .document(MainActivity.kullanicistatic.getKullaniciId())
                 .collection("alinanlar")
+                .orderBy("odemeTarihi", Query.Direction.ASCENDING)
                 .get()
                 .addOnSuccessListener(dokumanlar->{
                     for (DocumentSnapshot document : dokumanlar) {

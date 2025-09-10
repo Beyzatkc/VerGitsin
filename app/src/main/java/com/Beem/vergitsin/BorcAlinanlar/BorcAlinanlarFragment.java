@@ -1,5 +1,6 @@
 package com.Beem.vergitsin.BorcAlinanlar;
 
+import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -49,7 +50,16 @@ public class BorcAlinanlarFragment extends Fragment {
             @Override
             public void onBorcOdeClick(AlinanBorcModel borcModel, int position) {
                 if(borcModel.isOdendiMi()) return;
-                yonetici.BorcuOde(borcModel, position);
+                new AlertDialog.Builder(requireContext())
+                        .setTitle("Borç Ödeme")
+                        .setMessage("Bu borcu ödemek istediğinize emin misiniz?")
+                        .setPositiveButton("Evet", (dialog, which) -> {
+                            yonetici.BorcuOde(borcModel, position);
+                        })
+                        .setNegativeButton("Hayır", (dialog, which) -> {
+                            dialog.dismiss();
+                        })
+                        .show();
             }
 
             @Override

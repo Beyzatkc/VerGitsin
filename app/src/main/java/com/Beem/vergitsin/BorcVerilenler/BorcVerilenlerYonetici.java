@@ -10,6 +10,7 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 public class BorcVerilenlerYonetici {
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -23,6 +24,7 @@ public class BorcVerilenlerYonetici {
         db.collection("users")
                 .document(MainActivity.kullanicistatic.getKullaniciId())
                 .collection("verilenler")
+                .orderBy("odemeTarihi", Query.Direction.ASCENDING)
                 .get()
                 .addOnSuccessListener(dokumanlar -> {
                     for (DocumentSnapshot document : dokumanlar) {
