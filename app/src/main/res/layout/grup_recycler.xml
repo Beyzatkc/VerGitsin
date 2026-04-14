@@ -1,11 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/paralar"
+    android:orientation="vertical"
+    android:background="@drawable/bg_bottom"
     android:padding="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:layout_marginBottom="0dp">
+
+        <ImageView
+            android:id="@+id/btnGeri"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:visibility="gone"
+            android:src="@drawable/outline_arrow_back_24"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvAdim1"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/circle_active"
+                android:gravity="center"
+                android:text="1"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
+
+            <View
+                android:layout_width="50dp"
+                android:layout_height="2dp"
+                android:layout_marginHorizontal="8dp"
+                android:background="#6A1B9A" />
+
+            <TextView
+                android:id="@+id/tvAdim2"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/circle_inactive"
+                android:gravity="center"
+                android:text="2"
+                android:textColor="@android:color/black" />
+        </LinearLayout>
+
+        <Space
+            android:layout_width="32dp"
+            android:layout_height="32dp" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/grupsec"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:orientation="vertical">
 
     <TextView
         android:id="@+id/textViewDialogBaslik"
@@ -13,7 +72,8 @@
         android:layout_height="wrap_content"
         android:text="Grup oluştur"
         android:paddingTop="10dp"
-        android:textSize="18sp"
+        android:textSize="20sp"
+        android:textColor="#A5A5A5"
         android:textStyle="bold"
         android:paddingBottom="12dp"/>
 
@@ -21,11 +81,64 @@
         android:id="@+id/recyclerViewgrup"
         android:paddingStart="10dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-    <Button
-        android:id="@+id/btnGrupOlustur"
+        android:layout_height="250dp"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnGrupsec"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Grup Oluştur"
-        android:layout_marginTop="16dp" />
+        android:layout_height="55dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/btn_outlined_mor"
+        android:text="Devam Et"
+        android:textAllCaps="false"
+        android:textColor="#6A1B9A"
+        android:textSize="16sp" />
+</LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/grupadi"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Yeni Grup"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#333333"
+            android:layout_marginBottom="16dp" />
+
+        <EditText
+            android:id="@+id/etGrupAdi"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="Grup adı girin..."
+            android:inputType="textCapSentences"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:background="@drawable/edittext_border"
+            android:textColor="#333333"
+            android:textSize="16sp" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnGrupOlustur"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/btn_outlined_mor"
+            android:text="Grup Oluştur"
+            android:textAllCaps="false"
+            android:textColor="#6A1B9A"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+
+
+
 </LinearLayout>

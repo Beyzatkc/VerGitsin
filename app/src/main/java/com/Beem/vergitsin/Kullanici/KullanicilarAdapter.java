@@ -95,6 +95,18 @@ public class KullanicilarAdapter extends RecyclerView.Adapter<KullanicilarAdapte
     public int getItemCount() {
         return gosterilecekKullanicilar.size();
     }
+
+    public void guncelleListe(ArrayList<Kullanici> yeniListe){
+        if(yeniListe == null) return;
+
+        this.kullanicilar.clear();
+        this.kullanicilar.addAll(yeniListe);
+
+        this.gosterilecekKullanicilar.clear();
+        this.gosterilecekKullanicilar.addAll(yeniListe);
+
+        notifyDataSetChanged();
+    }
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView textViewKullaniciAdi;
         ImageView imageViewProfil;

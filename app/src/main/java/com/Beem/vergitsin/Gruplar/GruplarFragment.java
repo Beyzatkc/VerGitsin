@@ -35,12 +35,12 @@ public class GruplarFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.kullanicilar_recycler, container, false);
+        View view = inflater.inflate(R.layout.profil_arklar_recycler, container, false);
 
         recyclerView = view.findViewById(R.id.recyclerViewKullanicilar);
         textViewDialogBaslik = view.findViewById(R.id.textViewDialogBaslik);
-        view.findViewById(R.id.aramaEditText).setVisibility(View.GONE);
-        textViewDialogBaslik.setText("Gruplarım");
+
+        textViewDialogBaslik.setText("Gruplar");
 
         yerelKayit = new SharedPreferencesK(requireContext());
 

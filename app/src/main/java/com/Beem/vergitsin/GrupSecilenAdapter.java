@@ -55,6 +55,17 @@ public class GrupSecilenAdapter extends RecyclerView.Adapter<GrupSecilenAdapter.
         return kullanicilar.size();
     }
 
+    public void guncelleListe(ArrayList<Kullanici> yeniListe){
+        if(yeniListe == null) return;
+
+        this.kullanicilar.clear();
+        this.kullanicilar.addAll(yeniListe);
+
+        this.secilenler.clear();
+
+        notifyDataSetChanged();
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
         CheckBox checkBox;
         TextView KullaniciAdigrp;

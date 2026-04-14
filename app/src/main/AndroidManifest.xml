@@ -9,9 +9,6 @@
     <!-- Android 13+ için medya oynatma tipli foreground service izni -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
 
-
-
-
     <application
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"

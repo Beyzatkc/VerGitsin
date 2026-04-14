@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/parentLayoutId"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_bottom"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:layout_marginBottom="0dp">
+
+        <ImageView
+            android:id="@+id/btnGeri"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:visibility="gone"
+            android:src="@drawable/outline_arrow_back_24"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvAdim1"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/circle_active"
+                android:gravity="center"
+                android:text="1"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
+
+            <View
+                android:layout_width="50dp"
+                android:layout_height="2dp"
+                android:layout_marginHorizontal="8dp"
+                android:background="#6A1B9A" />
+
+            <TextView
+                android:id="@+id/tvAdim2"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/circle_inactive"
+                android:gravity="center"
+                android:text="2"
+                android:textColor="@android:color/black" />
+        </LinearLayout>
+
+        <Space
+            android:layout_width="32dp"
+            android:layout_height="32dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutArkadas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:orientation="vertical"
+       >
+        <TextView
+            android:id="@+id/tvBaslik"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Arkadaş Seç"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#A5A5A5"
+            android:layout_marginBottom="16dp" />
+
+        <EditText
+            android:id="@+id/aramaEditText"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="Arkadaş ara..."
+            android:paddingStart="12dp"
+            android:background="@drawable/edittext_border"
+            android:drawableStart="@drawable/baseline_search_24"
+            android:drawablePadding="8dp"
+            android:layout_marginBottom="16dp"
+            android:inputType="text"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerArkadas"
+            android:layout_width="match_parent"
+            android:layout_height="250dp" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnDevamEt"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/btn_outlined_mor"
+            android:text="Devam Et"
+            android:textAllCaps="false"
+            android:textColor="#6A1B9A"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutDetay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Borç Detayları"
+            android:textSize="20sp"
+            android:textColor="#A5A5A5"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp"/>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <EditText
+                    android:id="@+id/edtMiktar"
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:hint="Borç Miktarı (₺)"
+                    android:background="@drawable/edittext_border"
+                    android:paddingStart="16dp"
+                    android:layout_marginBottom="12dp"
+                    android:inputType="numberDecimal"/>
+
+                <EditText
+                    android:id="@+id/ibanEditt"
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:hint="IBAN (TR...)"
+                    android:background="@drawable/edittext_border"
+                    android:paddingStart="16dp"
+                    android:layout_marginBottom="12dp"
+                    android:inputType="textCapCharacters"
+                    android:maxLength="26" />
+
+                <EditText
+                    android:id="@+id/edtAciklama"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:hint="Açıklama (isteğe bağlı)"
+                    android:background="@drawable/edittext_border"
+                    android:paddingStart="16dp"
+                    android:paddingTop="12dp"
+                    android:gravity="top"
+                    android:layout_marginBottom="12dp"
+                    android:inputType="textMultiLine"/>
+
+                <EditText
+                    android:id="@+id/edtTarih"
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:hint="Ödeme Tarihi (gg/aa/yyyy)"
+                    android:background="@drawable/edittext_border"
+                    android:paddingStart="16dp"
+                    android:layout_marginBottom="24dp"
+                    android:inputType="date"
+                    android:focusable="false"
+                    android:clickable="true"/>
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnGonder"
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:layout_marginTop="20dp"
+                    android:background="@drawable/btn_outlined_mor"
+                    android:text="Borç İsteğini Gönder"
+                    android:textAllCaps="false"
+                    android:textColor="#6A1B9A"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+
+</LinearLayout>

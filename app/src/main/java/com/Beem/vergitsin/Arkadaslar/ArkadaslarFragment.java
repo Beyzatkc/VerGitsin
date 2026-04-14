@@ -37,14 +37,13 @@ public class ArkadaslarFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.kullanicilar_recycler, container, false);
+        View view = inflater.inflate(R.layout.profil_arklar_recycler, container, false);
 
         yerelKayit = new SharedPreferencesK(requireContext());
 
         textViewDialogBaslik = view.findViewById(R.id.textViewDialogBaslik);
         recyclerViewKullanicilar = view.findViewById(R.id.recyclerViewKullanicilar);
-        view.findViewById(R.id.aramaEditText).setVisibility(View.GONE);
-        textViewDialogBaslik.setText("Arkadaşlarım");
+
         recyclerViewKullanicilar.setLayoutManager(new LinearLayoutManager(getContext()));
 
         arkadaslar = new ArrayList<>();

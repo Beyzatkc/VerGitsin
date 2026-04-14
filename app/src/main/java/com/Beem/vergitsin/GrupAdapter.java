@@ -71,6 +71,16 @@ public class GrupAdapter extends RecyclerView.Adapter<GrupAdapter.ViewHolder> {
     public int getItemCount() {
         return gruplar.size();
     }
+    public void guncelleListe(ArrayList<Grup> yeniListe){
+        if(yeniListe == null) return;
+
+        this.gruplar.clear();
+        this.gruplar.addAll(yeniListe);
+
+        secilenPozisyon = -1;
+
+        notifyDataSetChanged();
+    }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private TextView grupAdi;

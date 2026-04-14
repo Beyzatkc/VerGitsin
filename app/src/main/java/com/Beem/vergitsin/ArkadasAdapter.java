@@ -23,11 +23,14 @@ public class ArkadasAdapter extends RecyclerView.Adapter<ArkadasAdapter.ViewHold
     private ArrayList<Kullanici> gosterilecekArkadaslar;
     private Context context;
 
+
     public ArkadasAdapter(ArrayList<Kullanici> arkadaslar,ArrayList<Kullanici> gosterilecekArkadaslar, Context contex) {
         this.arkadaslar = arkadaslar;
         this.gosterilecekArkadaslar=gosterilecekArkadaslar;
         this.context=contex;
     }
+
+
     public Kullanici getSecilenKullanici() {
         if (secilenPozisyon != -1 && secilenPozisyon < gosterilecekArkadaslar.size()) {
             return gosterilecekArkadaslar.get(secilenPozisyon);
@@ -45,6 +48,17 @@ public class ArkadasAdapter extends RecyclerView.Adapter<ArkadasAdapter.ViewHold
                 }
             }
         }
+        notifyDataSetChanged();
+    }
+    public void guncelleListe(ArrayList<Kullanici> yeniListe){
+        this.arkadaslar.clear();
+        this.arkadaslar.addAll(yeniListe);
+
+        this.gosterilecekArkadaslar.clear();
+        this.gosterilecekArkadaslar.addAll(yeniListe);
+
+        secilenPozisyon = -1;
+
         notifyDataSetChanged();
     }
 

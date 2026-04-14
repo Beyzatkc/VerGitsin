@@ -1,11 +1,16 @@
 package com.Beem.vergitsin;
 
+import android.animation.LayoutTransition;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.InputType;
 import android.Manifest;
@@ -27,8 +32,8 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.activity.OnBackPressedCallback;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
@@ -52,6 +57,12 @@ import com.Beem.vergitsin.Profil.ProfilFragment;
 import com.Beem.vergitsin.Mesaj.MesajGrupFragment;
 import com.Beem.vergitsin.Mesaj.MesajKisiFragment;
 import com.Beem.vergitsin.Sohbet.SohbetFragment;
+import com.Beem.vergitsin.databinding.BorcArkKombineBinding;
+import com.Beem.vergitsin.databinding.BorcIstegrupkombineBinding;
+import com.Beem.vergitsin.databinding.GrupRecyclerBinding;
+import com.Beem.vergitsin.databinding.KullanicilarRecyclerBinding;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -90,6 +101,10 @@ public class MainActivity extends AppCompatActivity {
 
     private ImageButton Sohbetler;
     private ConstraintLayout icerikLayout;
+    private ArkadasAdapter adapterark;
+    private GrupAdapter adaptergrup;
+    private KullanicilarAdapter adapterkullanici;
+    private GrupSecilenAdapter grupadapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -279,9 +294,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void ArkadasEkle(){
         arkadasEkleLayout.setOnClickListener(b->{
-            new Thread(() -> {
+                KullanicilarBottom(new ArrayList<>());
                 KullanicilarDb();
-            }).start();
         });
     }
     private void KullanicilarDb(){
@@ -312,7 +326,9 @@ public class MainActivity extends AppCompatActivity {
                                         tum.add(kullanici);
                                     }
                                 }
-                                Kullancilar(tum);
+                                if(adapterkullanici!=null){
+                                    adapterkullanici.guncelleListe(tum);
+                                }
                             })
                             .addOnFailureListener(e -> {
                                 Toast.makeText(this, "Kullanıcılar alınamadı!", Toast.LENGTH_SHORT).show();
@@ -323,16 +339,18 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void Kullancilar(ArrayList<Kullanici> kullanicilar){
-        Dialog dialog=new Dialog(this);
-        dialog.setContentView(R.layout.kullanicilar_recycler);
+    public void KullanicilarBottom(ArrayList<Kullanici> kullanicilar) {
+        BottomSheetDialog dialog = new BottomSheetDialog(this, R.style.BottomSheetDialogTheme);
+        KullanicilarRecyclerBinding binding = KullanicilarRecyclerBinding.inflate(getLayoutInflater());
+        dialog.setContentView(binding.getRoot());
 
-        RecyclerView recycler = dialog.findViewById(R.id.recyclerViewKullanicilar);
-        EditText aramaEditText = dialog.findViewById(R.id.aramaEditText);
+        RecyclerView recycler = binding.recyclerViewKullanicilar;
+        EditText aramaEditText =binding.aramaEditText;
+
         recycler.setLayoutManager(new LinearLayoutManager(this));
         ArrayList<Kullanici> gosterilecekKullanicilar = new ArrayList<>(kullanicilar);
 
-        KullanicilarAdapter adapter = new KullanicilarAdapter(kullanicilar,gosterilecekKullanicilar, this,  new KullanicilarAdapter.OnArkadasEkleListener() {
+        adapterkullanici = new KullanicilarAdapter(kullanicilar,gosterilecekKullanicilar, this,  new KullanicilarAdapter.OnArkadasEkleListener() {
             @Override
             public void onArkadasEkleTiklandi(Kullanici kullanici) {
                 ArkadasEkle.getEkle().ArkadasEklemeDb(kullanici);
@@ -340,22 +358,21 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onArkadasCıkarTiklandi(Kullanici kullanici) {
-                //ArkadasCikarmaDb(kullanici);
                 ArkadasEkle.getEkle().ArkadasCikarmaDb(kullanici);
             }
         },getSupportFragmentManager(),()->{
             dialog.dismiss();
         });
-        recycler.setAdapter(adapter);
-        aramaEditText.setText(""); // Arama çubuğunu sıfırla
-        adapter.filtrele("");
+        recycler.setAdapter(adapterkullanici);
+        aramaEditText.setText("");
+        adapterkullanici.filtrele("");
         aramaEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                adapter.filtrele(s.toString());
+                adapterkullanici.filtrele(s.toString());
             }
 
             @Override
@@ -365,34 +382,14 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    /*    public void ArkadasEklemeDb(Kullanici kullanici){
-        DocumentReference kendiDocRef = db.collection("users").document(MainActivity.kullanicistatic.getKullaniciId());
-        kendiDocRef.update("arkadaslar", FieldValue.arrayUnion(kullanici.getKullaniciId()))
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Arkadaş eklendi!", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Ekleme başarısız: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
-    }
-    public void ArkadasCikarmaDb(Kullanici kullanici){
-        DocumentReference kendiDocRef = db.collection("users").document(MainActivity.kullanicistatic.getKullaniciId());
-        kendiDocRef.update("arkadaslar", FieldValue.arrayRemove(kullanici.getKullaniciId()))
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Arkadaş çıkarıldı!", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Ekleme başarısız: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
 
-    } */
     public void GrupOlustur(){
         grupolsuturlayout.setOnClickListener(b->{
-            new Thread(() -> {
-                ArkadaslariGetir(true);
-            }).start();
+            GrupOlusturGorunumu(new ArrayList<>());
+            ArkadaslariGetir(true);
         });
     }
+
     public void ArkadaslariGetir(Boolean tetikle) {
         DocumentReference docRef = db.collection("users").document(MainActivity.kullanicistatic.getKullaniciId());
         ArrayList<String>tumarklar=new ArrayList<>();
@@ -405,9 +402,13 @@ public class MainActivity extends AppCompatActivity {
                     }
                 arkadasBilgilerineUlasma(tumarklar, arkadaslar -> {
                     if(tetikle) {
-                        GrupOlusturGorunumu(arkadaslar);
+                        if(grupadapter!=null){
+                            grupadapter.guncelleListe(arkadaslar);
+                        }
                     }else{
-                        ArkadasSecimiDialogu(arkadaslar);
+                        if(adapterark != null){
+                            adapterark.guncelleListe(arkadaslar);
+                        }
                     }
                 });
             } else {
@@ -448,47 +449,62 @@ public class MainActivity extends AppCompatActivity {
 
     }
     public void GrupOlusturGorunumu(ArrayList<Kullanici> kullanicilar) {
-        Dialog dialog = new Dialog(this);
-        dialog.setContentView(R.layout.grup_recycler);
+        BottomSheetDialog dialog = new BottomSheetDialog(this, R.style.BottomSheetDialogTheme);
+        GrupRecyclerBinding binding = GrupRecyclerBinding.inflate(getLayoutInflater());
+        dialog.setContentView(binding.getRoot());
 
-        RecyclerView recycler = dialog.findViewById(R.id.recyclerViewgrup);
-        Button btnGrupOlustur = dialog.findViewById(R.id.btnGrupOlustur);
+        RecyclerView recycler = binding.recyclerViewgrup;
+        AppCompatButton btnGrupsec = binding.btnGrupsec;
+        LinearLayout grupsec = binding.grupsec;
+        LinearLayout grupadi = binding.grupadi;
+        TextView tvAdim1 = binding.tvAdim1;
+        TextView tvAdim2 = binding.tvAdim2;
+        ImageView geributon = binding.btnGeri;
+
+
+        EditText etGrupAdi = binding.etGrupAdi;
+        AppCompatButton btnGrupOlustur = binding.btnGrupOlustur;
+
+
         recycler.setLayoutManager(new LinearLayoutManager(this));
 
         ArrayList<Kullanici> secilenler = new ArrayList<>();
-        GrupSecilenAdapter grupadapter = new GrupSecilenAdapter(kullanicilar, secilenler, this);
+        grupadapter = new GrupSecilenAdapter(kullanicilar, secilenler, this);
         recycler.setAdapter(grupadapter);
 
-        dialog.show();
-        btnGrupOlustur.setOnClickListener(v -> {
+        btnGrupsec.setOnClickListener(v -> {
             if (secilenler.isEmpty()) {
                 Toast.makeText(this, "Lütfen en az 1 kişi seçin", Toast.LENGTH_SHORT).show();
             } else {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Grup İsmi");
+                animasyonileri(grupsec,grupadi);
+                geributon.setVisibility(View.VISIBLE);
+                tvAdim1.setBackgroundResource(R.drawable.circle_inactive);
+                tvAdim2.setBackgroundResource(R.drawable.circle_active);
+                tvAdim1.setTextColor(Color.BLACK);
+                tvAdim2.setTextColor(Color.WHITE);
 
-                final EditText input = new EditText(this);
-                input.setHint("Grubun adını girin");
-                input.setInputType(InputType.TYPE_CLASS_TEXT);
-                builder.setView(input);
-
-                builder.setPositiveButton("Oluştur", (dialogInterface, which) -> {
-                    uyariMesaj.YuklemeDurum("Grup oluşturuluyor...");
-                    String grupIsmi = input.getText().toString().trim();
-                    if (!grupIsmi.isEmpty()) {
-                        GrupDb(grupIsmi,secilenler,uyariMesaj);
+                btnGrupOlustur.setOnClickListener(v2 -> {
+                    String baslik = etGrupAdi.getText().toString().trim();
+                    if (baslik.isEmpty()) {
+                        Toast.makeText(this, "Grup adı boş olamaz", Toast.LENGTH_SHORT).show();
+                        return;
+                    }else{
+                        uyariMesaj.YuklemeDurum("Grup oluşturuluyor...");
+                        GrupDb(baslik,secilenler,uyariMesaj);
                         dialog.dismiss();
-                    } else {
-                       uyariMesaj.BasarisizDurum("Grup ismi boş olamaz",1000);
                     }
                 });
-
-                builder.setNegativeButton("İptal", (dialogInterface, which) -> dialogInterface.cancel());
-
-                builder.show();
-
             }
         });
+        geributon.setOnClickListener(v -> {
+            animasyonGeri(grupsec,grupadi);
+            geributon.setVisibility(View.GONE);
+            tvAdim1.setTextColor(Color.WHITE);
+            tvAdim2.setTextColor(Color.BLACK);
+            tvAdim1.setBackgroundResource(R.drawable.circle_active);
+            tvAdim2.setBackgroundResource(R.drawable.circle_inactive);
+        });
+        dialog.show();
     }
     public void GrupDb(String grupAdi ,ArrayList<Kullanici> secilenler,UyariMesaj mesaj){
         ArrayList<String>uyeIDleri=new ArrayList<>();
@@ -523,87 +539,305 @@ public class MainActivity extends AppCompatActivity {
     }
     public void BorcIsteme(){
         Borciste.setOnClickListener(B->{
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this, R.style.RoundedDialogTheme);
             LayoutInflater inflater = LayoutInflater.from(this);
             View view = inflater.inflate(R.layout.borc_secimi, null);
 
-            Button btnArkadas = view.findViewById(R.id.btnArkadas);
-            Button btnGrup = view.findViewById(R.id.btnGrup);
+            AppCompatButton btnArkadas = view.findViewById(R.id.btnArkadas);
+            AppCompatButton btnGrup = view.findViewById(R.id.btnGrup);
 
-            AlertDialog dialog = builder.setView(view).create();
-            dialog.setOnShowListener(dialogInterface -> {
+            builder.setView(view);
+            androidx.appcompat.app.AlertDialog dialog = builder.create();
+
+            dialog.setOnShowListener(d -> {
                 Window window = dialog.getWindow();
                 if (window != null) {
-                    int heightInPx = (int) TypedValue.applyDimension(
-                            TypedValue.COMPLEX_UNIT_DIP, 340, getResources().getDisplayMetrics());
-
-                    window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, heightInPx);
+                    window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 }
             });
+
             btnArkadas.setOnClickListener(v -> {
                 dialog.dismiss();
-                new Thread(() -> {
-                    ArkadaslariGetir(false);
-                }).start();
+                BorcIslemiArkBottomSheet(new ArrayList<>());
+                ArkadaslariGetir(false);
+
             });
             btnGrup.setOnClickListener(v -> {
                 dialog.dismiss();
-                new Thread(() -> {
-                    GrupDbCek();
-                }).start();
+                GrupSecimiDialogu(new ArrayList<>());
+                GrupDbCek();
             });
             dialog.show();
         });
     }
-    public void ArkadasSecimiDialogu(ArrayList<Kullanici>arkadasListesi){
-        Dialog dialog = new Dialog(this);
-        dialog.setContentView(R.layout.borc_istearksec);
 
-        RecyclerView recycler = dialog.findViewById(R.id.recyclerArkadas);
-        Button btnDevamEt = dialog.findViewById(R.id.btnDevamEt);
-        EditText aramaEditText=dialog.findViewById(R.id.aramaEditText);
-        recycler.setLayoutManager(new LinearLayoutManager(this));
-        ArrayList<Kullanici> gosterilcekarkadaslar = new ArrayList<>(arkadasListesi);
-        ArkadasAdapter adapter = new ArkadasAdapter(arkadasListesi,gosterilcekarkadaslar,this);
-        recycler.setAdapter(adapter);
-        aramaEditText.setText("");
-        adapter.filtrele("");
+    public void animasyonileri(LinearLayout layoutArkadas,LinearLayout layoutDetay){
+        layoutArkadas.animate()
+                .translationX(-layoutArkadas.getWidth())
+                .alpha(0f)
+                .setDuration(300)
+                .withEndAction(() -> {
+                    layoutArkadas.setVisibility(View.GONE);
+                    layoutDetay.setVisibility(View.VISIBLE);
+                    layoutArkadas.setTranslationX(0);
+                    layoutArkadas.setAlpha(1f);
+                })
+                .start();
 
-        aramaEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        layoutDetay.animate()
+                .translationX(0)
+                .alpha(1f)
+                .setDuration(300)
+                .start();
+    }
+    public void animasyonGeri(LinearLayout layoutArkadas, LinearLayout layoutDetay) {
+        layoutDetay.animate()
+                .translationX(layoutDetay.getWidth())
+                .alpha(0f)
+                .setDuration(300)
+                .withEndAction(() -> {
+                    layoutDetay.setVisibility(View.GONE);
+                    layoutArkadas.setVisibility(View.VISIBLE);
+                    layoutDetay.setTranslationX(0);
+                    layoutDetay.setAlpha(1f);
+                })
+                .start();
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                adapter.filtrele(s.toString());
-            }
+        layoutArkadas.animate()
+                .translationX(0)
+                .alpha(1f)
+                .setDuration(300)
+                .start();
+    }
+    public void BorcIslemiArkBottomSheet(ArrayList<Kullanici> arkadasListesi) {
+        BottomSheetDialog dialog = new BottomSheetDialog(this, R.style.BottomSheetDialogTheme);
+        BorcArkKombineBinding binding = BorcArkKombineBinding.inflate(getLayoutInflater());
+        dialog.setContentView(binding.getRoot());
 
-            @Override
-            public void afterTextChanged(Editable s) {}
+
+        LinearLayout layoutArkadas = binding.layoutArkadas;
+        LinearLayout layoutDetay = binding.layoutDetay;
+        TextView tvAdim1 = binding.tvAdim1;
+        TextView tvAdim2 = binding.tvAdim2;
+        ImageView geributon = binding.btnGeri;
+
+        RecyclerView recycler = binding.recyclerArkadas;
+        AppCompatButton btnDevamEt = binding.btnDevamEt;
+        EditText aramaEditText = binding.aramaEditText;
+
+
+        EditText edtMiktar = binding.edtMiktar;
+        EditText edtAciklama = binding.edtAciklama;
+        EditText edtTarih = binding.edtTarih;
+        EditText edtiban=binding.ibanEditt;
+        AppCompatButton btnGonder= binding.btnGonder;
+
+            recycler.setLayoutManager(new LinearLayoutManager(this));
+            adapterark= new ArkadasAdapter(arkadasListesi, new ArrayList<>(arkadasListesi), this);
+            recycler.setAdapter(adapterark);
+            adapterark.filtrele("");
+
+            btnDevamEt.setOnClickListener(v -> {
+                Kullanici secilen = adapterark.getSecilenKullanici();
+                if (secilen == null) {
+                    Toast.makeText(this, "Lütfen bir arkadaş seçin", Toast.LENGTH_SHORT).show();
+                } else {
+                    animasyonileri(layoutArkadas,layoutDetay);
+                    geributon.setVisibility(View.VISIBLE);
+                    tvAdim1.setBackgroundResource(R.drawable.circle_inactive);
+                    tvAdim2.setBackgroundResource(R.drawable.circle_active);
+                    tvAdim1.setTextColor(Color.BLACK);
+                    tvAdim2.setTextColor(Color.WHITE);
+
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                    Calendar calendar = Calendar.getInstance();
+
+                    edtTarih.setInputType(InputType.TYPE_NULL);
+                    edtTarih.setFocusable(false);
+
+                    edtTarih.setOnClickListener(b-> {
+                        int yil = calendar.get(Calendar.YEAR);
+                        int ay = calendar.get(Calendar.MONTH);
+                        int gun = calendar.get(Calendar.DAY_OF_MONTH);
+
+                        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                                this,
+                                (view, year, month, dayOfMonth) -> {
+                                    String secilenTarih = String.format(Locale.getDefault(), "%02d/%02d/%04d",
+                                            dayOfMonth, month + 1, year);
+
+                                    try {
+                                        Date girilenTarih = sdf.parse(secilenTarih);
+                                        Date bugun = sdf.parse(sdf.format(new Date()));
+
+                                        if (girilenTarih.before(bugun)) {
+                                            Toast.makeText(this, "Geçmiş bir tarih seçemezsiniz!", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            edtTarih.setText(secilenTarih);
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                },
+                                yil, ay, gun
+                        );
+
+                        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+                        datePickerDialog.show();
+                    });
+
+                    btnGonder.setOnClickListener(v2 -> {
+                        String miktar = edtMiktar.getText().toString().trim();
+                        String aciklama = edtAciklama.getText().toString().trim();
+                        String tarih = edtTarih.getText().toString().trim();
+                        String iban=edtiban.getText().toString().trim();
+                        if (miktar.isEmpty()) {
+                            Toast.makeText(this, "Miktar boş olamaz", Toast.LENGTH_SHORT).show();
+                            return;
+                        }else if(tarih.isEmpty()){
+                            Toast.makeText(this, "Tarih boş olamaz", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        try {
+                            Date girilenTarih = sdf.parse(tarih);
+                            Timestamp timestamp = new Timestamp(girilenTarih);
+                            SohbetOlusturDbArkadas(MainActivity.kullanicistatic.getKullaniciId(),secilen.getKullaniciId(),secilen.getKullaniciAdi(), System.currentTimeMillis(), secilen.getProfilFoto(), String.format("%s TL borç isteği",miktar), sohbetId -> {
+                                        BorcIstekleriDb(
+                                                MainActivity.kullanicistatic.getKullaniciId(),
+                                                secilen.getKullaniciId(),
+                                                miktar,
+                                                aciklama,
+                                                timestamp,
+                                                MainActivity.kullanicistatic.getKullaniciAdi(),
+                                                sohbetId,
+                                                System.currentTimeMillis(),
+                                                iban,
+                                                () -> {
+                                                    Bundle bundle = new Bundle();
+                                                    bundle.putString("kaynak", "mainactivity");
+                                                    bundle.putString("pp",secilen.getProfilFoto());
+                                                    bundle.putString("istekatilanAdi",secilen.getKullaniciAdi());
+                                                    bundle.putString("istekatilanid",secilen.getKullaniciId());
+                                                    bundle.putString("istekatanad",MainActivity.kullanicistatic.getKullaniciAdi());
+                                                    bundle.putString("istekatanpp",MainActivity.kullanicistatic.getProfilFoto());
+                                                    bundle.putString("miktar", miktar);
+                                                    bundle.putString("aciklama", aciklama);
+                                                    bundle.putString("odemeTarihi", tarih);
+                                                    bundle.putString("sohbetId", sohbetId);
+                                                    bundle.putString("iban",iban);
+
+                                                    MesajKisiFragment fragment = new MesajKisiFragment();
+                                                    fragment.setArguments(bundle);
+                                                    getSupportFragmentManager()
+                                                            .beginTransaction()
+                                                            .replace(R.id.konteynir, fragment)
+                                                            .addToBackStack(null)
+                                                            .commit();
+
+                                                    dialog.dismiss();
+                                                }
+                                        );
+                                    }
+                            );
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+                }
+            });
+            aramaEditText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    adapterark.filtrele(s.toString());
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {}
+            });
+
+
+        geributon.setOnClickListener(v -> {
+            animasyonGeri(layoutArkadas,layoutDetay);
+            geributon.setVisibility(View.GONE);
+            tvAdim1.setTextColor(Color.WHITE);
+            tvAdim2.setTextColor(Color.BLACK);
+            tvAdim1.setBackgroundResource(R.drawable.circle_active);
+            tvAdim2.setBackgroundResource(R.drawable.circle_inactive);
         });
 
-        btnDevamEt.setOnClickListener(v -> {
-            Kullanici secilen = adapter.getSecilenKullanici();
-            if (secilen == null) {
-                Toast.makeText(this, "Lütfen bir arkadaş seçin", Toast.LENGTH_SHORT).show();
-            } else {
-                dialog.dismiss();
-                Dialog detayDialog = new Dialog(this);
-                detayDialog.setContentView(R.layout.borc_detay);
+        dialog.show();
+    }
 
-                EditText edtMiktar = detayDialog.findViewById(R.id.edtMiktar);
-                EditText edtAciklama = detayDialog.findViewById(R.id.edtAciklama);
-                EditText edtTarih = detayDialog.findViewById(R.id.edtTarih);
-                EditText edtiban=detayDialog.findViewById(R.id.ibanEditt);
-                Button btnGonder = detayDialog.findViewById(R.id.btnGonder);
+
+    public void GrupDbCek() {
+        ArrayList<Grup>grupListesi=new ArrayList<Grup>();
+        db.collection("gruplar")
+                .whereArrayContains("uyeler", MainActivity.kullanicistatic.getKullaniciId())
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    grupListesi.clear();
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        String grupId = doc.getId();
+                        String grupAdi = doc.getString("grupAdi");
+                        ArrayList<String> uyeler = (ArrayList<String>) doc.get("uyeler");
+                        String olusturan = doc.getString("olusturan");
+                        Timestamp tarih = doc.getTimestamp("olusturmaTarihi");
+
+                        Grup grup = new Grup(grupId, grupAdi, uyeler, olusturan, tarih);
+                        grupListesi.add(grup);
+                    }
+                    if(adaptergrup != null){
+                        adaptergrup.guncelleListe(grupListesi);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("GrupCek", "Gruplar alınamadı: " + e.getMessage());
+                });
+    }
+    public void GrupSecimiDialogu(ArrayList<Grup>gruplar){
+        BottomSheetDialog dialog = new BottomSheetDialog(this, R.style.BottomSheetDialogTheme);
+        BorcIstegrupkombineBinding binding = BorcIstegrupkombineBinding.inflate(getLayoutInflater());
+        dialog.setContentView(binding.getRoot());
+
+        LinearLayout layoutGrup = binding.layoutGrup;
+        LinearLayout layoutDetay = dialog.findViewById(R.id.layoutgrupDetay);
+        TextView tvAdim1 = binding.tvAdim1;
+        TextView tvAdim2 = binding.tvAdim2;
+        ImageView geributon = binding.btnGeri;
+
+        RecyclerView recycler = binding.recyclerGrup;
+        AppCompatButton btnDevamEt = binding.btnDevamEtgrup;
+        EditText edtMiktar = binding.edtMiktar;
+        EditText edtAciklama = binding.edtAciklama;
+        EditText edtTarih = binding.edtTarih;
+        EditText edtiban=binding.ibanEditt;
+        AppCompatButton btnGonder= binding.btnGonder;
+
+        recycler.setLayoutManager(new LinearLayoutManager(this));
+        adaptergrup = new GrupAdapter(gruplar,this);
+        recycler.setAdapter(adaptergrup);
+
+        btnDevamEt.setOnClickListener(v -> {
+            Grup secilen = adaptergrup.getSecilenGrup();
+            if (secilen == null) {
+                Toast.makeText(this, "Lütfen bir grup seçin", Toast.LENGTH_SHORT).show();
+            } else {
+                animasyonileri(layoutGrup,layoutDetay);
+                geributon.setVisibility(View.VISIBLE);
+                tvAdim1.setBackgroundResource(R.drawable.circle_inactive);
+                tvAdim2.setBackgroundResource(R.drawable.circle_active);
+                tvAdim1.setTextColor(Color.BLACK);
+                tvAdim2.setTextColor(Color.WHITE);
 
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
                 Calendar calendar = Calendar.getInstance();
-
                 edtTarih.setInputType(InputType.TYPE_NULL);
                 edtTarih.setFocusable(false);
 
-                edtTarih.setOnClickListener(b-> {
+                edtTarih.setOnClickListener(b -> {
                     int yil = calendar.get(Calendar.YEAR);
                     int ay = calendar.get(Calendar.MONTH);
                     int gun = calendar.get(Calendar.DAY_OF_MONTH);
@@ -639,6 +873,7 @@ public class MainActivity extends AppCompatActivity {
                     String aciklama = edtAciklama.getText().toString().trim();
                     String tarih = edtTarih.getText().toString().trim();
                     String iban=edtiban.getText().toString().trim();
+
                     if (miktar.isEmpty()) {
                         Toast.makeText(this, "Miktar boş olamaz", Toast.LENGTH_SHORT).show();
                         return;
@@ -649,54 +884,58 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         Date girilenTarih = sdf.parse(tarih);
                         Timestamp timestamp = new Timestamp(girilenTarih);
-                            SohbetOlusturDbArkadas(MainActivity.kullanicistatic.getKullaniciId(),secilen.getKullaniciId(),secilen.getKullaniciAdi(), System.currentTimeMillis(), secilen.getProfilFoto(), String.format("%s TL borç isteği",miktar), sohbetId -> {
-                                        BorcIstekleriDb(
-                                                MainActivity.kullanicistatic.getKullaniciId(),
-                                                secilen.getKullaniciId(),
-                                                miktar,
-                                                aciklama,
-                                                timestamp,
-                                                MainActivity.kullanicistatic.getKullaniciAdi(),
-                                                sohbetId,
-                                                System.currentTimeMillis(),
-                                                iban,
-                                                () -> {
-                                                    Bundle bundle = new Bundle();
-                                                    bundle.putString("kaynak", "mainactivity");
-                                                    bundle.putString("pp",secilen.getProfilFoto());
-                                                    bundle.putString("istekatilanAdi",secilen.getKullaniciAdi());
-                                                    bundle.putString("istekatilanid",secilen.getKullaniciId());
-                                                    bundle.putString("istekatanad",MainActivity.kullanicistatic.getKullaniciAdi());
-                                                    bundle.putString("istekatanpp",MainActivity.kullanicistatic.getProfilFoto());
-                                                    bundle.putString("miktar", miktar);
-                                                    bundle.putString("aciklama", aciklama);
-                                                    bundle.putString("odemeTarihi", tarih);
-                                                    bundle.putString("sohbetId", sohbetId);
-                                                    bundle.putString("iban",iban);
+                        sohbetOlusturDbGrup(secilen.getGrupId(),secilen.getGrupAdi(), System.currentTimeMillis(), null,String.format("%s TL borç isteği",miktar), sohbetId -> {
+                                    BorcIstekleriDb(
+                                            MainActivity.kullanicistatic.getKullaniciId(),
+                                            secilen.getGrupId(),
+                                            miktar,
+                                            aciklama,
+                                            timestamp,
+                                            MainActivity.kullanicistatic.getKullaniciAdi(),
+                                            sohbetId,
+                                            System.currentTimeMillis(),
+                                            iban,
+                                            () -> {
+                                                Bundle bundle = new Bundle();
+                                                bundle.putString("kaynak", "mainactivity");
+                                                bundle.putString("istekatilanAdi", secilen.getGrupAdi());
+                                                bundle.putString("pp",null);
+                                                bundle.putString("miktar", miktar);
+                                                bundle.putString("aciklama", aciklama);
+                                                bundle.putString("odemeTarihi", tarih);
+                                                bundle.putString("sohbetId", sohbetId);
+                                                bundle.putString("iban",iban);
 
-                                                    MesajKisiFragment fragment = new MesajKisiFragment();
-                                                    fragment.setArguments(bundle);
-                                                    getSupportFragmentManager()
-                                                            .beginTransaction()
-                                                            .replace(R.id.konteynir, fragment)
-                                                            .addToBackStack(null)
-                                                            .commit();
+                                                MesajGrupFragment fragment = new MesajGrupFragment();
+                                                fragment.setArguments(bundle);
+                                                getSupportFragmentManager()
+                                                        .beginTransaction()
+                                                        .replace(R.id.konteynir, fragment)
+                                                        .addToBackStack(null)
+                                                        .commit();
+                                                dialog.dismiss();
+                                            }
+                                    );
+                                }
+                        );
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
 
-                                                    detayDialog.dismiss();
-                                                }
-                                        );
-                                    }
-                            );
-                        } catch (ParseException e) {
-                            throw new RuntimeException(e);
-                        }
                 });
-                detayDialog.show();
             }
+          });
+        geributon.setOnClickListener(v -> {
+            animasyonGeri(layoutGrup,layoutDetay);
+            geributon.setVisibility(View.GONE);
+            tvAdim1.setTextColor(Color.WHITE);
+            tvAdim2.setTextColor(Color.BLACK);
+            tvAdim1.setBackgroundResource(R.drawable.circle_active);
+            tvAdim2.setBackgroundResource(R.drawable.circle_inactive);
         });
         dialog.show();
-        dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
     }
+
     public void SohbetOlusturDbArkadas(String gonderenId, String aliciId,String kullaniciAdi, Long sonMsjSaati, String ppfoto, String sonMesaj, Consumer<String> onSohbetOlusturuldu) {
         String sohbetId = gonderenId.compareTo(aliciId) < 0 ?
                 gonderenId + "_" + aliciId :
@@ -805,154 +1044,7 @@ public class MainActivity extends AppCompatActivity {
                     .commit();*/
         });
     }
-    public void GrupDbCek() {
-        ArrayList<Grup>grupListesi=new ArrayList<Grup>();
-        db.collection("gruplar")
-                .whereArrayContains("uyeler", MainActivity.kullanicistatic.getKullaniciId())
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    grupListesi.clear();
-                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                        String grupId = doc.getId();
-                        String grupAdi = doc.getString("grupAdi");
-                        ArrayList<String> uyeler = (ArrayList<String>) doc.get("uyeler");
-                        String olusturan = doc.getString("olusturan");
-                        Timestamp tarih = doc.getTimestamp("olusturmaTarihi");
 
-                        Grup grup = new Grup(grupId, grupAdi, uyeler, olusturan, tarih);
-                        grupListesi.add(grup);
-                    }
-                    GrupSecimiDialogu(grupListesi);
-
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("GrupCek", "Gruplar alınamadı: " + e.getMessage());
-                });
-    }
-    public void GrupSecimiDialogu(ArrayList<Grup>gruplar){
-        Dialog dialog = new Dialog(this);
-        dialog.setContentView(R.layout.borc_istegrupsec);
-
-        RecyclerView recycler = dialog.findViewById(R.id.recyclerGrup);
-        Button btnDevamEt = dialog.findViewById(R.id.btnDevamEtgrup);
-        recycler.setLayoutManager(new LinearLayoutManager(this));
-
-        GrupAdapter adapter = new GrupAdapter(gruplar,this);
-        recycler.setAdapter(adapter);
-
-        btnDevamEt.setOnClickListener(v -> {
-            Grup secilen = adapter.getSecilenGrup();
-            if (secilen == null) {
-                Toast.makeText(this, "Lütfen bir grup seçin", Toast.LENGTH_SHORT).show();
-            } else {
-                dialog.dismiss(); // eski dialogu kapat
-                Dialog detayDialog = new Dialog(this);
-                detayDialog.setContentView(R.layout.borc_detay);
-
-                EditText edtMiktar = detayDialog.findViewById(R.id.edtMiktar);
-                EditText edtAciklama = detayDialog.findViewById(R.id.edtAciklama);
-                EditText edtTarih = detayDialog.findViewById(R.id.edtTarih);
-                EditText edtiban=detayDialog.findViewById(R.id.ibanEditt);
-                Button btnGonder = detayDialog.findViewById(R.id.btnGonder);
-
-                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-                Calendar calendar = Calendar.getInstance();
-                edtTarih.setInputType(InputType.TYPE_NULL);
-                edtTarih.setFocusable(false);
-
-                edtTarih.setOnClickListener(b -> {
-                    int yil = calendar.get(Calendar.YEAR);
-                    int ay = calendar.get(Calendar.MONTH);
-                    int gun = calendar.get(Calendar.DAY_OF_MONTH);
-
-                    DatePickerDialog datePickerDialog = new DatePickerDialog(
-                            this,
-                            (view, year, month, dayOfMonth) -> {
-                                String secilenTarih = String.format(Locale.getDefault(), "%02d/%02d/%04d",
-                                        dayOfMonth, month + 1, year);
-
-                                try {
-                                    Date girilenTarih = sdf.parse(secilenTarih);
-                                    Date bugun = sdf.parse(sdf.format(new Date()));
-
-                                    if (girilenTarih.before(bugun)) {
-                                        Toast.makeText(this, "Geçmiş bir tarih seçemezsiniz!", Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        edtTarih.setText(secilenTarih);
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            },
-                            yil, ay, gun
-                    );
-
-                    datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
-                    datePickerDialog.show();
-                });
-
-                btnGonder.setOnClickListener(v2 -> {
-                    String miktar = edtMiktar.getText().toString().trim();
-                    String aciklama = edtAciklama.getText().toString().trim();
-                    String tarih = edtTarih.getText().toString().trim();
-                    String iban=edtiban.getText().toString().trim();
-
-                    if (miktar.isEmpty()) {
-                        Toast.makeText(this, "Miktar boş olamaz", Toast.LENGTH_SHORT).show();
-                        return;
-                    }else if(tarih.isEmpty()){
-                        Toast.makeText(this, "Tarih boş olamaz", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    try {
-                        Date girilenTarih = sdf.parse(tarih);
-                        Timestamp timestamp = new Timestamp(girilenTarih);
-                        sohbetOlusturDbGrup(secilen.getGrupId(),secilen.getGrupAdi(), System.currentTimeMillis(), null,String.format("%s TL borç isteği",miktar), sohbetId -> {
-                                        BorcIstekleriDb(
-                                                MainActivity.kullanicistatic.getKullaniciId(),
-                                                secilen.getGrupId(),
-                                                miktar,
-                                                aciklama,
-                                                timestamp,
-                                                MainActivity.kullanicistatic.getKullaniciAdi(),
-                                                sohbetId,
-                                                System.currentTimeMillis(),
-                                                iban,
-                                                () -> {
-                                                    Bundle bundle = new Bundle();
-                                                    bundle.putString("kaynak", "mainactivity");
-                                                    bundle.putString("istekatilanAdi", secilen.getGrupAdi());
-                                                    bundle.putString("pp",null);
-                                                    bundle.putString("miktar", miktar);
-                                                    bundle.putString("aciklama", aciklama);
-                                                    bundle.putString("odemeTarihi", tarih);
-                                                    bundle.putString("sohbetId", sohbetId);
-                                                    bundle.putString("iban",iban);
-
-                                                    MesajGrupFragment fragment = new MesajGrupFragment();
-                                                    fragment.setArguments(bundle);
-                                                    getSupportFragmentManager()
-                                                            .beginTransaction()
-                                                            .replace(R.id.konteynir, fragment)
-                                                            .addToBackStack(null)
-                                                            .commit();
-                                                    detayDialog.dismiss();
-                                                }
-                                        );
-                                    }
-                            );
-                        } catch (ParseException e) {
-                            throw new RuntimeException(e);
-                        }
-
-                });
-                detayDialog.show();
-            }
-        });
-        dialog.show();
-        dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-
-    }
     private void ProfilSayfasinaGec(){
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.konteynir, new ProfilFragment())
